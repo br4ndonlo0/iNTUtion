@@ -75,7 +75,7 @@ export function TranslationProvider({ children }: { children: React.ReactNode })
     try {
       const langCode = LANGUAGE_CODES[targetLang] || targetLang;
       const response = await fetch(
-        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${langCode}`
+        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${langCode}&de=yixuanchay@gmail.com`
       );
       
       const data = await response.json();
