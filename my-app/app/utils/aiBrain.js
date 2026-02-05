@@ -13,7 +13,7 @@ export async function getAiAction(transcript, gesture, screenName) {
   // We explicitly ask for JSON so we can use the data in code.
   const prompt = `
     SYSTEM CONTEXT:
-    You are "SilverTeller", an assistive banking interface for elderly users in Singapore.
+    You are "BankBuddy", an assistive banking interface for elderly users in Singapore.
     Current Screen: "${screenName}"
     
     USER INPUTS:

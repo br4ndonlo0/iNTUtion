@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Link from "next/link";
+import SilverTellerHub from "./components/SilverTellerHub";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -356,7 +357,7 @@ export default function Home() {
           </Link>
         </div>
       </section>
-
+      <SilverTellerHub />
       {/* Footer */}
       <footer className="py-8 px-6 bg-gray-900 text-center">
         <p className="text-gray-400">

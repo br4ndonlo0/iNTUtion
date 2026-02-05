@@ -168,8 +168,8 @@ export default function SilverTellerHub({ screenName = "Home" }) {
       )}
 
       {/* 4. CAMERA FEED */}
-      <div className="fixed top-4 right-4 w-48 h-36 border-2 border-gray-700 bg-black rounded-xl overflow-hidden shadow-2xl z-40 pointer-events-auto">
-        {isCameraOn && (
+      {isCameraOn && (
+        <div className="fixed top-4 right-4 w-48 h-36 border-2 border-gray-700 bg-black rounded-xl overflow-hidden shadow-2xl z-40 pointer-events-auto">
           <video
             ref={videoRef}
             autoPlay
@@ -177,8 +177,8 @@ export default function SilverTellerHub({ screenName = "Home" }) {
             muted
             className="w-full h-full object-cover scale-x-[-1]"
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* 5. CONTROLS (Added z-50 to ensure they are clickable) */}
       <div className="fixed top-4 left-4 pointer-events-auto flex flex-col gap-2 z-50">
