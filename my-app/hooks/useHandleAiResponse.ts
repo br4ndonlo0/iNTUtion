@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useVoice } from '@/context/VoiceContext';
 
 interface AiAction {
-  action: 'NAVIGATE' | 'FILL_FORM' | 'CONFIRM' | 'REJECT' | 'UNKNOWN';
+  action: 'NAVIGATE' | '导航' | 'mengemudi' | 'FILL_FORM' | 'CONFIRM' | 'REJECT' | 'UNKNOWN' | 'isi_borang' | '填表' | 'setuju' | '确认' | 'tolak' | '拒绝';
   target?: string;
   amount?: number;
   recipient?: string;
@@ -23,6 +23,8 @@ export function useHandleAiResponse() {
     try {
       switch (action.action) {
         case 'NAVIGATE':
+        case '导航':
+        case 'mengemudi':
           if (action.target) {
             console.log(`[AI RESPONSE] 🔀 NAVIGATE → /${action.target}`);
             router.push(`/${action.target}`);
@@ -30,6 +32,8 @@ export function useHandleAiResponse() {
             console.log('[AI RESPONSE] ⚠️  NAVIGATE missing target');
           }
           break;
+        case '填表':
+        case 'isi_borang':
 
         case 'FILL_FORM':
           console.log('[AI RESPONSE] 📝 FILL_FORM detected');
@@ -48,12 +52,16 @@ export function useHandleAiResponse() {
             console.log('[AI RESPONSE] ⚠️  FILL_FORM missing required fields (amount + recipient OR field + value)');
           }
           break;
+        case '确认':
+        case 'setuju':
 
         case 'CONFIRM':
           console.log('[AI RESPONSE] ✅ CONFIRM - User confirmed action');
           // Call confirm command in VoiceContext
           processVoiceCommand('confirm');
           break;
+        case '拒绝':
+        case 'tolak':
 
         case 'REJECT':
           console.log('[AI RESPONSE] ❌ REJECT - User rejected action');
