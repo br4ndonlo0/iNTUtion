@@ -3,6 +3,21 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* AI-controlled accessibility variables */
+  --bg: #ffffff;
+  --text: #000000;
+  --primary: #3b82f6;
+  --secondary: #6b7280;
+  --border: #e5e7eb;
+  --base-font-size: 16px;
+  --heading-scale: 1.5;
+  --line-height: 1.6;
+  --letter-spacing: 0em;
+  --font-family: system-ui, sans-serif;
+  --button-padding: 12px;
+  --button-min-height: 40px;
+  --spacing-scale: 1;
 }
 
 @theme inline {
@@ -20,7 +35,157 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-family);
+  font-size: var(--base-font-size);
+  line-height: var(--line-height);
+  letter-spacing: var(--letter-spacing);
 }
+
+/* Accessibility wrapper applies mode-specific styles */
+.accessibility-wrapper {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ===== MODE-SPECIFIC STYLES ===== */
+
+/* High Contrast Mode */
+.accessibility-wrapper.high_contrast {
+  --bg: #000000;
+  --text: #FFFF00;
+  --primary: #00FF00;
+  --secondary: #FFFFFF;
+  --border: #FFFFFF;
+}
+
+.accessibility-wrapper.high_contrast * {
+  border-color: var(--border) !important;
+  font-weight: 600;
+}
+
+.accessibility-wrapper.high_contrast button,
+.accessibility-wrapper.high_contrast a {
+  border: 3px solid var(--primary) !important;
+}
+
+/* Text Only Mode */
+.accessibility-wrapper.text_only img,
+.accessibility-wrapper.text_only video,
+.accessibility-wrapper.text_only .decorative {
+  display: none !important;
+}
+
+.accessibility-wrapper.text_only {
+  --bg: #ffffff;
+  --text: #000000;
+  --primary: #0000EE;
+}
+
+.accessibility-wrapper.text_only * {
+  background-image: none !important;
+  background-color: transparent !important;
+}
+
+/* Dyslexia Friendly Mode */
+.accessibility-wrapper.dyslexia_friendly {
+  --font-family: 'Comic Sans MS', 'OpenDyslexic', cursive;
+  --letter-spacing: 0.12em;
+  --line-height: 1.8;
+  --bg: #FFF8DC;
+  --text: #000000;
+}
+
+.accessibility-wrapper.dyslexia_friendly * {
+  font-family: var(--font-family) !important;
+}
+
+/* Motor Impaired Mode - Bigger targets */
+.accessibility-wrapper.motor_impaired button,
+.accessibility-wrapper.motor_impaired a,
+.accessibility-wrapper.motor_impaired input {
+  min-height: 60px !important;
+  padding: 20px !important;
+  font-size: 1.2em !important;
+  margin: 8px !important;
+}
+
+/* ===== LAYOUT ADJUSTMENTS ===== */
+
+/* Hide images when needed */
+.hide-images img {
+  display: none !important;
+}
+
+/* Hide decorative elements */
+.hide-decorative .decorative,
+.hide-decorative aside,
+.hide-decorative .banner,
+.hide-decorative .advertisement {
+  display: none !important;
+}
+
+/* Highlighted action - glow effect */
+.highlighted-action {
+  animation: glow 1.5s ease-in-out infinite;
+  border: 4px solid var(--primary) !important;
+  box-shadow: 0 0 20px var(--primary);
+  position: relative;
+  z-index: 100;
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--primary);
+  }
+  50% {
+    box-shadow: 0 0 40px var(--primary), 0 0 60px var(--primary);
+  }
+}
+
+/* ===== UTILITY CLASSES ===== */
+
+.adaptive-button {
+  padding: var(--button-padding);
+  min-height: var(--button-min-height);
+  background: var(--primary);
+  color: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  font-size: var(--base-font-size);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.adaptive-button:hover {
+  opacity: 0.8;
+  transform: scale(1.02);
+}
+
+.adaptive-card {
+  background: var(--bg);
+  border: 2px solid var(--border);
+  padding: calc(var(--spacing-scale) * 20px);
+  margin: calc(var(--spacing-scale) * 16px);
+  border-radius: 12px;
+}
+
+h1, h2, h3 {
+  color: var(--text);
+  line-height: var(--line-height);
+}
+
+h1 {
+  font-size: calc(var(--base-font-size) * var(--heading-scale) * 2);
+}
+
+h2 {
+  font-size: calc(var(--base-font-size) * var(--heading-scale) * 1.5);
+}
+
+h3 {
+  font-size: calc(var(--base-font-size) * var(--heading-scale));
+}
+
