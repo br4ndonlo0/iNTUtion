@@ -87,7 +87,7 @@ export default function TransferToIdPage() {
             <label className="text-sm text-slate-700">Amount</label>
             <input
               inputMode="decimal"
-              className="w-full rounded-lg border border-slate-200 bg-white py-3 px-3 outline-none focus:ring-2 focus:ring-blue-200 placeholder:text-slate-500"
+              className="w-full rounded-lg border border-slate-200 bg-white py-3 px-3 text-slate-900 outline-none focus:ring-2 focus:ring-blue-200 placeholder:text-slate-500"
               placeholder="e.g. 50 or 25.90"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
@@ -162,8 +162,3 @@ export default function TransferToIdPage() {
     </div>
   );
 }
-<style jsx>{`
-    input::placeholder {
-        color: #9ca3af; /* Tailwind's slate-500 */
-    }
-`}</style>
