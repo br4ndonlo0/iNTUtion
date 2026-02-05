@@ -1,24 +1,62 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 
-const recipients = [
-  { id: "john-1234", name: "John Tan", detail: "Phone: 9123 1234" },
-  { id: "maya-7788", name: "Maya Lim", detail: "Account: 7788 9900" },
-  { id: "ben-5566", name: "Ben Lee", detail: "Phone: 9988 5566" },
-];
-
-export default function TransferPage() {
+export default function TransferToIdPage() {
   const router = useRouter();
-  const [query, setQuery] = useState("");
+  const params = useParams<{ id: string }>();
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
+  const recipientId = useMemo(() => {
+    const raw = params?.id ?? "";
+    return decodeURIComponent(Array.isArray(raw) ? raw[0] : raw);
+  }, [params]);
 
-    router.push(`/transfer/${encodeURIComponent(query.trim())}`);
+  const [amount, setAmount] = useState("");
+  const [transferReady, setTransferReady] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const parsedAmount = useMemo(() => {
+    // allow "12", "12.34"
+    const n = Number(amount);
+    return Number.isFinite(n) ? n : NaN;
+  }, [amount]);
+
+  const handleTransfer = () => {
+    setError(null);
+    setConfirmed(false);
+
+    if (!amount.trim()) {
+      setTransferReady(false);
+      setError("Please enter an amount.");
+      return;
+    }
+
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      setTransferReady(false);
+      setError("Amount must be a valid number greater than 0.");
+      return;
+    }
+
+    // demo: mark as ready to confirm
+    setTransferReady(true);
+  };
+
+  const handleConfirm = () => {
+    setError(null);
+
+    if (!transferReady) {
+      setError("Please press Transfer first.");
+      return;
+    }
+
+    // demo: confirm the transaction
+    setConfirmed(true);
+
+    // optional: after 1 second, go back to dashboard
+    // setTimeout(() => router.push("/dashboard"), 1000);
   };
 
   return (
@@ -32,75 +70,100 @@ export default function TransferPage() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
-        {/* Intro */}
+        {/* Recipient */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <h2 className="text-lg font-semibold text-slate-900 mb-1">
-            Transfer Money
+            Transfer to Recipient
           </h2>
           <p className="text-sm text-slate-700">
-            Search a phone number / account number, or select a recipient below.
+            Recipient ID:{" "}
+            <span className="font-medium text-slate-900">{recipientId}</span>
           </p>
         </div>
 
-        {/* Search */}
-        <form
-          onSubmit={handleSearch}
-          className="bg-white rounded-xl shadow-md p-6 space-y-3"
-        >
-          <label className="text-sm text-slate-700">
-            Recipient phone / account number
-          </label>
-
-          <div className="flex gap-3">
+        {/* Amount + actions */}
+        <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm text-slate-700">Amount</label>
             <input
-              className="flex-1 rounded-lg border border-slate-200 bg-white py-3 px-3 text-black outline-none focus:ring-2 focus:ring-blue-200 placeholder:text-slate-400"
-              placeholder="e.g. 91231234 or 77889900"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              inputMode="decimal"
+              className="w-full rounded-lg border border-slate-200 bg-white py-3 px-3 outline-none focus:ring-2 focus:ring-blue-200 placeholder:text-slate-500"
+              placeholder="e.g. 50 or 25.90"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
             />
+            <p className="text-xs text-slate-600">
+              Tip: your voice “Transfer” command can set focus here and the next
+              input can be the amount.
+            </p>
+          </div>
+
+          {/* Status */}
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
+          {transferReady && !confirmed && (
+            <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+              Transfer prepared. Say/press <b>Confirm</b> to complete.
+            </div>
+          )}
+
+          {confirmed && (
+            <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+              ✅ Transfer confirmed! (Demo)
+            </div>
+          )}
+
+          {/* Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3">
             <button
-              type="submit"
-              className="px-4 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+              type="button"
+              onClick={handleTransfer}
+              className="flex-1 px-4 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
             >
-              Search
+              Transfer
+            </button>
+
+            <button
+              type="button"
+              onClick={handleConfirm}
+              className={`flex-1 px-4 py-3 rounded-lg transition ${
+                transferReady
+                  ? "bg-slate-900 text-white hover:bg-slate-800"
+                  : "bg-slate-200 text-slate-500 cursor-not-allowed"
+              }`}
+              disabled={!transferReady}
+            >
+              Confirm
             </button>
           </div>
+        </div>
 
-          <p className="text-xs text-slate-600">
-            “Search” voice command can fill this field, then route to
-            /transfer/[id].
-          </p>
-        </form>
+        {/* Navigation */}
+        <div className="flex gap-3">
+          <Link
+            href="/transfer"
+            className="px-4 py-2 rounded-lg bg-white border border-slate-300 text-slate-800 hover:bg-slate-50 transition"
+          >
+            Back to Transfer
+          </Link>
 
-        {/* Recipients */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-slate-900">Saved Recipients</h3>
-            <Link
-              href="/dashboard"
-              className="text-sm text-blue-600 hover:underline"
-            >
-              Back to Dashboard
-            </Link>
-          </div>
-
-          <div className="divide-y divide-slate-200">
-            {recipients.map((r) => (
-              <button
-                key={r.id}
-                onClick={() => router.push(`/transfer/${r.id}`)}
-                className="w-full text-left py-4 flex items-center justify-between hover:bg-slate-50 px-2 rounded-lg transition"
-              >
-                <div>
-                  <p className="font-medium text-slate-900">{r.name}</p>
-                  <p className="text-sm text-slate-600">{r.detail}</p>
-                </div>
-                <span className="text-sm text-slate-500">Select →</span>
-              </button>
-            ))}
-          </div>
+          <Link
+            href="/dashboard"
+            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+          >
+            Back to Dashboard
+          </Link>
         </div>
       </main>
     </div>
   );
 }
+<style jsx>{`
+    input::placeholder {
+        color: #9ca3af; /* Tailwind's slate-500 */
+    }
+`}</style>
