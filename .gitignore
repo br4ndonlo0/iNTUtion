@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.env.local
+.env
+
+# Next.js
+.next/
+
+# Misc
+.DS_Store
