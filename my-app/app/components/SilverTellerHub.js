@@ -9,6 +9,7 @@ import { useHandleAiResponse } from "../../hooks/useHandleAiResponse";
 export default function SilverTellerHub({ screenName = "Home" }) {
   const [currentLang, setCurrentLang] = useState(SG_LANGUAGES.ENGLISH);
   const [lastAction, setLastAction] = useState("Waiting for input...");
+  const [isZoomed, setIsZoomed] = useState(false);
   const cooldownRef = useRef(false);
   const holdTimerRef = useRef(null);
 
@@ -17,7 +18,7 @@ export default function SilverTellerHub({ screenName = "Home" }) {
     useHandTracking();
   const { transcript, isListening, toggleListening } =
     useVoiceInput(currentLang);
-  
+
   // Use the actual handleAiResponse from the hook
   const handleAiResponse = useHandleAiResponse();
 
@@ -60,6 +61,20 @@ export default function SilverTellerHub({ screenName = "Home" }) {
     return () => clearTimeout(holdTimerRef.current);
   }, [gestureOutput]);
 
+  const toggleZoom = () => {
+    const newZoomState = !isZoomed;
+    setIsZoomed(newZoomState);
+
+    if (newZoomState) {
+      setLastAction("🔍 ZOOM IN (150%)");
+      // This is the standard way to zoom the whole page
+      document.body.style.zoom = "150%";
+    } else {
+      setLastAction("🔍 ZOOM RESET");
+      document.body.style.zoom = "100%";
+    }
+  };
+
   // --- HELPER: READ SCREEN ---
   const readPageContent = () => {
     window.speechSynthesis.cancel();
@@ -93,6 +108,9 @@ export default function SilverTellerHub({ screenName = "Home" }) {
         setLastAction(`✋ STOPPING...`);
         window.speechSynthesis.cancel();
         break;
+      case "Pinch":
+        toggleZoom();
+        break;
     }
   };
 
@@ -100,7 +118,10 @@ export default function SilverTellerHub({ screenName = "Home" }) {
   return (
     <div className="fixed inset-0 pointer-events-none z-[9999]">
       {/* 1. STATUS BAR */}
-      <div className="fixed bottom-4 left-4 z-50 pointer-events-auto">
+      <div
+        className="fixed bottom-4 left-4 z-50 pointer-events-auto"
+        style={{ zoom: "normal" }}
+      >
         <div className="bg-white/90 backdrop-blur border-l-4 border-blue-600 shadow-xl p-4 rounded-r-lg max-w-xs">
           <h3 className="text-xs font-bold text-gray-500 uppercase">
             System Status
