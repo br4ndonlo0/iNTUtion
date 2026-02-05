@@ -269,7 +269,7 @@ export default function Home() {
       </section>
 
       {/* SilverTellerHub - Mic and Camera */}
-      <SilverTellerHub />
+      <SilverTellerHub  screenName="Home"/>
 
       {/* Footer */}
       <footer className="py-8 px-6 bg-white text-center border-t-2 border-[#C8102E]">

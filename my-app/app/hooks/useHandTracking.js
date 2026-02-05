@@ -83,14 +83,43 @@ export const useHandTracking = () => {
             Date.now(),
           );
 
-          if (results.gestures.length > 0) {
+          let customGesture = null;
+
+          if (results.landmarks && results.landmarks.length > 0) {
+            const landmarks = results.landmarks[0]; // Get the first hand
+
+            // Point 4 = Thumb Tip, Point 8 = Index Tip
+            const thumbTip = landmarks[4];
+            const indexTip = landmarks[8];
+            const distanceX = thumbTip.x - indexTip.x;
+            const distanceY = thumbTip.y - indexTip.y;
+            const distance = Math.sqrt(
+              distanceX * distanceX + distanceY * distanceY,
+            );
+
+            // Threshold: 0.05 is usually "touching"
+            if (distance < 0.05) {
+              customGesture = "Pinch";
+            }
+          }
+          if (customGesture) {
+            // Priority: If Pinch is detected, override everything else
+            if (gestureOutput !== "Pinch") {
+              console.log("✅ DETECTED: Pinch (Custom)");
+              setGestureOutput("Pinch");
+            }
+          } else if (results.gestures.length > 0) {
             const name = results.gestures[0][0].categoryName;
             const score = results.gestures[0][0].score;
 
             // --- NEW DEBUG LOG ---
             if (score > 0.6) {
-              console.log(`✅ DETECTED: ${name} (${Math.round(score * 100)}%)`);
-              setGestureOutput(name);
+              if (gestureOutput !== name) {
+                console.log(
+                  `✅ DETECTED: ${name} (${Math.round(score * 100)}%)`,
+                );
+                setGestureOutput(name);
+              }
             }
             // ---------------------
           } else {

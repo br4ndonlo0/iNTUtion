@@ -9,6 +9,7 @@ import { useHandleAiResponse } from "../../hooks/useHandleAiResponse";
 export default function SilverTellerHub({ screenName = "Home" }) {
   const [currentLang, setCurrentLang] = useState(SG_LANGUAGES.ENGLISH);
   const [lastAction, setLastAction] = useState("Waiting for input...");
+  const [isZoomed, setIsZoomed] = useState(false);
   const cooldownRef = useRef(false);
   const holdTimerRef = useRef(null);
 
@@ -17,7 +18,7 @@ export default function SilverTellerHub({ screenName = "Home" }) {
     useHandTracking();
   const { transcript, isListening, toggleListening } =
     useVoiceInput(currentLang);
-  
+
   // Use the actual handleAiResponse from the hook
   const handleAiResponse = useHandleAiResponse();
 
@@ -60,6 +61,20 @@ export default function SilverTellerHub({ screenName = "Home" }) {
     return () => clearTimeout(holdTimerRef.current);
   }, [gestureOutput]);
 
+  const toggleZoom = () => {
+    const newZoomState = !isZoomed;
+    setIsZoomed(newZoomState);
+
+    if (newZoomState) {
+      setLastAction("🔍 ZOOM IN (150%)");
+      // This is the standard way to zoom the whole page
+      document.body.style.zoom = "150%";
+    } else {
+      setLastAction("🔍 ZOOM RESET");
+      document.body.style.zoom = "100%";
+    }
+  };
+
   // --- HELPER: READ SCREEN ---
   const readPageContent = () => {
     window.speechSynthesis.cancel();
@@ -93,14 +108,70 @@ export default function SilverTellerHub({ screenName = "Home" }) {
         setLastAction(`✋ STOPPING...`);
         window.speechSynthesis.cancel();
         break;
+      case "Pinch":
+        toggleZoom();
+        break;
     }
+  };
+
+  const handleAiResponse = async (response) => {
+    // You can add router navigation here later!
+    if (response.action === "NAVIGATE")
+      setLastAction(`🚀 GO TO ${response.target}`);
+    else if (response.action === "FILL_FORM") {
+      setLastAction(`🔍 Searching for "${response.recipient}"...`);
+
+      // 1. Get current User ID (Assuming you store it in localStorage or Context after login)
+      // For testing, you can hardcode the ID you used in Step 3
+      const currentUserId = "YOUR_USER_ID_HERE"; //TODO: Replace this with actual user ID retrieval
+
+      try {
+        const res = await fetch("/api/resolve-contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            spokenName: response.recipient,
+            userId: currentUserId,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (data.found) {
+          // 🎉 SUCCESS: AI matched nickname to real bank account
+          setLastAction(
+            `✅ Found: ${data.data.name} (${data.data.relationship})`,
+          );
+
+          // Speak the confirmation to the user
+          const msg = new SpeechSynthesisUtterance(
+            `I found your ${data.data.relationship}, ${data.data.name}. Sending ${response.amount} dollars. Please confirm.`,
+          );
+          window.speechSynthesis.speak(msg);
+        } else {
+          // ❌ FAILURE
+          setLastAction(`❌ Unknown: "${response.recipient}"`);
+          const msg = new SpeechSynthesisUtterance(
+            `I couldn't find a contact named ${response.recipient}.`,
+          );
+          window.speechSynthesis.speak(msg);
+        }
+      } catch (err) {
+        console.error("API Error", err);
+      }
+    } else if (response.action === "CONFIRM") setLastAction(`✅ CONFIRMED`);
+    else if (response.action === "REJECT") setLastAction(`❌ REJECTED`);
+    else setLastAction(`🤔 UNKNOWN`);
   };
 
   // --- UI RENDER (The Overlay) ---
   return (
     <div className="fixed inset-0 pointer-events-none z-[9999]">
       {/* 1. STATUS BAR */}
-      <div className="fixed bottom-4 left-4 z-50 pointer-events-auto">
+      <div
+        className="fixed bottom-4 left-4 z-50 pointer-events-auto"
+        style={{ zoom: "normal" }}
+      >
         <div className="bg-white/90 backdrop-blur border-l-4 border-blue-600 shadow-xl p-4 rounded-r-lg max-w-xs">
           <h3 className="text-xs font-bold text-gray-500 uppercase">
             System Status
