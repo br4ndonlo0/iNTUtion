@@ -1,17 +1,73 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useHandTracking } from "../hooks/useHandTracking";
 import { useVoiceInput, SG_LANGUAGES } from "../hooks/useVoiceInput";
 
 export default function SensesTest() {
   const [currentLang, setCurrentLang] = useState(SG_LANGUAGES.ENGLISH);
 
-  const { videoRef, isReady, isCameraOn, toggleCamera } = useHandTracking();
-
+  const { videoRef, isReady, isCameraOn, toggleCamera, gestureOutput } =
+    useHandTracking();
   // 4. Pass the currentLang to the hook so it actually updates!
   const { transcript, isListening, toggleListening } =
     useVoiceInput(currentLang);
+  const [lastAction, setLastAction] = useState("Waiting...");
 
+  const cooldownRef = useRef(false);
+  const holdTimerRef = useRef(null);
+
+  useEffect(() => {
+    // 1. If in cooldown or no gesture, reset timer and do nothing
+    if (cooldownRef.current || !gestureOutput || gestureOutput === "None") {
+      clearTimeout(holdTimerRef.current);
+      return;
+    }
+
+    // 2. Start the "Hold to Confirm" timer
+    holdTimerRef.current = setTimeout(() => {
+      // --- TRIGGER ACTION HERE ---
+      performAction(gestureOutput);
+
+      // 3. Activate Cooldown (Block new actions for 1.5 seconds)
+      cooldownRef.current = true;
+      setTimeout(() => {
+        cooldownRef.current = false;
+        setLastAction("Ready"); // Visual feedback
+      }, 1500);
+    }, 500); // User must hold gesture for 500ms
+
+    // Cleanup: If user changes gesture before 500ms, cancel the timer!
+    return () => clearTimeout(holdTimerRef.current);
+  }, [gestureOutput]); // Re-run whenever gesture changes
+
+  // --- THE FUNCTION MAPPER ---
+  const performAction = (gesture) => {
+    const time = new Date().toLocaleTimeString();
+
+    switch (gesture) {
+      case "Thumb_Up":
+        setLastAction(`👍 CONFIRM (${time})`);
+        // Example: router.push('/dashboard');
+        break;
+
+      case "Thumb_Down":
+        setLastAction(`👎 BACK / CANCEL (${time})`);
+        // Example: router.back();
+        break;
+
+      case "Open_Palm":
+        setLastAction(`✋ PAUSE / HOME (${time})`);
+        break;
+
+      case "Closed_Fist":
+        setLastAction(`✊ SCROLL DOWN (${time})`);
+        window.scrollBy({ top: 300, behavior: "smooth" });
+        break;
+
+      default:
+        console.log("Unknown gesture:", gesture);
+    }
+  };
   return (
     <div className="fixed inset-0 pointer-events-none z-50">
       {/* Language Switcher */}
@@ -37,11 +93,6 @@ export default function SensesTest() {
         </button>
       </div>
       {/* 1. VIRTUAL CURSOR (Red Dot) */}
-      <div
-        id="virtual-cursor"
-        className="fixed top-0 left-0 w-6 h-6 rounded-full bg-red-500 border-2 border-white shadow-lg transition-colors duration-100 z-50"
-        style={{ transform: "translate(-100px, -100px)" }}
-      />
       {isCameraOn && (
         <div
           id="virtual-cursor"
