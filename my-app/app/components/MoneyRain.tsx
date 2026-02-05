@@ -11,7 +11,7 @@ type Drop = {
 };
 
 export default function MoneyRain({
-  count = 28,
+  count = 10,
   emoji = "💸",
 }: {
   count?: number;
@@ -21,9 +21,9 @@ export default function MoneyRain({
     return Array.from({ length: count }).map(() => {
       const left = `${Math.random() * 100}%`;
       const delay = `${Math.random() * 4}s`;
-      const duration = `${5 + Math.random() * 6}s`; // 5–11s
-      const size = `${14 + Math.random() * 18}px`; // 14–32px
-      const opacity = `${0.25 + Math.random() * 0.35}`; // 0.25–0.60
+      const duration = `${8 + Math.random() * 7}s`; // 8–15s
+      const size = `${18 + Math.random() * 20}px`; // 18–38px
+      const opacity = `${0.4 + Math.random() * 0.35}`; // 0.4–0.75
       return { left, delay, duration, size, opacity };
     });
   }, [count]);
