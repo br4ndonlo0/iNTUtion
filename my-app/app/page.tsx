@@ -357,7 +357,7 @@ export default function Home() {
           </Link>
         </div>
       </section>
-      <SilverTellerHub />
+      <SilverTellerHub  screenName="Home"/>
       {/* Footer */}
       <footer className="py-8 px-6 bg-gray-900 text-center">
         <p className="text-gray-400">
