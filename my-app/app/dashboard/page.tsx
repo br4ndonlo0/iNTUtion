@@ -1,114 +1,323 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-export default function Home() {
-  const [balance] = useState(12458.32);
-  const transactions = [
-    { id: 1, name: 'Grocery Store', amount: -85.20, date: 'Feb 5, 2026', type: 'debit' },
-    { id: 2, name: 'Salary Deposit', amount: 3200.00, date: 'Feb 1, 2026', type: 'credit' },
-    { id: 3, name: 'Netflix', amount: -15.99, date: 'Jan 30, 2026', type: 'debit' },
-    { id: 4, name: 'Electric Bill', amount: -124.50, date: 'Jan 28, 2026', type: 'debit' },
-    { id: 5, name: 'Transfer from John', amount: 250.00, date: 'Jan 25, 2026', type: 'credit' },
+export default function Dashboard() {
+  const router = useRouter();
+  const [userName, setUserName] = useState('');
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      const name = user.name || user.username || user.email || 'User';
+      setUserName(name);
+    }
+  }, []);
+
+  const userInitial = (userName || 'U').charAt(0).toUpperCase();
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    window.location.href = 'http://localhost:3000';
+  };
+
+  const spendingCategories = [
+    { name: 'Food & Dining', amount: 850, maxAmount: 1000, color: '#C8102E' },
+    { name: 'Shopping', amount: 620, maxAmount: 1000, color: '#C8102E' },
+    { name: 'Transport', amount: 340, maxAmount: 1000, color: '#C8102E' },
+    { name: 'Utilities', amount: 280, maxAmount: 1000, color: '#C8102E' },
+    { name: 'Entertainment', amount: 190, maxAmount: 1000, color: '#C8102E' },
+    { name: 'Healthcare', amount: 150, maxAmount: 1000, color: '#C8102E' },
   ];
 
+  const weeklyData = [
+    { day: 'Mon', current: 1200, previous: 800 },
+    { day: 'Tue', current: 1800, previous: 1200 },
+    { day: 'Wed', current: 2400, previous: 2100 },
+    { day: 'Thu', current: 5200, previous: 3800 },
+    { day: 'Fri', current: 4100, previous: 4500 },
+    { day: 'Sat', current: 3200, previous: 3000 },
+    { day: 'Sun', current: 2800, previous: 2400 },
+  ];
+
+  const monthlySpending = [
+    { category: 'Groceries', amount: 450 },
+    { category: 'Dining', amount: 380 },
+    { category: 'Shopping', amount: 520 },
+    { category: 'Transport', amount: 280 },
+    { category: 'Bills', amount: 620 },
+    { category: 'Other', amount: 180 },
+  ];
+
+  const paymentTypes = [
+    { type: 'Debit Card', percentage: 38.6, color: '#C8102E' },
+    { type: 'Credit Card', percentage: 30.8, color: '#333' },
+    { type: 'Bank Transfer', percentage: 22.5, color: '#666' },
+    { type: 'Cash', percentage: 8.1, color: '#999' },
+  ];
+
+  const maxSpending = Math.max(...monthlySpending.map(s => s.amount));
+
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-900">
-      {/* Header */}
-      <header className="bg-[#C8102E] text-white shadow-lg">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">🏦 Bank Buddy</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm">Welcome, Alex</span>
-            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center font-bold">
-              A
+    <div className="min-h-screen bg-gray-50">
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto p-6 lg:p-8">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="text-xl font-bold text-[#C8102E]">Bank Buddy</Link>
+            <p className="text-sm text-gray-500">Today ▾</p>
+          </div>
+
+          <div className="relative">
+            <button
+              type="button"
+              className="flex items-center gap-3 bg-white border border-gray-200 rounded-full px-3 py-2"
+              onClick={() => setProfileOpen((open) => !open)}
+            >
+              <div className="w-9 h-9 rounded-full bg-[#C8102E] text-white flex items-center justify-center font-semibold">
+                {userInitial}
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-gray-900">{userName || 'User'}</p>
+                <p className="text-xs text-gray-500">Profile</p>
+              </div>
+              <span className="text-gray-500">▾</span>
+            </button>
+
+            {profileOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-xl shadow-sm z-20">
+                <Link
+                  href="/account"
+                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-t-xl"
+                  onClick={() => setProfileOpen(false)}
+                >
+                  View Profile
+                </Link>
+                <Link
+                  href="/settings"
+                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
+                  onClick={() => setProfileOpen(false)}
+                >
+                  Settings
+                </Link>
+                <button
+                  type="button"
+                  className="w-full text-left px-4 py-3 text-sm text-[#C8102E] hover:bg-gray-50 rounded-b-xl"
+                  onClick={handleLogout}
+                >
+                  Log out
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Stat Cards */}
+        <div className="grid grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-xl p-6 border border-gray-200">
+            <p className="text-sm text-gray-500 mb-2">Total Balance</p>
+            <p className="text-2xl font-bold text-gray-900">$12,458.32</p>
+            <p className="text-sm text-green-600 mt-2">+11.01% ↗</p>
+          </div>
+          <div className="bg-white rounded-xl p-6 border border-gray-200">
+            <p className="text-sm text-gray-500 mb-2">Monthly Income</p>
+            <p className="text-2xl font-bold text-gray-900">$5,640</p>
+            <p className="text-sm text-green-600 mt-2">+9.15% ↗</p>
+          </div>
+          <div className="bg-white rounded-xl p-6 border border-gray-200">
+            <p className="text-sm text-gray-500 mb-2">Monthly Expenses</p>
+            <p className="text-2xl font-bold text-gray-900">$2,430</p>
+            <p className="text-sm text-red-500 mt-2">-0.56% ↘</p>
+          </div>
+          <div className="bg-white rounded-xl p-6 border border-gray-200">
+            <p className="text-sm text-gray-500 mb-2">Transactions</p>
+            <p className="text-2xl font-bold text-gray-900">156</p>
+            <p className="text-sm text-red-500 mt-2">-1.48% ↘</p>
+          </div>
+        </div>
+
+        {/* Charts Row */}
+        <div className="grid grid-cols-4 gap-6 mb-8">
+          {/* Line Chart */}
+          <div className="col-span-3 bg-white rounded-xl p-6 border border-gray-200">
+            <div className="flex items-center gap-6 mb-6">
+              <h3 className="font-semibold text-gray-900">Weekly Transactions</h3>
+              <div className="flex items-center gap-4 text-sm">
+                <span className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-[#C8102E]"></span>
+                  This Week
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-gray-400"></span>
+                  Last Week
+                </span>
+              </div>
+            </div>
+            
+            {/* Chart Area */}
+            <div className="relative h-64">
+              <svg className="w-full h-full" viewBox="0 0 700 200" preserveAspectRatio="none">
+                {/* Grid lines */}
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <line
+                    key={i}
+                    x1="0"
+                    y1={i * 50}
+                    x2="700"
+                    y2={i * 50}
+                    stroke="#f0f0f0"
+                    strokeWidth="1"
+                  />
+                ))}
+                
+                {/* Previous week line (gray) */}
+                <polyline
+                  fill="none"
+                  stroke="#9ca3af"
+                  strokeWidth="2"
+                  points={weeklyData.map((d, i) => 
+                    `${i * 100 + 50},${200 - (d.previous / 60)}`
+                  ).join(' ')}
+                />
+                
+                {/* Current week line (red) */}
+                <polyline
+                  fill="none"
+                  stroke="#C8102E"
+                  strokeWidth="3"
+                  points={weeklyData.map((d, i) => 
+                    `${i * 100 + 50},${200 - (d.current / 60)}`
+                  ).join(' ')}
+                />
+                
+                {/* Data points for current week */}
+                {weeklyData.map((d, i) => (
+                  <circle
+                    key={i}
+                    cx={i * 100 + 50}
+                    cy={200 - (d.current / 60)}
+                    r="5"
+                    fill="#C8102E"
+                  />
+                ))}
+
+                {/* Tooltip for Thursday */}
+                <g transform="translate(350, 85)">
+                  <rect x="-50" y="-30" width="100" height="30" rx="5" fill="#333" />
+                  <text x="0" y="-10" textAnchor="middle" fill="white" fontSize="12">
+                    Thu: $5,256.59
+                  </text>
+                </g>
+              </svg>
+              
+              {/* X-axis labels */}
+              <div className="flex justify-between px-4 mt-2 text-sm text-gray-500">
+                {weeklyData.map((d, i) => (
+                  <span key={i}>{d.day}</span>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        {/* Balance Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6">
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Current Balance</p>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white">
-              ${balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-            </p>
-            <p className="text-xs text-green-600 mt-2">↑ 2.5% from last month</p>
-          </div>
-          
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6">
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Savings Account</p>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white">$8,540.00</p>
-            <p className="text-xs text-slate-500 mt-2">Goal: $10,000</p>
-            <div className="w-full bg-slate-200 rounded-full h-2 mt-2">
-              <div className="bg-green-500 h-2 rounded-full" style={{ width: '85%' }}></div>
-            </div>
-          </div>
-          
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6">
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Credit Card</p>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white">$1,234.56</p>
-            <p className="text-xs text-slate-500 mt-2">Limit: $5,000 • Due: Feb 15</p>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 mb-8">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button className="flex flex-col items-center gap-2 p-4 rounded-lg bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 transition">
-              <span className="text-2xl">💸</span>
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Send Money</span>
-            </button>
-            <button className="flex flex-col items-center gap-2 p-4 rounded-lg bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 transition">
-              <span className="text-2xl">📥</span>
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Request</span>
-            </button>
-            <button className="flex flex-col items-center gap-2 p-4 rounded-lg bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 transition">
-              <span className="text-2xl">💳</span>
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Pay Bills</span>
-            </button>
-            <button className="flex flex-col items-center gap-2 p-4 rounded-lg bg-orange-50 dark:bg-orange-900/30 hover:bg-orange-100 dark:hover:bg-orange-900/50 transition">
-              <span className="text-2xl">📊</span>
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Analytics</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Recent Transactions */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Recent Transactions</h2>
-            <button className="text-[#C8102E] dark:text-red-400 text-sm font-medium hover:underline">
-              View All
-            </button>
-          </div>
-          <div className="divide-y divide-slate-200 dark:divide-slate-700">
-            {transactions.map((tx) => (
-              <div key={tx.id} className="flex items-center justify-between py-4">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    tx.type === 'credit' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                  }`}>
-                    {tx.type === 'credit' ? '↓' : '↑'}
+          {/* Spending Categories */}
+          <div className="bg-white rounded-xl p-6 border border-gray-200">
+            <h3 className="font-semibold text-gray-900 mb-6">Top Categories</h3>
+            <div className="space-y-4">
+              {spendingCategories.map((cat, i) => (
+                <div key={i}>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-gray-700">{cat.name}</span>
+                    <span className="text-[#C8102E] font-medium">${cat.amount}</span>
                   </div>
-                  <div>
-                    <p className="font-medium text-slate-900 dark:text-white">{tx.name}</p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">{tx.date}</p>
+                  <div className="w-full bg-gray-100 rounded-full h-2">
+                    <div
+                      className="bg-[#C8102E] h-2 rounded-full"
+                      style={{ width: `${(cat.amount / cat.maxAmount) * 100}%` }}
+                    ></div>
                   </div>
                 </div>
-                <p className={`font-semibold ${
-                  tx.type === 'credit' ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {tx.type === 'credit' ? '+' : ''}{tx.amount.toLocaleString('en-US', { 
-                    style: 'currency', 
-                    currency: 'USD' 
-                  })}
-                </p>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Charts */}
+        <div className="grid grid-cols-2 gap-6">
+          {/* Bar Chart */}
+          <div className="bg-white rounded-xl p-6 border border-gray-200">
+            <h3 className="font-semibold text-gray-900 mb-6">Monthly Spending by Category</h3>
+            <div className="flex items-end justify-between h-48 gap-4">
+              {monthlySpending.map((item, i) => (
+                <div key={i} className="flex flex-col items-center flex-1">
+                  <div
+                    className="w-full rounded-t-lg"
+                    style={{
+                      height: `${(item.amount / maxSpending) * 160}px`,
+                      background: i === 4 ? '#C8102E' : i % 2 === 0 ? '#1a1a1a' : '#666',
+                    }}
+                  ></div>
+                  <p className="text-xs text-gray-500 mt-2 text-center">{item.category}</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-between mt-4 text-sm text-gray-400">
+              <span>$0</span>
+              <span>$300</span>
+              <span>$600</span>
+            </div>
+          </div>
+
+          {/* Donut Chart */}
+          <div className="bg-white rounded-xl p-6 border border-gray-200">
+            <h3 className="font-semibold text-gray-900 mb-6">Payment Methods</h3>
+            <div className="flex items-center gap-8">
+              {/* Donut */}
+              <div className="relative w-40 h-40">
+                <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                  {paymentTypes.reduce((acc, type, i) => {
+                    const prevOffset = i === 0 ? 0 : acc.offset;
+                    const dashArray = type.percentage * 2.83; // circumference = 283
+                    acc.elements.push(
+                      <circle
+                        key={i}
+                        cx="50"
+                        cy="50"
+                        r="45"
+                        fill="none"
+                        stroke={type.color}
+                        strokeWidth="10"
+                        strokeDasharray={`${dashArray} 283`}
+                        strokeDashoffset={-prevOffset}
+                      />
+                    );
+                    acc.offset = prevOffset + dashArray;
+                    return acc;
+                  }, { elements: [] as JSX.Element[], offset: 0 }).elements}
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-24 h-24 bg-white rounded-full"></div>
+                </div>
               </div>
-            ))}
+              
+              {/* Legend */}
+              <div className="space-y-3">
+                {paymentTypes.map((type, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: type.color }}
+                    ></span>
+                    <span className="text-sm text-gray-700">{type.type}</span>
+                    <span className="text-sm font-semibold ml-auto">{type.percentage}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </main>
