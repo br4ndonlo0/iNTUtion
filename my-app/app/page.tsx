@@ -1,4 +1,5 @@
 import Image from "next/image";
+import SensesTest from "./components/SensesTest";
 
 export default function Home() {
   return (
@@ -59,6 +60,7 @@ export default function Home() {
             Documentation
           </a>
         </div>
+        <SensesTest />
       </main>
     </div>
   );
