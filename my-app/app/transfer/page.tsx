@@ -54,7 +54,7 @@ export default function TransferPage() {
 
           <div className="flex gap-3">
             <input
-              className="flex-1 rounded-lg border border-slate-200 bg-white py-3 px-3 outline-none
+              className="flex-1 rounded-lg border border-slate-200 bg-white py-3 px-3 text-black outline-none
                          focus:ring-2 focus:ring-blue-200
                          placeholder:text-slate-400"
               placeholder="e.g. 91231234 or 77889900"
