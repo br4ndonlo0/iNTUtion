@@ -15,12 +15,12 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-900">
       {/* Header */}
-      <header className="bg-blue-600 text-white shadow-lg">
+      <header className="bg-[#C8102E] text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">🏦 SecureBank</h1>
+          <h1 className="text-2xl font-bold">🏦 Bank Buddy</h1>
           <div className="flex items-center gap-4">
             <span className="text-sm">Welcome, Alex</span>
-            <div className="w-10 h-10 bg-blue-400 rounded-full flex items-center justify-center font-bold">
+            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center font-bold">
               A
             </div>
           </div>
@@ -58,7 +58,7 @@ export default function Home() {
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6 mb-8">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Quick Actions</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button className="flex flex-col items-center gap-2 p-4 rounded-lg bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition">
+            <button className="flex flex-col items-center gap-2 p-4 rounded-lg bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 transition">
               <span className="text-2xl">💸</span>
               <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Send Money</span>
             </button>
@@ -81,7 +81,7 @@ export default function Home() {
         <div className="bg-white dark:bg-slate-800 rounded-xl shadow-md p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Recent Transactions</h2>
-            <button className="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline">
+            <button className="text-[#C8102E] dark:text-red-400 text-sm font-medium hover:underline">
               View All
             </button>
           </div>
