@@ -56,12 +56,9 @@ export async function POST(request: Request) {
           id: user._id.toString(),
           name: user.name,
           email: user.email,
-<<<<<<< HEAD
           phoneNumber: user.phoneNumber ?? null,
           balance: decryptedBalance,
-=======
           preferredLanguage: user.preferredLanguage || "en",
->>>>>>> f37d5c7905ddbcdd611c714a6cc6d7ff0201f1e6
         },
       },
       { status: 200 }

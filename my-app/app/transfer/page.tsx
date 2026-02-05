@@ -73,7 +73,6 @@ export default function TransferPage() {
       {/* Header */}
       <header className="bg-[#C8102E] text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-<<<<<<< HEAD
           <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition">
             <span className="text-2xl">←</span>
             <span className="text-sm font-medium">Dashboard</span>
@@ -84,25 +83,6 @@ export default function TransferPage() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-=======
-          <h1 className="text-2xl font-bold">🏦 <T>Bank Buddy</T></h1>
-          <span className="text-sm"><T>Transfer</T></span>
-        </div>
-      </header>
-
-      <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
-        {/* Intro */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-1">
-            <T>Transfer Money</T>
-          </h2>
-          <p className="text-sm text-slate-700">
-            <T>Search a phone number / account number, or select a recipient below.</T>
-          </p>
-        </div>
-
-        {/* Search */}
->>>>>>> f37d5c7905ddbcdd611c714a6cc6d7ff0201f1e6
         <form
           onSubmit={handleSearch}
           className="bg-white rounded-xl shadow-md p-6 space-y-3"

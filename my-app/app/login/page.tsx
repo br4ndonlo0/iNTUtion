@@ -35,11 +35,7 @@ export default function LoginPage() {
       const data = (await response.json()) as { 
         success: boolean; 
         message?: string;
-<<<<<<< HEAD
-        user?: { id: string; name: string; email: string; phoneNumber?: string | null; balance?: number };
-=======
-        user?: { id: string; name: string; email: string; preferredLanguage?: string };
->>>>>>> f37d5c7905ddbcdd611c714a6cc6d7ff0201f1e6
+        user?: { id: string; name: string; email: string; phoneNumber?: string | null; balance?: number; preferredLanguage?: string };
       };
 
       if (!response.ok || !data.success) {

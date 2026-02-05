@@ -65,11 +65,9 @@ export async function POST(request: Request) {
       emailLower,
       phoneNumber,
       passwordHash,
-<<<<<<< HEAD
       balance: encryptedBalance,
-=======
+      balance: encryptedBalance,
       preferredLanguage,
->>>>>>> f37d5c7905ddbcdd611c714a6cc6d7ff0201f1e6
       createdAt: new Date(),
     });
 
