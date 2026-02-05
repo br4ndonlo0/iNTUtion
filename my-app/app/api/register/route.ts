@@ -8,6 +8,7 @@ type RegisterPayload = {
   email?: string;
   phoneNumber?: string;
   password?: string;
+  preferredLanguage?: string;
 };
 
 export async function POST(request: Request) {
@@ -17,6 +18,7 @@ export async function POST(request: Request) {
     const email = body.email?.trim();
     const phoneNumberRaw = body.phoneNumber?.trim();
     const password = body.password;
+    const preferredLanguage = body.preferredLanguage || "en";
 
     if (!name || !email || !phoneNumberRaw || !password) {
       return NextResponse.json(
@@ -63,7 +65,11 @@ export async function POST(request: Request) {
       emailLower,
       phoneNumber,
       passwordHash,
+<<<<<<< HEAD
       balance: encryptedBalance,
+=======
+      preferredLanguage,
+>>>>>>> f37d5c7905ddbcdd611c714a6cc6d7ff0201f1e6
       createdAt: new Date(),
     });
 
