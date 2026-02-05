@@ -4,28 +4,45 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { T } from '@/components/Translate';
+import SilverTellerHub from '../components/SilverTellerHub';
 
 export default function Dashboard() {
   const router = useRouter();
   const [userName, setUserName] = useState('');
   const [userBalance, setUserBalance] = useState(0);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      const name = user.name || user.username || user.email || 'User';
-      setUserName(name);
-      setUserBalance(user.balance || 0);
-    }
-  }, []);
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        
+        if (res.ok) {
+          const data = await res.json();
+          // The server says we are logged in!
+          setUserName(data.user.name);
+          setUserBalance(data.user.balance);
+          setLoading(false);
+        } else {
+          // The server says 401 (Unauthorized)
+          console.log('Session expired or invalid');
+          router.push('/login');
+        }
+      } catch (error) {
+        console.error("Auth check failed", error);
+        router.push('/login');
+      }
+    };
+
+    checkSession();
+  }, [router]);
 
   const userInitial = (userName || 'U').charAt(0).toUpperCase();
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    window.location.href = 'http://localhost:3000';
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' }); 
+    window.location.href = '/login';
   };
 
   const spendingCategories = [
@@ -64,10 +81,17 @@ export default function Dashboard() {
   ];
 
   const maxSpending = Math.max(...monthlySpending.map(s => s.amount));
-
+if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-xl font-semibold text-gray-500 animate-pulse">Loading secure data...</p>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Main Content */}
+      <SilverTellerHub screenName="Dashboard" />
       <main className="max-w-7xl mx-auto p-6 lg:p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
