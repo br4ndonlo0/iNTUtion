@@ -1,138 +1,110 @@
-'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { VoiceInput } from '@/components/VoiceInput';
-import { AdaptiveButton } from '@/components/AdaptiveButton';
-import { AdaptiveCard } from '@/components/AdaptiveCard';
-import { useVoice } from '@/context/VoiceContext';
+"use client";
 
-interface Account {
-  id: string;
-  name: string;
-  accountNumber: string;
-  phoneNumber: string;
-}
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-// Mock accounts for demo
-const MOCK_ACCOUNTS: Account[] = [
-  { id: '1', name: 'John Doe', accountNumber: '1234567890', phoneNumber: '+1234567890' },
-  { id: '2', name: 'Jane Smith', accountNumber: '0987654321', phoneNumber: '+0987654321' },
-  { id: '3', name: 'Bob Johnson', accountNumber: '5555555555', phoneNumber: '+5555555555' },
+const recipients = [
+  { id: "john-1234", name: "John Tan", detail: "Phone: 9123 1234" },
+  { id: "maya-7788", name: "Maya Lim", detail: "Account: 7788 9900" },
+  { id: "ben-5566", name: "Ben Lee", detail: "Phone: 9988 5566" },
 ];
 
 export default function TransferPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<Account[]>([]);
-  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const router = useRouter();
-  const { voiceState, pendingFieldValue, clearPendingValue } = useVoice();
+  const [query, setQuery] = useState("");
 
-  // Handle voice search input
-  useEffect(() => {
-    if (pendingFieldValue && pendingFieldValue.field === 'search') {
-      const query = pendingFieldValue.value;
-      setSearchQuery(query);
-      handleSearch(query);
-      clearPendingValue();
-    }
-  }, [pendingFieldValue, clearPendingValue]);
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query.trim()) return;
 
-  const handleSearch = (query: string) => {
-    if (!query) {
-      setSearchResults([]);
-      return;
-    }
-
-    // Search in account numbers and phone numbers
-    const results = MOCK_ACCOUNTS.filter(
-      (account) =>
-        account.accountNumber.includes(query) ||
-        account.phoneNumber.includes(query) ||
-        account.name.toLowerCase().includes(query.toLowerCase())
-    );
-
-    setSearchResults(results);
-
-    // Auto-select if only one match
-    if (results.length === 1) {
-      setSelectedAccount(results[0]);
-      setTimeout(() => {
-        router.push(`/transfer/${results[0].id}`);
-      }, 500);
-    }
-  };
-
-  const handleSelectAccount = (account: Account) => {
-    setSelectedAccount(account);
-    router.push(`/transfer/${account.id}`);
+    router.push(`/transfer/${encodeURIComponent(query.trim())}`);
   };
 
   return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Transfer Money</h1>
+    <div className="min-h-screen bg-slate-100">
+      {/* Header */}
+      <header className="bg-blue-600 text-white shadow-lg">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold">🏦 SecureBank</h1>
+          <span className="text-sm">Transfer</span>
+        </div>
+      </header>
 
-        <AdaptiveCard>
-          <h2 className="text-xl font-semibold mb-4">Search for Account</h2>
-          
-          <div className="mb-4">
-            <label htmlFor="search" className="block text-sm font-medium mb-2">
-              Account Number or Phone Number
-            </label>
-            <VoiceInput
-              id="search"
-              type="text"
-              placeholder="Enter account or phone number"
-              value={searchQuery}
-              onChange={(value) => {
-                setSearchQuery(value);
-                handleSearch(value);
-              }}
-              fieldName="search"
+      <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+        {/* Intro */}
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-1">
+            Transfer Money
+          </h2>
+          <p className="text-sm text-slate-700">
+            Search a phone number / account number, or select a recipient below.
+          </p>
+        </div>
+
+        {/* Search */}
+        <form
+          onSubmit={handleSearch}
+          className="bg-white rounded-xl shadow-md p-6 space-y-3"
+        >
+          <label className="text-sm text-slate-700">
+            Recipient phone / account number
+          </label>
+
+          <div className="flex gap-3">
+            <input
+              className="flex-1 rounded-lg border border-slate-200 bg-white py-3 px-3 text-black outline-none
+                         focus:ring-2 focus:ring-blue-200
+                         placeholder:text-slate-400"
+              placeholder="e.g. 91231234 or 77889900"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
             />
+
+            <button
+              type="submit"
+              className="px-4 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+            >
+              Search
+            </button>
           </div>
 
-          {voiceState.isListening && voiceState.targetField === 'search' && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded mb-4">
-              <p className="text-sm text-green-800">
-                🎤 Listening for account number or phone number...
-              </p>
-            </div>
-          )}
+          <p className="text-xs text-slate-600">
+            “Search” voice command can fill this field, then route to
+            /transfer/[id].
+          </p>
+        </form>
 
-          {searchResults.length > 0 && (
-            <div className="mt-6 space-y-3">
-              <h3 className="font-semibold">Search Results:</h3>
-              {searchResults.map((account) => (
-                <div
-                  key={account.id}
-                  onClick={() => handleSelectAccount(account)}
-                  className="p-4 border-2 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all"
-                >
-                  <div className="font-semibold">{account.name}</div>
-                  <div className="text-sm text-gray-600">Account: {account.accountNumber}</div>
-                  <div className="text-sm text-gray-600">Phone: {account.phoneNumber}</div>
+        {/* Recipients */}
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-slate-900">Saved Recipients</h3>
+            <Link
+              href="/dashboard"
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Back to Dashboard
+            </Link>
+          </div>
+
+          <div className="divide-y divide-slate-200">
+            {recipients.map((r) => (
+              <button
+                key={r.id}
+                onClick={() => router.push(`/transfer/${r.id}`)}
+                className="w-full text-left py-4 flex items-center justify-between hover:bg-slate-50 px-2 rounded-lg transition"
+              >
+                <div>
+                  <p className="font-medium text-slate-900">{r.name}</p>
+                  <p className="text-sm text-slate-600">{r.detail}</p>
                 </div>
-              ))}
-            </div>
-          )}
-
-          {searchQuery && searchResults.length === 0 && (
-            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
-              <p className="text-sm text-yellow-800">
-                No accounts found matching "{searchQuery}"
-              </p>
-            </div>
-          )}
-        </AdaptiveCard>
-
-        <div className="mt-6">
-          <AdaptiveButton onClick={() => router.push('/home')}>
-            Back to Home
-          </AdaptiveButton>
+                <span className="text-sm text-slate-400">Select →</span>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

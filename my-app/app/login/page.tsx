@@ -1,83 +1,72 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { VoiceInput } from '@/components/VoiceInput';
-import { AdaptiveButton } from '@/components/AdaptiveButton';
-import { AdaptiveCard } from '@/components/AdaptiveCard';
-import { useVoice } from '@/context/VoiceContext';
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const router = useRouter();
-  const { voiceState } = useVoice();
-
-  const handleLogin = () => {
-    // Your login logic here
-    console.log('Logging in:', { username, password });
-    router.push('/home');
-  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <AdaptiveCard className="w-full max-w-md">
-        <h1 className="text-3xl font-bold mb-6 text-center">Login</h1>
-        
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium mb-2">
-              Username
-            </label>
-            <VoiceInput
-              id="username"
-              type="text"
-              placeholder="Enter your username"
-              value={username}
-              onChange={setUsername}
-              fieldName="username"
-            />
+    <div className="min-h-screen bg-slate-100">
+      {/* Header */}
+      <header className="bg-blue-600 text-white shadow-lg">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold">🏦 SecureBank</h1>
+          <div className="flex items-center gap-4">
+            <span className="text-sm">Welcome back</span>
           </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium mb-2">
-              Password
-            </label>
-            <VoiceInput
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={setPassword}
-              fieldName="password"
-            />
-          </div>
-
-          <AdaptiveButton
-            id="login-btn"
-            onClick={handleLogin}
-            className="w-full mt-6"
-          >
-            Login
-          </AdaptiveButton>
-
-          <p className="text-center text-sm mt-4">
-            Don't have an account?{' '}
-            <a href="/register" className="text-blue-500 hover:underline">
-              Register
-            </a>
-          </p>
         </div>
+      </header>
 
-        {/* Voice command hint */}
-        {voiceState.isListening && (
-          <div className="mt-6 p-3 bg-blue-50 border border-blue-200 rounded">
-            <p className="text-sm text-blue-800">
-              🎤 Say "<strong>{voiceState.targetField}</strong>" and then speak the value
-            </p>
-          </div>
-        )}
-      </AdaptiveCard>
+      <main className="max-w-6xl mx-auto px-4 py-10 flex justify-center">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-6">
+          <h2 className="text-2xl font-bold text-slate-900 mb-6">Bank Login</h2>
+
+          <form className="space-y-5">
+            <div className="space-y-2">
+              <label className="text-sm text-slate-700">Email</label>
+              <input
+                className="w-full rounded-lg border border-slate-200 bg-white py-3 px-3 outline-none focus:ring-2 focus:ring-blue-200"
+                placeholder="name@example.com"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm text-slate-700">Password</label>
+              <input
+                type="password"
+                className="w-full rounded-lg border border-slate-200 bg-white py-3 px-3 outline-none focus:ring-2 focus:ring-blue-200"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => router.push("/dashboard")}
+              className="w-full rounded-lg bg-blue-600 text-white py-3 font-medium hover:bg-blue-700 transition"
+            >
+              Sign in
+            </button>
+
+            <div className="flex items-center justify-between text-sm text-slate-600">
+              <button type="button" className="hover:underline">
+                Forgot password?
+              </button>
+              <Link href="/register" className="text-blue-600 hover:underline">
+                Create account
+              </Link>
+            </div>
+
+            {/* Optional helper link (keep if you like) */}
+            <Link
+              href="/dashboard"
+              className="block text-center text-sm text-blue-600 hover:underline"
+            >
+              Continue to dashboard (demo)
+            </Link>
+          </form>
+        </div>
+      </main>
     </div>
   );
 }

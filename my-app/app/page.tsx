@@ -1,4 +1,6 @@
 import Image from "next/image";
+import SensesTest from "./components/SensesTest";
+import SilverTellerHub from "./components/SilverTellerHub";
 
 export default function Home() {
   return (
@@ -59,6 +61,7 @@ export default function Home() {
             Documentation
           </a>
         </div>
+        <SilverTellerHub screenName="Home" />
       </main>
     </div>
   );

@@ -1,173 +1,164 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { VoiceInput } from '@/components/VoiceInput';
-import { AdaptiveButton } from '@/components/AdaptiveButton';
-import { AdaptiveCard } from '@/components/AdaptiveCard';
-import { useVoice } from '@/context/VoiceContext';
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 
-interface Account {
-  id: string;
-  name: string;
-  accountNumber: string;
-}
-
-// Mock account lookup
-const getAccountById = (id: string): Account | null => {
-  const accounts: Record<string, Account> = {
-    '1': { id: '1', name: 'John Doe', accountNumber: '1234567890' },
-    '2': { id: '2', name: 'Jane Smith', accountNumber: '0987654321' },
-    '3': { id: '3', name: 'Bob Johnson', accountNumber: '5555555555' },
-  };
-  return accounts[id] || null;
-};
-
-export default function TransferDetailPage() {
-  const params = useParams();
+export default function TransferToIdPage() {
   const router = useRouter();
-  const accountId = params.id as string;
-  const account = getAccountById(accountId);
+  const params = useParams<{ id: string }>();
 
-  const [amount, setAmount] = useState('');
-  const [isConfirming, setIsConfirming] = useState(false);
-  const [isTransferred, setIsTransferred] = useState(false);
-  
-  const { voiceState, pendingFieldValue, clearPendingValue } = useVoice();
+  const recipientId = useMemo(() => {
+    const raw = params?.id ?? "";
+    return decodeURIComponent(Array.isArray(raw) ? raw[0] : raw);
+  }, [params]);
 
-  // Handle voice amount input
-  useEffect(() => {
-    if (pendingFieldValue && pendingFieldValue.field === 'amount') {
-      setAmount(pendingFieldValue.value);
-      clearPendingValue();
-    }
-  }, [pendingFieldValue, clearPendingValue]);
+  const [amount, setAmount] = useState("");
+  const [transferReady, setTransferReady] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Handle voice confirmation
-  useEffect(() => {
-    if (pendingFieldValue && pendingFieldValue.field === 'confirm_transaction') {
-      handleConfirmTransfer();
-      clearPendingValue();
-    }
-  }, [pendingFieldValue, clearPendingValue]);
+  const parsedAmount = useMemo(() => {
+    // allow "12", "12.34"
+    const n = Number(amount);
+    return Number.isFinite(n) ? n : NaN;
+  }, [amount]);
 
-  const handleConfirmTransfer = () => {
-    if (!amount || parseFloat(amount) <= 0) {
-      alert('Please enter a valid amount');
+  const handleTransfer = () => {
+    setError(null);
+    setConfirmed(false);
+
+    if (!amount.trim()) {
+      setTransferReady(false);
+      setError("Please enter an amount.");
       return;
     }
 
-    setIsConfirming(true);
-    
-    // Simulate transfer
-    setTimeout(() => {
-      setIsTransferred(true);
-      setIsConfirming(false);
-    }, 1500);
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      setTransferReady(false);
+      setError("Amount must be a valid number greater than 0.");
+      return;
+    }
+
+    // demo: mark as ready to confirm
+    setTransferReady(true);
   };
 
-  const handleNewTransfer = () => {
-    router.push('/transfer');
+  const handleConfirm = () => {
+    setError(null);
+
+    if (!transferReady) {
+      setError("Please press Transfer first.");
+      return;
+    }
+
+    // demo: confirm the transaction
+    setConfirmed(true);
+
+    // optional: after 1 second, go back to dashboard
+    // setTimeout(() => router.push("/dashboard"), 1000);
   };
-
-  if (!account) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <AdaptiveCard>
-          <h1 className="text-2xl font-bold mb-4">Account Not Found</h1>
-          <AdaptiveButton onClick={() => router.push('/transfer')}>
-            Back to Search
-          </AdaptiveButton>
-        </AdaptiveCard>
-      </div>
-    );
-  }
-
-  if (isTransferred) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <AdaptiveCard className="w-full max-w-md text-center">
-          <div className="text-6xl mb-4">✅</div>
-          <h1 className="text-3xl font-bold mb-4 text-green-600">Transfer Complete!</h1>
-          <p className="text-lg mb-2">Amount: ${amount}</p>
-          <p className="text-sm text-gray-600 mb-6">
-            Transferred to {account.name}
-          </p>
-          <div className="space-y-3">
-            <AdaptiveButton onClick={handleNewTransfer} className="w-full">
-              New Transfer
-            </AdaptiveButton>
-            <AdaptiveButton onClick={() => router.push('/home')} className="w-full">
-              Back to Home
-            </AdaptiveButton>
-          </div>
-        </AdaptiveCard>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen p-8">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Transfer Money</h1>
-
-        <AdaptiveCard className="mb-6">
-          <h2 className="text-xl font-semibold mb-4">Transfer To:</h2>
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="font-bold text-lg">{account.name}</div>
-            <div className="text-sm text-gray-600">Account: {account.accountNumber}</div>
-          </div>
-        </AdaptiveCard>
-
-        <AdaptiveCard id="amount-card">
-          <h2 className="text-xl font-semibold mb-4">Transfer Amount</h2>
-          
-          <div className="mb-6">
-            <label htmlFor="amount" className="block text-sm font-medium mb-2">
-              Amount (USD)
-            </label>
-            <VoiceInput
-              id="amount"
-              type="text"
-              placeholder="Enter amount to transfer"
-              value={amount}
-              onChange={setAmount}
-              fieldName="amount"
-            />
-          </div>
-
-          {voiceState.isListening && voiceState.targetField === 'amount' && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded">
-              <p className="text-sm text-green-800">
-                🎤 Say "Transfer" then speak the amount...
-              </p>
-            </div>
-          )}
-
-          {amount && !isConfirming && (
-            <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded">
-              <p className="text-sm text-yellow-800">
-                💬 Say "<strong>Confirm</strong>" to complete the transfer of ${amount}
-              </p>
-            </div>
-          )}
-
-          <AdaptiveButton
-            id="confirm-transfer-btn"
-            onClick={handleConfirmTransfer}
-            disabled={isConfirming || !amount}
-            className="w-full"
-          >
-            {isConfirming ? 'Processing...' : 'Confirm Transfer'}
-          </AdaptiveButton>
-        </AdaptiveCard>
-
-        <div className="mt-6">
-          <AdaptiveButton onClick={() => router.back()}>
-            Back
-          </AdaptiveButton>
+    <div className="min-h-screen bg-slate-100">
+      {/* Header */}
+      <header className="bg-blue-600 text-white shadow-lg">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-2xl font-bold">🏦 SecureBank</h1>
+          <span className="text-sm">Transfer</span>
         </div>
-      </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+        {/* Recipient */}
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-1">
+            Transfer to Recipient
+          </h2>
+          <p className="text-sm text-slate-700">
+            Recipient ID:{" "}
+            <span className="font-medium text-slate-900">{recipientId}</span>
+          </p>
+        </div>
+
+        {/* Amount + actions */}
+        <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm text-slate-700">Amount</label>
+            <input
+              inputMode="decimal"
+              className="w-full rounded-lg border border-slate-200 bg-white py-3 px-3 text-slate-900 outline-none focus:ring-2 focus:ring-blue-200 placeholder:text-slate-500"
+              placeholder="e.g. 50 or 25.90"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+            <p className="text-xs text-slate-600">
+              Tip: your voice “Transfer” command can set focus here and the next
+              input can be the amount.
+            </p>
+          </div>
+
+          {/* Status */}
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
+          {transferReady && !confirmed && (
+            <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+              Transfer prepared. Say/press <b>Confirm</b> to complete.
+            </div>
+          )}
+
+          {confirmed && (
+            <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+              ✅ Transfer confirmed! (Demo)
+            </div>
+          )}
+
+          {/* Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              type="button"
+              onClick={handleTransfer}
+              className="flex-1 px-4 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+            >
+              Transfer
+            </button>
+
+            <button
+              type="button"
+              onClick={handleConfirm}
+              className={`flex-1 px-4 py-3 rounded-lg transition ${
+                transferReady
+                  ? "bg-slate-900 text-white hover:bg-slate-800"
+                  : "bg-slate-200 text-slate-500 cursor-not-allowed"
+              }`}
+              disabled={!transferReady}
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <div className="flex gap-3">
+          <Link
+            href="/transfer"
+            className="px-4 py-2 rounded-lg bg-white border border-slate-300 text-slate-800 hover:bg-slate-50 transition"
+          >
+            Back to Transfer
+          </Link>
+
+          <Link
+            href="/dashboard"
+            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+          >
+            Back to Dashboard
+          </Link>
+        </div>
+      </main>
     </div>
   );
 }
