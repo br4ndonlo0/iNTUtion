@@ -114,56 +114,6 @@ export default function SilverTellerHub({ screenName = "Home" }) {
     }
   };
 
-  const handleAiResponse = async (response) => {
-    // You can add router navigation here later!
-    if (response.action === "NAVIGATE")
-      setLastAction(`🚀 GO TO ${response.target}`);
-    else if (response.action === "FILL_FORM") {
-      setLastAction(`🔍 Searching for "${response.recipient}"...`);
-
-      // 1. Get current User ID (Assuming you store it in localStorage or Context after login)
-      // For testing, you can hardcode the ID you used in Step 3
-      const currentUserId = "YOUR_USER_ID_HERE"; //TODO: Replace this with actual user ID retrieval
-
-      try {
-        const res = await fetch("/api/resolve-contact", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            spokenName: response.recipient,
-            userId: currentUserId,
-          }),
-        });
-
-        const data = await res.json();
-
-        if (data.found) {
-          // 🎉 SUCCESS: AI matched nickname to real bank account
-          setLastAction(
-            `✅ Found: ${data.data.name} (${data.data.relationship})`,
-          );
-
-          // Speak the confirmation to the user
-          const msg = new SpeechSynthesisUtterance(
-            `I found your ${data.data.relationship}, ${data.data.name}. Sending ${response.amount} dollars. Please confirm.`,
-          );
-          window.speechSynthesis.speak(msg);
-        } else {
-          // ❌ FAILURE
-          setLastAction(`❌ Unknown: "${response.recipient}"`);
-          const msg = new SpeechSynthesisUtterance(
-            `I couldn't find a contact named ${response.recipient}.`,
-          );
-          window.speechSynthesis.speak(msg);
-        }
-      } catch (err) {
-        console.error("API Error", err);
-      }
-    } else if (response.action === "CONFIRM") setLastAction(`✅ CONFIRMED`);
-    else if (response.action === "REJECT") setLastAction(`❌ REJECTED`);
-    else setLastAction(`🤔 UNKNOWN`);
-  };
-
   // --- UI RENDER (The Overlay) ---
   return (
     <div className="fixed inset-0 pointer-events-none z-[9999]">
