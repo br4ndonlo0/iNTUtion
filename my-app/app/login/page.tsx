@@ -32,7 +32,7 @@ export default function LoginPage() {
       const data = (await response.json()) as { 
         success: boolean; 
         message?: string;
-        user?: { id: string; name: string; email: string };
+        user?: { id: string; name: string; email: string; phoneNumber?: string | null; balance?: number };
       };
 
       if (!response.ok || !data.success) {

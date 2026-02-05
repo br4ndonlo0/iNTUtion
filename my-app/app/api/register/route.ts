@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import clientPromise from "@/lib/mongodb";
+import { encryptBalance } from "@/lib/encryption";
 
 type RegisterPayload = {
   name?: string;
   email?: string;
+  phoneNumber?: string;
   password?: string;
 };
 
@@ -13,11 +15,20 @@ export async function POST(request: Request) {
     const body = (await request.json()) as RegisterPayload;
     const name = body.name?.trim();
     const email = body.email?.trim();
+    const phoneNumberRaw = body.phoneNumber?.trim();
     const password = body.password;
 
-    if (!name || !email || !password) {
+    if (!name || !email || !phoneNumberRaw || !password) {
       return NextResponse.json(
         { success: false, message: "Missing required fields." },
+        { status: 400 },
+      );
+    }
+
+    const phoneNumber = phoneNumberRaw.replace(/\D/g, "");
+    if (phoneNumber.length !== 8) {
+      return NextResponse.json(
+        { success: false, message: "Phone number must be exactly 8 digits." },
         { status: 400 },
       );
     }
@@ -43,12 +54,16 @@ export async function POST(request: Request) {
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
+    const initialBalance = 1000; // Starting balance for new users
+    const encryptedBalance = encryptBalance(initialBalance);
 
     await users.insertOne({
       name,
       email,
       emailLower,
+      phoneNumber,
       passwordHash,
+      balance: encryptedBalance,
       createdAt: new Date(),
     });
 

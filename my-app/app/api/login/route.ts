@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import clientPromise from "@/lib/mongodb";
+import { decryptBalance } from "@/lib/encryption";
 
 type LoginPayload = {
   email?: string;
@@ -46,6 +47,8 @@ export async function POST(request: Request) {
     }
 
     // Return success with user info (excluding password)
+    const decryptedBalance = user.balance ? decryptBalance(user.balance) : 0;
+    
     return NextResponse.json(
       {
         success: true,
@@ -53,6 +56,8 @@ export async function POST(request: Request) {
           id: user._id.toString(),
           name: user.name,
           email: user.email,
+          phoneNumber: user.phoneNumber ?? null,
+          balance: decryptedBalance,
         },
       },
       { status: 200 }

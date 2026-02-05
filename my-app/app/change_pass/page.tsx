@@ -96,7 +96,11 @@ export default function ChangePassword() {
       {/* Header */}
       <header className="bg-[#C8102E] text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">🏦 Bank Buddy</h1>
+          <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition">
+            <span className="text-2xl">←</span>
+            <span className="text-sm font-medium">Dashboard</span>
+          </Link>
+          <h1 className="text-2xl font-bold">Bank Buddy</h1>
           <span className="text-sm">Change Password</span>
         </div>
       </header>

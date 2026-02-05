@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 export default function Dashboard() {
   const router = useRouter();
   const [userName, setUserName] = useState('');
+  const [userBalance, setUserBalance] = useState(0);
   const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
@@ -15,6 +16,7 @@ export default function Dashboard() {
       const user = JSON.parse(storedUser);
       const name = user.name || user.username || user.email || 'User';
       setUserName(name);
+      setUserBalance(user.balance || 0);
     }
   }, []);
 
@@ -118,28 +120,41 @@ export default function Dashboard() {
         </div>
 
         {/* Stat Cards */}
-        <div className="grid grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <p className="text-sm text-gray-500 mb-2">Total Balance</p>
-            <p className="text-2xl font-bold text-gray-900">$12,458.32</p>
-            <p className="text-sm text-green-600 mt-2">+11.01% ↗</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <p className="text-sm text-gray-500 mb-2">Monthly Income</p>
-            <p className="text-2xl font-bold text-gray-900">$5,640</p>
-            <p className="text-sm text-green-600 mt-2">+9.15% ↗</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <p className="text-sm text-gray-500 mb-2">Monthly Expenses</p>
-            <p className="text-2xl font-bold text-gray-900">$2,430</p>
-            <p className="text-sm text-red-500 mt-2">-0.56% ↘</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <p className="text-sm text-gray-500 mb-2">Transactions</p>
-            <p className="text-2xl font-bold text-gray-900">156</p>
-            <p className="text-sm text-red-500 mt-2">-1.48% ↘</p>
+        <div className="mb-8">
+          <div className="bg-gradient-to-br from-white to-red-50 rounded-2xl p-8 border-2 border-[#C8102E] shadow-lg">
+            <p className="text-sm font-semibold text-[#C8102E] mb-2 uppercase tracking-wide">Your Account Balance</p>
+            <p className="text-5xl font-bold text-[#C8102E]">${userBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            <p className="text-sm text-green-600 mt-3 font-medium">+11.01% from last month ↗</p>
           </div>
         </div>
+
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Link
+              href="/transfer"
+              className="flex flex-col items-center justify-center p-6 bg-white border-2 border-[#C8102E] rounded-xl hover:bg-[#C8102E] hover:text-white transition-all group shadow-sm"
+            >
+              <svg className="w-12 h-12 mb-3 text-[#C8102E] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="font-semibold text-lg">Transfer Money</span>
+              <span className="text-sm text-gray-500 group-hover:text-white/80 mt-1">Send funds to others</span>
+            </Link>
+            <button
+              className="flex flex-col items-center justify-center p-6 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 transition-all cursor-not-allowed opacity-60 shadow-sm"
+              disabled
+            >
+              <svg className="w-12 h-12 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+              <span className="font-semibold text-lg text-gray-600">Request Money</span>
+              <span className="text-sm text-gray-400 mt-1">Coming soon</span>
+            </button>
+          </div>
+        </div>
+
 
         {/* Charts Row */}
         <div className="grid grid-cols-4 gap-6 mb-8">
