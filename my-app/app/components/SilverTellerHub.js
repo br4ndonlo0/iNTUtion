@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useHandTracking } from "../hooks/useHandTracking";
 import { useVoiceInput, SG_LANGUAGES } from "../hooks/useVoiceInput";
 import { getAiAction } from "../utils/aiBrain";
+import { useHandleAiResponse } from "../../hooks/useHandleAiResponse";
 
 // 1. Accept 'screenName' so the AI knows context (e.g. "Transfer Page")
 export default function SilverTellerHub({ screenName = "Home" }) {
@@ -17,6 +18,9 @@ export default function SilverTellerHub({ screenName = "Home" }) {
     useHandTracking();
   const { transcript, isListening, toggleListening } =
     useVoiceInput(currentLang);
+
+  // Use the actual handleAiResponse from the hook
+  const handleAiResponse = useHandleAiResponse();
 
   // --- BRAIN (Slow Logic) ---
   useEffect(() => {
