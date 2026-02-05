@@ -6,15 +6,18 @@ import { useRouter } from "next/navigation";
 export default function RegisterPage() {
   const router = useRouter();
 
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    router.push("/login"); // ✅ redirect to login
+  };
+
   return (
     <div className="min-h-screen bg-slate-100">
       {/* Header */}
       <header className="bg-blue-600 text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold">🏦 SecureBank</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm">Create Account</span>
-          </div>
+          <span className="text-sm">Create Account</span>
         </div>
       </header>
 
@@ -24,40 +27,21 @@ export default function RegisterPage() {
             Create an account
           </h2>
 
-          <form className="space-y-5">
+          {/* 👇 attach submit handler */}
+          <form className="space-y-5" onSubmit={handleRegister}>
             <div className="space-y-2">
               <label className="text-sm text-slate-700">Full name</label>
-              <input
-                className="w-full rounded-lg border border-slate-200 bg-white py-3 px-3 outline-none focus:ring-2 focus:ring-blue-200"
-                placeholder="Alex Tan"
-              />
+              <input className="w-full rounded-lg border border-slate-200 py-3 px-3" />
             </div>
 
             <div className="space-y-2">
               <label className="text-sm text-slate-700">Email</label>
-              <input
-                className="w-full rounded-lg border border-slate-200 bg-white py-3 px-3 outline-none focus:ring-2 focus:ring-blue-200"
-                placeholder="name@example.com"
-              />
+              <input className="w-full rounded-lg border border-slate-200 py-3 px-3" />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <label className="text-sm text-slate-700">Password</label>
-                <input
-                  type="password"
-                  className="w-full rounded-lg border border-slate-200 bg-white py-3 px-3 outline-none focus:ring-2 focus:ring-blue-200"
-                  placeholder="••••••••"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm text-slate-700">Confirm</label>
-                <input
-                  type="password"
-                  className="w-full rounded-lg border border-slate-200 bg-white py-3 px-3 outline-none focus:ring-2 focus:ring-blue-200"
-                  placeholder="••••••••"
-                />
-              </div>
+              <input type="password" className="rounded-lg border border-slate-200 py-3 px-3" />
+              <input type="password" className="rounded-lg border border-slate-200 py-3 px-3" />
             </div>
 
             <label className="flex items-start gap-2 text-sm text-slate-600">
@@ -65,9 +49,9 @@ export default function RegisterPage() {
               <span>I agree to the Terms.</span>
             </label>
 
+            {/* ✅ submit button */}
             <button
-              type="button"
-              onClick={() => router.push("/dashboard")}
+              type="submit"
               className="w-full rounded-lg bg-blue-600 text-white py-3 font-medium hover:bg-blue-700 transition"
             >
               Create account
