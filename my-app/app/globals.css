@@ -189,3 +189,25 @@ h3 {
 }
 
 
+@keyframes money-fall {
+  0% {
+    transform: translateY(-10vh) rotate(0deg);
+  }
+  100% {
+    transform: translateY(115vh) rotate(360deg);
+  }
+}
+
+.money-drop {
+  animation-name: money-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* Accessibility: respect "Reduce Motion" */
+@media (prefers-reduced-motion: reduce) {
+  .money-drop {
+    animation: none !important;
+    display: none !important;
+  }
+}
