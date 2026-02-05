@@ -25,9 +25,9 @@ export default function TransferPage() {
   return (
     <div className="min-h-screen bg-slate-100">
       {/* Header */}
-      <header className="bg-blue-600 text-white shadow-lg">
+      <header className="bg-[#C8102E] text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">🏦 SecureBank</h1>
+          <h1 className="text-2xl font-bold">🏦 Bank Buddy</h1>
           <span className="text-sm">Transfer</span>
         </div>
       </header>
@@ -55,7 +55,7 @@ export default function TransferPage() {
           <div className="flex gap-3">
             <input
               className="flex-1 rounded-lg border border-slate-200 bg-white py-3 px-3 text-black outline-none
-                         focus:ring-2 focus:ring-blue-200
+                         focus:ring-2 focus:ring-[#C8102E]/20 focus:border-[#C8102E]
                          placeholder:text-slate-400"
               placeholder="e.g. 91231234 or 77889900"
               value={query}
@@ -64,7 +64,7 @@ export default function TransferPage() {
 
             <button
               type="submit"
-              className="px-4 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+              className="px-4 py-3 rounded-lg bg-[#C8102E] text-white hover:bg-[#A50D26] transition"
             >
               Search
             </button>
@@ -82,7 +82,7 @@ export default function TransferPage() {
             <h3 className="font-semibold text-slate-900">Saved Recipients</h3>
             <Link
               href="/dashboard"
-              className="text-sm text-blue-600 hover:underline"
+              className="text-sm text-[#C8102E] hover:underline"
             >
               Back to Dashboard
             </Link>

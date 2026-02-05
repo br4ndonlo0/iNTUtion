@@ -4,9 +4,9 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-slate-100">
       {/* Header */}
-      <header className="bg-blue-600 text-white shadow-lg">
+      <header className="bg-[#C8102E] text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">🏦 SecureBank</h1>
+          <h1 className="text-2xl font-bold">🏦 Bank Buddy</h1>
           <span className="text-sm">Settings</span>
         </div>
       </header>
@@ -32,12 +32,12 @@ export default function SettingsPage() {
               <span className="text-sm text-slate-700">
                 Two-factor authentication
               </span>
-              <input type="checkbox" className="h-4 w-4" />
+              <input type="checkbox" className="h-4 w-4 accent-[#C8102E]" />
             </label>
 
             <label className="flex items-center justify-between">
               <span className="text-sm text-slate-700">Biometric login</span>
-              <input type="checkbox" className="h-4 w-4" />
+              <input type="checkbox" className="h-4 w-4 accent-[#C8102E]" />
             </label>
 
             <Link
@@ -54,17 +54,17 @@ export default function SettingsPage() {
 
             <label className="flex items-center justify-between">
               <span className="text-sm text-slate-700">High contrast mode</span>
-              <input type="checkbox" className="h-4 w-4" />
+              <input type="checkbox" className="h-4 w-4 accent-[#C8102E]" />
             </label>
 
             <label className="flex items-center justify-between">
               <span className="text-sm text-slate-700">Larger text</span>
-              <input type="checkbox" className="h-4 w-4" />
+              <input type="checkbox" className="h-4 w-4 accent-[#C8102E]" />
             </label>
 
             <label className="flex items-center justify-between">
               <span className="text-sm text-slate-700">Reduce motion</span>
-              <input type="checkbox" className="h-4 w-4" />
+              <input type="checkbox" className="h-4 w-4 accent-[#C8102E]" />
             </label>
           </div>
         </div>
@@ -80,7 +80,7 @@ export default function SettingsPage() {
 
           <Link
             href="/dashboard"
-            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+            className="px-4 py-2 rounded-lg bg-[#C8102E] text-white hover:bg-[#A50D26] transition"
           >
             Back to Dashboard
           </Link>
