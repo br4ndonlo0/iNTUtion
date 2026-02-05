@@ -8,6 +8,9 @@ export default function SensesTest() {
   const [currentLang, setCurrentLang] = useState(SG_LANGUAGES.ENGLISH);
   const [lastAction, setLastAction] = useState("Waiting for input...");
 
+  const cooldownRef = useRef(false);
+  const holdTimerRef = useRef(null);
+
   // 1. EYES
   const { videoRef, isReady, isCameraOn, toggleCamera, gestureOutput } =
     useHandTracking();
@@ -45,6 +48,62 @@ export default function SensesTest() {
     return () => clearTimeout(timer);
   }, [transcript, gestureOutput]); // Re-start timer if voice OR gesture changes
 
+  // 4. REFLEXES (The "Fast Path" - Physical Actions)
+  useEffect(() => {
+    // Stop if we are in cooldown or gesture is empty
+    if (cooldownRef.current || !gestureOutput || gestureOutput === "None") {
+      clearTimeout(holdTimerRef.current);
+      return;
+    }
+
+    // Only run this for PHYSICAL gestures (ignore Thumbs, let AI handle those)
+    if (["Thumb_Up", "Thumb_Down"].includes(gestureOutput)) return;
+
+    // Start a short 500ms timer (quicker than AI)
+    holdTimerRef.current = setTimeout(() => {
+      performLocalAction(gestureOutput);
+
+      // Lock it for 1s so it doesn't spam
+      cooldownRef.current = true;
+      setTimeout(() => {
+        cooldownRef.current = false;
+        setLastAction("Ready");
+      }, 1000);
+    }, 500);
+
+    return () => clearTimeout(holdTimerRef.current);
+  }, [gestureOutput]);
+
+  // --- LOCAL ACTION HANDLER (Instant) ---
+  const performLocalAction = (gesture) => {
+    const time = new Date().toLocaleTimeString();
+
+    switch (gesture) {
+      case "Closed_Fist":
+        setLastAction(`✊ SCROLLING...`);
+        window.scrollBy({ top: 300, behavior: "smooth" });
+        break;
+
+      case "Pointing_Up":
+        setLastAction(`☝️ READING SCREEN...`);
+        // Simple Text-to-Speech
+        const msg = new SpeechSynthesisUtterance(
+          "Your current balance is 4,500 dollars.",
+        );
+        window.speechSynthesis.speak(msg);
+        break;
+
+      case "Open_Palm":
+        setLastAction(`✋ STOPPING...`);
+        window.speechSynthesis.cancel(); // Stop talking
+        break;
+
+      default:
+        // Do nothing for others
+        break;
+    }
+  };
+
   const handleAiResponse = (response) => {
     // ... (Your existing handler code is perfect) ...
     if (response.action === "NAVIGATE") {
@@ -61,7 +120,7 @@ export default function SensesTest() {
   return (
     <div className="fixed inset-0 pointer-events-none z-50">
       {/* --- STATUS BAR (To see what AI decided) --- */}
-      <div className="fixed top-20 left-4 z-50 pointer-events-auto">
+      <div className="fixed bottom-4 left-4 z-50 pointer-events-auto">
         <div className="bg-white/90 backdrop-blur border-l-4 border-blue-600 shadow-xl p-4 rounded-r-lg max-w-xs transition-all">
           <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
             System Status

@@ -41,7 +41,7 @@ export async function getAiAction(transcript, gesture, screenName) {
 
     // 3. Call the Gemini API (REST method - no extra installation needed)
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -53,10 +53,21 @@ export async function getAiAction(transcript, gesture, screenName) {
 
     const data = await response.json();
 
+    if (!response.ok || data.error) {
+      console.error("❌ AI API Error:", data.error || response.statusText);
+      return null;
+    }
+
     // 4. Safety Parse
     // Gemini sometimes wraps code in backticks like \`\`\`json ... \`\`\`
     // We clean that up before parsing.
-    let rawText = data.candidates[0].content.parts[0].text;
+
+    let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!rawText) {
+      console.error("❌ AI returned empty response");
+      return null;
+    }
     rawText = rawText
       .replace(/```json/g, "")
       .replace(/```/g, "")
