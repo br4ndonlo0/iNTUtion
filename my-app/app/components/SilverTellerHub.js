@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useHandTracking } from "../hooks/useHandTracking";
 import { useVoiceInput, SG_LANGUAGES } from "../hooks/useVoiceInput";
 import { getAiAction } from "../utils/aiBrain";
+import { useHandleAiResponse } from "../../hooks/useHandleAiResponse";
 
 // 1. Accept 'screenName' so the AI knows context (e.g. "Transfer Page")
 export default function SilverTellerHub({ screenName = "Home" }) {
@@ -16,6 +17,9 @@ export default function SilverTellerHub({ screenName = "Home" }) {
     useHandTracking();
   const { transcript, isListening, toggleListening } =
     useVoiceInput(currentLang);
+  
+  // Use the actual handleAiResponse from the hook
+  const handleAiResponse = useHandleAiResponse();
 
   // --- BRAIN (Slow Logic) ---
   useEffect(() => {
@@ -90,17 +94,6 @@ export default function SilverTellerHub({ screenName = "Home" }) {
         window.speechSynthesis.cancel();
         break;
     }
-  };
-
-  const handleAiResponse = (response) => {
-    // You can add router navigation here later!
-    if (response.action === "NAVIGATE")
-      setLastAction(`🚀 GO TO ${response.target}`);
-    else if (response.action === "FILL_FORM")
-      setLastAction(`💸 PAY $${response.amount}`);
-    else if (response.action === "CONFIRM") setLastAction(`✅ CONFIRMED`);
-    else if (response.action === "REJECT") setLastAction(`❌ REJECTED`);
-    else setLastAction(`🤔 UNKNOWN`);
   };
 
   // --- UI RENDER (The Overlay) ---
