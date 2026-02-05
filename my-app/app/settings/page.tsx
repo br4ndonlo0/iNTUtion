@@ -40,9 +40,12 @@ export default function SettingsPage() {
               <input type="checkbox" className="h-4 w-4" />
             </label>
 
-            <button className="w-full rounded-lg border border-slate-300 py-2 text-slate-800 hover:bg-slate-50 transition">
+            <Link
+              href="/change_pass"
+              className="block w-full text-center rounded-lg border border-slate-300 py-2 text-slate-800 hover:bg-slate-50 transition"
+            >
               Change password
-            </button>
+            </Link>
           </div>
 
           {/* Accessibility */}
