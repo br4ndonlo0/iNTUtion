@@ -11,87 +11,110 @@ export const SG_LANGUAGES = {
 
 export const useVoiceInput = (languageCode = SG_LANGUAGES.ENGLISH) => {
   const [transcript, setTranscript] = useState("");
+  // OPTIMISTIC UI: We trust the user wants it on until proven otherwise
   const [isListening, setIsListening] = useState(false);
 
   const recognitionRef = useRef(null);
-
-  // We use a Ref to track "intent" to listen.
-  // This prevents "stale closure" bugs inside the 'onend' event.
   const isListeningRef = useRef(isListening);
 
+  // 1. Sync Ref
   useEffect(() => {
-    // Sync the ref with the state whenever it changes
     isListeningRef.current = isListening;
   }, [isListening]);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && "webkitSpeechRecognition" in window) {
-      // 1. CLEANUP OLD INSTANCE
-      // If a mic is already running, kill it before making a new one
-      if (recognitionRef.current) {
-        recognitionRef.current.onend = null; // Remove listeners to prevent "restart" loops
-        recognitionRef.current.stop();
+    if (typeof window === "undefined") return;
+
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      console.error("❌ Browser does not support Speech Recognition.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.lang = languageCode;
+
+    // We don't rely on 'onstart' to change UI anymore.
+    // We only use it for logging.
+    recognition.onstart = () => {
+      console.log(`🎤 Hardware Active: ${languageCode}`);
+    };
+
+    recognition.onresult = (event) => {
+      const lastResult = event.results[event.results.length - 1][0].transcript;
+      setTranscript(lastResult);
+      console.log("🗣️ Heard:", lastResult);
+    };
+
+    recognition.onerror = (event) => {
+      // Ignore minor errors
+      if (event.error === "no-speech" || event.error === "aborted") return;
+
+      console.error("⚠️ Speech Error:", event.error);
+      // ONLY turn off if it's a hard failure
+      if (
+        event.error === "not-allowed" ||
+        event.error === "service-not-allowed"
+      ) {
+        setIsListening(false);
+        alert("Microphone blocked. Please enable permissions.");
       }
+    };
 
-      const recognition = new window.webkitSpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = false;
-      recognition.lang = languageCode; // <--- Updates when you switch props
+    recognition.onend = () => {
+      // If the browser kills the mic but we wanted it open, we update state
+      if (isListeningRef.current) {
+        console.log("🛑 Browser stopped session.");
+        setIsListening(false);
+      }
+    };
 
-      recognition.onresult = (event) => {
-        const lastResult =
-          event.results[event.results.length - 1][0].transcript;
-        setTranscript(lastResult);
-        console.log("Voice Command:", lastResult);
-      };
+    recognitionRef.current = recognition;
 
-      recognition.onerror = (event) => {
-        console.error("Speech Error:", event.error);
-      };
-
-      recognition.onend = () => {
-        // Auto-restart ONLY if we are supposed to be listening
-        if (isListeningRef.current) {
+    // --- AUTO-RESTART (For Language Switching) ---
+    // If we were listening before the switch, restart immediately
+    if (isListeningRef.current) {
+      const timer = setTimeout(() => {
+        if (isListeningRef.current && recognitionRef.current) {
           try {
-            recognition.start();
+            recognitionRef.current.start();
+            console.log(`🎤 Switched to ${languageCode}`);
           } catch (e) {
-            console.log("Restart prevented (busy)");
+            console.warn("Restart overlap", e);
           }
         }
-      };
-
-      recognitionRef.current = recognition;
-
-      // 3. SAFE START (The Magic Fix)
-      // We wait 100ms to let the old mic fully die before starting the new one
-      if (isListeningRef.current) {
-        setTimeout(() => {
-          try {
-            recognition.start();
-            console.log(`Mic switched to ${languageCode}`);
-          } catch (error) {
-            console.error("Mic switch error:", error);
-          }
-        }, 100);
-      }
-
-      // Clean up: Stop listening if the component unmounts or language changes
-      return () => {
-        recognition.stop();
-      };
+      }, 50);
+      return () => clearTimeout(timer);
     }
-  }, [languageCode]); // <--- Re-run this effect only if Language changes
+
+    return () => {
+      if (recognition) {
+        // Silently kill the old mic so it doesn't trigger 'onend'
+        recognition.onend = null;
+        recognition.stop();
+      }
+    };
+  }, [languageCode]);
 
   const toggleListening = () => {
+    if (!recognitionRef.current) return;
+
     if (isListening) {
-      setIsListening(false);
-      recognitionRef.current?.stop();
+      // STOPPING
+      setIsListening(false); // Turn Grey Immediately
+      recognitionRef.current.stop();
     } else {
-      setIsListening(true);
+      // STARTING
+      setIsListening(true); // Turn Blue Immediately (Optimistic)
       try {
-        recognitionRef.current?.start();
+        recognitionRef.current.start();
       } catch (error) {
-        console.error("Failed to start voice recognition:", error);
+        console.error("❌ Start Failed:", error);
+        setIsListening(false); // Revert if it actually crashed
       }
     }
   };
