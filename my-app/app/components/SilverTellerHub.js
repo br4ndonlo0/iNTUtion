@@ -130,49 +130,7 @@ export default function SilverTellerHub({ screenName = "Home" }) {
         </div>
       </div>
 
-      {/* 2. LANGUAGE SWITCHER (Moved to left-56 to avoid overlap) */}
-      <div
-        className="fixed top-4 left-64 flex gap-2 z-50"
-        style={{ pointerEvents: "auto" }}
-      >
-        {/* ENGLISH BUTTON */}
-        <button
-          onClick={() => setCurrentLang(SG_LANGUAGES.ENGLISH)}
-          className={`px-3 py-1 rounded text-xs font-bold shadow-md hover:scale-105 transition-all ${
-            currentLang === SG_LANGUAGES.ENGLISH
-              ? "bg-blue-600 text-white ring-2 ring-blue-300" // Active Style
-              : "bg-gray-800 text-gray-400 hover:bg-gray-700" // Inactive Style
-          }`}
-        >
-          ENG 🇸🇬
-        </button>
-
-        {/* CHINESE BUTTON */}
-        <button
-          onClick={() => setCurrentLang(SG_LANGUAGES.CHINESE)}
-          className={`px-3 py-1 rounded text-xs font-bold shadow-md hover:scale-105 transition-all ${
-            currentLang === SG_LANGUAGES.CHINESE
-              ? "bg-red-600 text-white ring-2 ring-red-300"
-              : "bg-gray-800 text-gray-400 hover:bg-gray-700"
-          }`}
-        >
-          中文
-        </button>
-
-        {/* MALAY BUTTON */}
-        <button
-          onClick={() => setCurrentLang(SG_LANGUAGES.MALAY)}
-          className={`px-3 py-1 rounded text-xs font-bold shadow-md hover:scale-105 transition-all ${
-            currentLang === SG_LANGUAGES.MALAY
-              ? "bg-yellow-600 text-white ring-2 ring-yellow-300"
-              : "bg-gray-800 text-gray-400 hover:bg-gray-700"
-          }`}
-        >
-          MELAYU
-        </button>
-      </div>
-
-      {/* 3. VIRTUAL CURSOR (Added pointer-events-none) */}
+      {/* 2. VIRTUAL CURSOR (Added pointer-events-none) */}
       {isCameraOn && (
         <div
           id="virtual-cursor"

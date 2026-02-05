@@ -6,6 +6,7 @@ type RegisterPayload = {
   name?: string;
   email?: string;
   password?: string;
+  preferredLanguage?: string;
 };
 
 export async function POST(request: Request) {
@@ -14,6 +15,7 @@ export async function POST(request: Request) {
     const name = body.name?.trim();
     const email = body.email?.trim();
     const password = body.password;
+    const preferredLanguage = body.preferredLanguage || "en";
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -49,6 +51,7 @@ export async function POST(request: Request) {
       email,
       emailLower,
       passwordHash,
+      preferredLanguage,
       createdAt: new Date(),
     });
 

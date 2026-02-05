@@ -3,13 +3,18 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { T } from "@/components/Translate";
+import { LanguageSelect } from "@/components/LanguageSelect";
+import { useTranslation } from "@/context/TranslationContext";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { setLanguageByCode } = useTranslation();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [preferredLanguage, setPreferredLanguage] = useState("en");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -35,7 +40,7 @@ export default function RegisterPage() {
       const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email, password, preferredLanguage }),
       });
 
       const data = (await response.json()) as { success: boolean; message?: string };
@@ -61,13 +66,13 @@ export default function RegisterPage() {
         <div className="max-w-6xl mx-auto px-4 py-5 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition">
             <span className="text-3xl">🏦</span>
-            <span className="text-2xl font-bold tracking-tight">Bank Buddy</span>
+            <span className="text-2xl font-bold tracking-tight"><T>Bank Buddy</T></span>
           </Link>
           <Link 
             href="/login" 
             className="text-sm bg-white/20 hover:bg-white/30 px-4 py-2 rounded-full transition font-medium"
           >
-            Sign In
+            <T>Sign In</T>
           </Link>
         </div>
       </header>
@@ -83,14 +88,14 @@ export default function RegisterPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-slate-900">Create your account</h2>
-              <p className="text-slate-500 mt-2">Join Bank Buddy and start managing your finances</p>
+              <h2 className="text-2xl font-bold text-slate-900"><T>Create your account</T></h2>
+              <p className="text-slate-500 mt-2"><T>Join Bank Buddy and start managing your finances</T></p>
             </div>
 
             <form className="space-y-5" onSubmit={handleRegister}>
               {/* Full Name */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Full Name</label>
+                <label className="text-sm font-medium text-slate-700"><T>Full Name</T></label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,7 +114,7 @@ export default function RegisterPage() {
 
               {/* Email */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Email Address</label>
+                <label className="text-sm font-medium text-slate-700"><T>Email Address</T></label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,7 +135,7 @@ export default function RegisterPage() {
               {/* Passwords */}
               <div className="space-y-3">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Password</label>
+                  <label className="text-sm font-medium text-slate-700"><T>Password</T></label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -166,7 +171,7 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Confirm Password</label>
+                  <label className="text-sm font-medium text-slate-700"><T>Confirm Password</T></label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,8 +205,18 @@ export default function RegisterPage() {
                     </button>
                   </div>
                 </div>
-                <p className="text-xs text-slate-500">Must be at least 8 characters</p>
+                <p className="text-xs text-slate-500"><T>Must be at least 8 characters</T></p>
               </div>
+
+              {/* Language Selection */}
+              <LanguageSelect
+                value={preferredLanguage}
+                onChange={(lang) => {
+                  setPreferredLanguage(lang);
+                  setLanguageByCode(lang);
+                }}
+                label="Preferred Language"
+              />
 
               {/* Error Message */}
               {errorMessage && (
@@ -229,10 +244,10 @@ export default function RegisterPage() {
                   </div>
                 </div>
                 <span className="text-sm text-slate-600 group-hover:text-slate-900 transition">
-                  I agree to the{" "}
-                  <a href="#" className="text-[#C8102E] hover:underline font-medium">Terms of Service</a>
-                  {" "}and{" "}
-                  <a href="#" className="text-[#C8102E] hover:underline font-medium">Privacy Policy</a>
+                  <T>I agree to the</T>{" "}
+                  <a href="#" className="text-[#C8102E] hover:underline font-medium"><T>Terms of Service</T></a>
+                  {" "}<T>and</T>{" "}
+                  <a href="#" className="text-[#C8102E] hover:underline font-medium"><T>Privacy Policy</T></a>
                 </span>
               </label>
 
@@ -248,18 +263,18 @@ export default function RegisterPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Creating account...
+                    <T>Creating account...</T>
                   </span>
                 ) : (
-                  "Create account"
+                  <T>Create account</T>
                 )}
               </button>
 
               {/* Sign In Link */}
               <p className="text-center text-sm text-slate-600 mt-6">
-                Already have an account?{" "}
+                <T>Already have an account?</T>{" "}
                 <Link href="/login" className="text-[#C8102E] hover:underline font-semibold">
-                  Sign in
+                  <T>Sign in</T>
                 </Link>
               </p>
             </form>
@@ -267,7 +282,7 @@ export default function RegisterPage() {
 
           {/* Footer */}
           <p className="text-center text-xs text-slate-400 mt-6">
-            Protected by enterprise-grade security
+            <T>Protected by enterprise-grade security</T>
           </p>
         </div>
       </main>

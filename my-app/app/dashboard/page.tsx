@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { T } from '@/components/Translate';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -84,7 +85,7 @@ export default function Dashboard() {
               </div>
               <div className="text-left">
                 <p className="text-sm font-semibold text-gray-900">{userName || 'User'}</p>
-                <p className="text-xs text-gray-500">Profile</p>
+                <p className="text-xs text-gray-500"><T>Profile</T></p>
               </div>
               <span className="text-gray-500">▾</span>
             </button>
@@ -96,21 +97,21 @@ export default function Dashboard() {
                   className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-t-xl"
                   onClick={() => setProfileOpen(false)}
                 >
-                  View Profile
+                  <T>View Profile</T>
                 </Link>
                 <Link
                   href="/settings"
                   className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
                   onClick={() => setProfileOpen(false)}
                 >
-                  Settings
+                  <T>Settings</T>
                 </Link>
                 <button
                   type="button"
                   className="w-full text-left px-4 py-3 text-sm text-[#C8102E] hover:bg-gray-50 rounded-b-xl"
                   onClick={handleLogout}
                 >
-                  Log out
+                  <T>Log out</T>
                 </button>
               </div>
             )}
@@ -120,22 +121,22 @@ export default function Dashboard() {
         {/* Stat Cards */}
         <div className="grid grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <p className="text-sm text-gray-500 mb-2">Total Balance</p>
+            <p className="text-sm text-gray-500 mb-2"><T>Total Balance</T></p>
             <p className="text-2xl font-bold text-gray-900">$12,458.32</p>
             <p className="text-sm text-green-600 mt-2">+11.01% ↗</p>
           </div>
           <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <p className="text-sm text-gray-500 mb-2">Monthly Income</p>
+            <p className="text-sm text-gray-500 mb-2"><T>Monthly Income</T></p>
             <p className="text-2xl font-bold text-gray-900">$5,640</p>
             <p className="text-sm text-green-600 mt-2">+9.15% ↗</p>
           </div>
           <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <p className="text-sm text-gray-500 mb-2">Monthly Expenses</p>
+            <p className="text-sm text-gray-500 mb-2"><T>Monthly Expenses</T></p>
             <p className="text-2xl font-bold text-gray-900">$2,430</p>
             <p className="text-sm text-red-500 mt-2">-0.56% ↘</p>
           </div>
           <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <p className="text-sm text-gray-500 mb-2">Transactions</p>
+            <p className="text-sm text-gray-500 mb-2"><T>Transactions</T></p>
             <p className="text-2xl font-bold text-gray-900">156</p>
             <p className="text-sm text-red-500 mt-2">-1.48% ↘</p>
           </div>

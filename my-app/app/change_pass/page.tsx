@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { T } from "@/components/Translate";
 
 export default function ChangePassword() {
   const router = useRouter();

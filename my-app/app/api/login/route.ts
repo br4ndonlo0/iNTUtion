@@ -53,6 +53,7 @@ export async function POST(request: Request) {
           id: user._id.toString(),
           name: user.name,
           email: user.email,
+          preferredLanguage: user.preferredLanguage || "en",
         },
       },
       { status: 200 }

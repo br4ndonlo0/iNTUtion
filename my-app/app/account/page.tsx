@@ -3,11 +3,16 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { T } from "@/components/Translate";
+import { LanguageSelect } from "@/components/LanguageSelect";
+import { useTranslation } from "@/context/TranslationContext";
 
 export default function AccountPage() {
   const router = useRouter();
+  const { setLanguageByCode } = useTranslation();
   const [userName, setUserName] = useState("User");
   const [userEmail, setUserEmail] = useState("Not available");
+  const [preferredLanguage, setPreferredLanguage] = useState("en");
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -15,6 +20,7 @@ export default function AccountPage() {
       const user = JSON.parse(storedUser);
       setUserName(user.name || user.username || "User");
       setUserEmail(user.email || "Not available");
+      setPreferredLanguage(user.preferredLanguage || "en");
     }
   }, []);
 
@@ -27,7 +33,7 @@ export default function AccountPage() {
     <div className="min-h-screen bg-slate-100">
       <header className="bg-[#C8102E] text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Bank Buddy</h1>
+          <h1 className="text-2xl font-bold"><T>Bank Buddy</T></h1>
           <span className="text-sm">Account</span>
         </div>
       </header>
@@ -62,6 +68,28 @@ export default function AccountPage() {
             >
               Change password
             </Link>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">Language</h3>
+            <p className="text-sm text-slate-700 mb-4">
+              Choose your preferred language for the application.
+            </p>
+            <LanguageSelect
+              value={preferredLanguage}
+              onChange={(lang) => {
+                setPreferredLanguage(lang);
+                setLanguageByCode(lang);
+                // Update stored user preference
+                const storedUser = localStorage.getItem("user");
+                if (storedUser) {
+                  const user = JSON.parse(storedUser);
+                  user.preferredLanguage = lang;
+                  localStorage.setItem("user", JSON.stringify(user));
+                }
+              }}
+              label=""
+            />
           </div>
 
           <div className="bg-white rounded-xl shadow-md p-6">

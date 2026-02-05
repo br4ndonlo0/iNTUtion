@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { T } from "@/components/Translate";
 
 const recipients = [
   { id: "john-1234", name: "John Tan", detail: "Phone: 9123 1234" },
@@ -27,8 +28,8 @@ export default function TransferPage() {
       {/* Header */}
       <header className="bg-[#C8102E] text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">🏦 Bank Buddy</h1>
-          <span className="text-sm">Transfer</span>
+          <h1 className="text-2xl font-bold">🏦 <T>Bank Buddy</T></h1>
+          <span className="text-sm"><T>Transfer</T></span>
         </div>
       </header>
 
@@ -36,10 +37,10 @@ export default function TransferPage() {
         {/* Intro */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <h2 className="text-lg font-semibold text-slate-900 mb-1">
-            Transfer Money
+            <T>Transfer Money</T>
           </h2>
           <p className="text-sm text-slate-700">
-            Search a phone number / account number, or select a recipient below.
+            <T>Search a phone number / account number, or select a recipient below.</T>
           </p>
         </div>
 

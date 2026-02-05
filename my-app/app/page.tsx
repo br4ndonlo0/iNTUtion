@@ -5,6 +5,8 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Link from "next/link";
 import SilverTellerHub from "./components/SilverTellerHub";
+import { T } from "@/components/Translate";
+import { LanguageButtonsFixed } from "@/components/LanguageButtonsFixed";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -138,6 +140,7 @@ export default function Home() {
 
   return (
     <div ref={heroRef} className="min-h-screen bg-white overflow-hidden">
+      <LanguageButtonsFixed />
       {/* Hero Section - Clean and Simple */}
       <section className="min-h-screen flex flex-col items-center justify-center px-6 bg-white">
         <div className="text-center max-w-4xl mx-auto">
@@ -146,7 +149,7 @@ export default function Home() {
             ref={brandRef}
             className="text-6xl md:text-8xl lg:text-9xl font-bold text-[#C8102E] mb-8 tracking-tight"
           >
-            Bank Buddy
+            <T>Bank Buddy</T>
           </h1>
 
           {/* YNBA Logo Style */}
@@ -209,7 +212,7 @@ export default function Home() {
               </svg>
             </div>
             <p ref={ynbaSubtitleRef} className="text-xl md:text-2xl text-[#C8102E] mt-4 italic">
-              You&apos;ll Never Bank Alone
+              <T>You&apos;ll Never Bank Alone</T>
             </p>
           </div>
 
@@ -219,13 +222,13 @@ export default function Home() {
               href="/register"
               className="px-10 py-4 bg-[#C8102E] text-white font-semibold rounded-full hover:bg-[#A50D26] transition-colors duration-300 text-lg"
             >
-              Get Started
+              <T>Get Started</T>
             </Link>
             <Link
               href="/login"
               className="px-10 py-4 border-2 border-[#C8102E] text-[#C8102E] font-semibold rounded-full hover:bg-[#C8102E] hover:text-white transition-colors duration-300 text-lg"
             >
-              Sign In
+              <T>Sign In</T>
             </Link>
           </div>
         </div>
@@ -242,27 +245,27 @@ export default function Home() {
       <section ref={section1Ref} className="py-32 px-6 bg-[#C8102E]">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="animate-on-scroll text-4xl md:text-6xl font-bold text-white mb-8">
-            Banking Made Simple
+            <T>Banking Made Simple</T>
           </h2>
           <p className="animate-on-scroll text-xl md:text-2xl text-white mb-16 max-w-2xl mx-auto">
-            No complicated jargon. No hidden fees. Just straightforward banking that works for you.
+            <T>No complicated jargon. No hidden fees. Just straightforward banking that works for you.</T>
           </p>
           
           <div className="grid md:grid-cols-3 gap-8">
             <div className="animate-on-scroll bg-white rounded-2xl p-8">
               <div className="text-5xl mb-4">🔒</div>
-              <h3 className="text-xl font-bold text-[#C8102E] mb-2">Secure</h3>
-              <p className="text-[#C8102E]">Bank-grade encryption protects your data</p>
+              <h3 className="text-xl font-bold text-[#C8102E] mb-2"><T>Secure</T></h3>
+              <p className="text-[#C8102E]"><T>Bank-grade encryption protects your data</T></p>
             </div>
             <div className="animate-on-scroll bg-white rounded-2xl p-8">
               <div className="text-5xl mb-4">⚡</div>
-              <h3 className="text-xl font-bold text-[#C8102E] mb-2">Fast</h3>
-              <p className="text-[#C8102E]">Instant transfers, real-time updates</p>
+              <h3 className="text-xl font-bold text-[#C8102E] mb-2"><T>Fast</T></h3>
+              <p className="text-[#C8102E]"><T>Instant transfers, real-time updates</T></p>
             </div>
             <div className="animate-on-scroll bg-white rounded-2xl p-8">
               <div className="text-5xl mb-4">💡</div>
-              <h3 className="text-xl font-bold text-[#C8102E] mb-2">Smart</h3>
-              <p className="text-[#C8102E]">AI insights to help you save more</p>
+              <h3 className="text-xl font-bold text-[#C8102E] mb-2"><T>Smart</T></h3>
+              <p className="text-[#C8102E]"><T>AI insights to help you save more</T></p>
             </div>
           </div>
         </div>
@@ -273,8 +276,8 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="py-8 px-6 bg-white text-center border-t-2 border-[#C8102E]">
-        <p className="text-[#C8102E] font-semibold">YNBA — You&apos;ll Never Bank Alone</p>
-        <p className="text-[#C8102E] mt-2">© 2026 Bank Buddy. All rights reserved.</p>
+        <p className="text-[#C8102E] font-semibold"><T>YNBA — You&apos;ll Never Bank Alone</T></p>
+        <p className="text-[#C8102E] mt-2"><T>© 2026 Bank Buddy. All rights reserved.</T></p>
       </footer>
     </div>
   );
