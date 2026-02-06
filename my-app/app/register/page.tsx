@@ -33,13 +33,19 @@ export default function RegisterPage() {
     if (!pendingFieldValue) return;
 
     if (pendingFieldValue.field === "name") {
-      setName(pendingFieldValue.value);
+      // Remove command word (e.g., 'full name') from value
+      const value = pendingFieldValue.value.trim();
+      const filtered = value.replace(/^full\s*name\s+/i, "").replace(/^nama\s*penuh\s+/i, "");
+      setName(filtered);
       clearPendingValue();
       return;
     }
 
     if (pendingFieldValue.field === "username") {
-      setUsername(pendingFieldValue.value);
+      // Remove command word (e.g., 'username') from value
+      const value = pendingFieldValue.value.trim();
+      const filtered = value.replace(/^username\s+/i, "").replace(/^user\s+/i, "");
+      setUsername(filtered);
       clearPendingValue();
       return;
     }
@@ -68,7 +74,7 @@ export default function RegisterPage() {
     }
   }, [pendingFieldValue, clearPendingValue]);
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     setErrorMessage("");
 

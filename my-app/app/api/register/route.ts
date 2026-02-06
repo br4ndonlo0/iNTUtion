@@ -6,27 +6,25 @@ import { encryptBalance } from "@/lib/encryption";
 type RegisterPayload = {
   name?: string;
   username?: string;
-  phone?: string;
-  email?: string;
   phoneNumber?: string;
+  email?: string;
   password?: string;
   preferredLanguage?: string;
 };
 
-const normalizePhone = (value: string) => value.replace(/(?!^\+)[^\d]/g, "");
+// No longer needed: normalizePhone
 
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as RegisterPayload;
     const name = body.name?.trim();
     const username = body.username?.trim();
-    const phone = body.phone?.trim();
     const email = body.email?.trim();
     const phoneNumberRaw = body.phoneNumber?.trim();
     const password = body.password;
     const preferredLanguage = body.preferredLanguage || "en";
 
-    if (!name || !username || !phone || !email || !phoneNumberRaw || !password) {
+    if (!name || !username || !phoneNumberRaw || !email || !password) {
       return NextResponse.json(
         { success: false, message: "Missing required fields." },
         { status: 400 },
@@ -53,21 +51,17 @@ export async function POST(request: Request) {
     const users = db.collection("users");
     const emailLower = email.toLowerCase();
     const usernameLower = username.toLowerCase();
-    const phoneNormalized = normalizePhone(phone);
-
-    if (!phoneNormalized) {
-      return NextResponse.json(
-        { success: false, message: "Phone number is invalid." },
-        { status: 400 },
-      );
-    }
 
     const existingUser = await users.findOne({
-      $or: [{ emailLower }, { usernameLower }, { phoneNormalized }],
+      $or: [
+        { emailLower },
+        { usernameLower },
+        { phoneNumber },
+      ],
     });
     if (existingUser) {
       return NextResponse.json(
-        { success: false, message: "Email, username, or phone is already registered." },
+        { success: false, message: "Email, username, or phone number is already registered." },
         { status: 409 },
       );
     }
@@ -80,8 +74,6 @@ export async function POST(request: Request) {
       name,
       username,
       usernameLower,
-      phone,
-      phoneNormalized,
       email,
       emailLower,
       phoneNumber,

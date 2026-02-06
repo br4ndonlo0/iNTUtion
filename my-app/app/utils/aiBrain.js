@@ -33,7 +33,7 @@ export async function getAiAction(transcript, gesture, screenName) {
     7. { "action": "PHONE", "value": "<phone number>" }
     8. { "action": "EMAIL", "value": "<email address>" }
     9. { "action": "CONFIRMPASS", "value": "<confirm password>" }
-    10. { "action": "FULLNAME", "value": "<full name>" }
+    10. { "action": "NAME", "value": "<full name>" }
     11. { "action": "UNKNOWN" }
     
     RULES:
@@ -49,7 +49,7 @@ export async function getAiAction(transcript, gesture, screenName) {
 
     // 3. Call the Gemini API (REST method - no extra installation needed)
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

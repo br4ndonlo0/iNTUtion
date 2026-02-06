@@ -5,7 +5,7 @@
   import { useVoice } from '@/context/VoiceContext';
 
 interface AiAction {
-  action: 'NAVIGATE' | '导航' | 'mengemudi' | 'FILL_FORM' | 'CONFIRM' | 'REJECT' | 'UNKNOWN' | 'isi_borang' | '填表' | 'setuju' | '确认' | 'tolak' | '拒绝' | 'FULL_NAME' | '全名' | 'nama_penuh' | 'USERNAME' | '用户名' | 'nama_pengguna' | 'PASSWORD' | '密码' | 'kata_laluan' | 'CONFIRM_PASSWORD' | '确认密码' | 'sahkan_kata_laluan' | 'PHONE' | '电话' | 'telefon' | 'EMAIL' | '电子邮件' | 'emel';
+  action: 'NAVIGATE' | '导航' | 'mengemudi' | 'FILL_FORM' | 'CONFIRM' | 'REJECT' | 'UNKNOWN' | 'isi_borang' | '填表' | 'setuju' | '确认' | 'tolak' | '拒绝' | 'NAME' | '名字' | 'nama' | 'USERNAME' | '用户名' | 'nama_pengguna' | 'PASSWORD' | '密码' | 'kata_laluan' | 'CONFIRM_PASSWORD' | '确认密码' | 'sahkan_kata_laluan' | 'PHONE' | '电话' | 'telefon' | 'EMAIL' | '电子邮件' | 'emel';
   target?: string;
   amount?: number;
   recipient?: string;
@@ -31,6 +31,15 @@ interface AiAction {
 
       try {
         switch (action.action) {
+          case 'NAME':
+          case '名字':
+          case 'nama':
+            // Set the full name field directly
+            if (action.value) {
+              setFieldValue('name', action.value);
+              speak(`Full name set to ${action.value}`);
+            }
+            break;
           case 'NAVIGATE':
           case '导航':
           case 'mengemudi':
