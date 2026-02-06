@@ -108,7 +108,7 @@ export default function ChangePassword() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-xl font-semibold text-gray-500 animate-pulse">Loading secure data...</p>
+        <p className="text-xl font-semibold text-gray-500 animate-pulse"><T>Loading secure data...</T></p>
       </div>
     );
   }
@@ -120,10 +120,10 @@ export default function ChangePassword() {
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition">
             <span className="text-2xl">←</span>
-            <span className="text-sm font-medium">Dashboard</span>
+            <span className="text-sm font-medium"><T>Dashboard</T></span>
           </Link>
-          <h1 className="text-2xl font-bold">Bank Buddy</h1>
-          <span className="text-sm">Change Password</span>
+          <h1 className="text-2xl font-bold"><T>Bank Buddy</T></h1>
+          <span className="text-sm"><T>Change Password</T></span>
         </div>
       </header>
 
@@ -131,7 +131,7 @@ export default function ChangePassword() {
         {/* Title Card */}
         <div className="bg-white rounded-xl shadow-md p-6 mb-6">
           <h2 className="text-3xl font-semibold text-slate-900">
-            Change password
+            <T>Change password</T>
           </h2>
         </div>
 
@@ -141,7 +141,7 @@ export default function ChangePassword() {
             {/* User ID */}
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
-                User
+                <T>User</T>
               </label>
               <div className="bg-slate-900 text-white rounded-lg px-4 py-3">
                 {userName || "Loading..."}
@@ -151,7 +151,7 @@ export default function ChangePassword() {
             {/* Old Password */}
             <div>
               <label htmlFor="old-password" className="block text-sm font-semibold text-slate-700 mb-2">
-                Current password
+                <T>Current password</T>
               </label>
               <div className="relative">
                 <input
@@ -184,7 +184,7 @@ export default function ChangePassword() {
             {/* New Password */}
             <div>
               <label htmlFor="new-password" className="block text-sm font-semibold text-slate-700 mb-2">
-                New password
+                <T>New password</T>
               </label>
               <div className="relative">
                 <input
@@ -213,13 +213,13 @@ export default function ChangePassword() {
                   )}
                 </button>
               </div>
-              <p className="text-xs text-slate-500 mt-1">Must be at least 8 characters</p>
+              <p className="text-xs text-slate-500 mt-1"><T>Must be at least 8 characters</T></p>
             </div>
 
             {/* Confirm Password */}
             <div>
               <label htmlFor="confirm-password" className="block text-sm font-semibold text-slate-700 mb-2">
-                Confirm new password
+                <T>Confirm new password</T>
               </label>
               <div className="relative">
                 <input
@@ -277,13 +277,13 @@ export default function ChangePassword() {
                 className="px-8 py-3 bg-[#C8102E] text-white font-semibold rounded-lg hover:bg-[#A50D26] transition disabled:opacity-60"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Changing..." : "Change Password"}
+                {isSubmitting ? <T>Changing...</T> : <T>Change Password</T>}
               </button>
               <Link
                 href="/settings"
                 className="px-8 py-3 text-[#C8102E] font-semibold hover:text-[#A50D26] transition"
               >
-                Cancel
+                <T>Cancel</T>
               </Link>
             </div>
           </form>

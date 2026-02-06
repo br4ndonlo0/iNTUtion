@@ -25,6 +25,8 @@ export default function RegisterPage() {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
   const { pendingFieldValue, clearPendingValue } = useVoice();
   const handleAiResponse = useHandleAiResponse();
   const { setLanguageByCode } = useTranslation();
@@ -348,9 +350,21 @@ export default function RegisterPage() {
                 </div>
                 <span className="text-sm text-slate-600 group-hover:text-slate-900 transition">
                   <T>I agree to the</T>{" "}
-                  <a href="#" className="text-[#C8102E] hover:underline font-medium"><T>Terms of Service</T></a>
+                  <button
+                    type="button"
+                    onClick={() => setShowTerms(true)}
+                    className="text-[#C8102E] hover:underline font-medium"
+                  >
+                    <T>Terms of Service</T>
+                  </button>
                   {" "}<T>and</T>{" "}
-                  <a href="#" className="text-[#C8102E] hover:underline font-medium"><T>Privacy Policy</T></a>
+                  <button
+                    type="button"
+                    onClick={() => setShowPrivacy(true)}
+                    className="text-[#C8102E] hover:underline font-medium"
+                  >
+                    <T>Privacy Policy</T>
+                  </button>
                 </span>
               </label>
 
@@ -387,6 +401,58 @@ export default function RegisterPage() {
           <p className="text-center text-xs text-slate-400 mt-6">
             <T>Protected by enterprise-grade security</T>
           </p>
+
+          {(showTerms || showPrivacy) && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+              <div className="w-full max-w-2xl rounded-2xl bg-white shadow-xl">
+                <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+                  <h3 className="text-lg font-semibold text-slate-900">
+                    {showTerms ? "Terms of Service" : "Privacy Policy"}
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowTerms(false);
+                      setShowPrivacy(false);
+                    }}
+                    className="text-slate-500 hover:text-slate-700"
+                    aria-label="Close dialog"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="max-h-[60vh] overflow-y-auto px-6 py-4 text-sm text-slate-700 space-y-4">
+                  {showTerms ? (
+                    <>
+                      <p>By creating an account, you agree to use the service responsibly and follow all applicable laws.</p>
+                      <p>You are responsible for maintaining the confidentiality of your account credentials.</p>
+                      <p>We may suspend or terminate accounts that violate these terms or attempt fraudulent activity.</p>
+                      <p>Service availability may vary, and features may change with notice as we improve the product.</p>
+                    </>
+                  ) : (
+                    <>
+                      <p>We collect basic account details such as your name, email, and phone number to provide services.</p>
+                      <p>We use your data to authenticate you, process transactions, and improve the app experience.</p>
+                      <p>We do not sell your personal data. We only share information when required by law.</p>
+                      <p>You can request data removal by contacting support, subject to regulatory requirements.</p>
+                    </>
+                  )}
+                </div>
+                <div className="flex justify-end border-t border-slate-200 px-6 py-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowTerms(false);
+                      setShowPrivacy(false);
+                    }}
+                    className="rounded-lg bg-[#C8102E] px-4 py-2 text-white hover:bg-[#A50D26]"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
       <SilverTellerHub screenName="Register" onAiAction={handleAiResponse} />

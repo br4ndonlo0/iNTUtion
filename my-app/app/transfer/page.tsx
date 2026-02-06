@@ -184,7 +184,13 @@ useEffect(() => {
     performAction(phoneNumber, amount);
   };
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-xl font-semibold text-gray-500 animate-pulse"><T>Loading secure data...</T></p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -192,59 +198,53 @@ useEffect(() => {
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2">
             <span className="text-2xl">←</span>
-            <span className="text-sm font-medium">Dashboard</span>
+            <span className="text-sm font-medium"><T>Dashboard</T></span>
           </Link>
-          <h1 className="text-2xl font-bold">Bank Buddy</h1>
+          <h1 className="text-2xl font-bold"><T>Bank Buddy</T></h1>
+          <span className="text-sm"><T>Transfer</T></span>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        <form onSubmit={handleManualSubmit} className="bg-white rounded-xl shadow-md p-6 space-y-4">
-          
-          {/* Status Messages */}
-          {status === "success" && (
-            <div className="p-4 bg-green-100 text-green-700 rounded-lg flex items-center gap-2">
-              <span className="text-xl">✅</span> Transfer Successful! Redirecting...
+        <form
+          onSubmit={handleSearch}
+          className="bg-white rounded-xl shadow-md p-6 space-y-3"
+        >
+          <label className="text-sm text-slate-700"><T>Recipient phone number</T></label>
+
+          <div className="flex gap-3">
+            <input
+              type="tel"
+              inputMode="numeric"
+              pattern="\d{8}"
+              maxLength={8}
+              className="flex-1 rounded-lg border border-slate-200 bg-white py-3 px-3 text-black outline-none
+                         focus:ring-2 focus:ring-[#C8102E]/20 focus:border-[#C8102E]
+                         placeholder:text-slate-400"
+              placeholder="e.g. 91231234"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, "").slice(0, 8))}
+            />
+
+            <button
+              type="submit"
+              className="px-4 py-3 rounded-lg bg-[#C8102E] text-white hover:bg-[#A50D26] transition disabled:opacity-60 disabled:cursor-not-allowed"
+              disabled={isSearching}
+            >
+              {isSearching ? <T>Searching...</T> : <T>Search</T>}
+            </button>
+          </div>
+
+          {searchError && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {searchError}
             </div>
           )}
 
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-700">Recipient Phone</label>
-            <input
-              type="tel"
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#C8102E]/20"
-              placeholder="e.g. 91231234"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              disabled={status === "transferring" || status === "success"}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-700">Amount</label>
-            <input
-              type="number"
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#C8102E]/20"
-              placeholder="0.00"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              disabled={status === "transferring" || status === "success"}
-            />
-          </div>
-
-          {errorMessage && <div className="text-red-600 text-sm font-medium">{errorMessage}</div>}
-
-          <button
-            type="submit"
-            disabled={status === "searching" || status === "transferring" || status === "success"}
-            className={`w-full text-white p-4 rounded-lg font-bold text-lg transition disabled:opacity-50 ${
-              status === "success" ? "bg-green-600" : "bg-[#C8102E] hover:bg-[#A50D26]"
-            }`}
-          >
-            {status === "searching" ? "Finding User..." : 
-             status === "transferring" ? "Sending Money..." : 
-             status === "success" ? "Sent!" : "Next"}
-          </button>
+          <p className="text-xs text-slate-600">
+            <T>“Search” voice command can fill this field, then route to</T>
+            <T> /transfer/[id].</T>
+          </p>
         </form>
       </main>
 
