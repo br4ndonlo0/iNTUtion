@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useMemo, useState, useEffect } from "react";
 import SilverTellerHub from "../../components/SilverTellerHub";
 import { useHandleAiResponse } from "@/hooks/useHandleAiResponse";
+import { T } from "@/components/Translate";
 export default function TransferToIdPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
@@ -127,7 +128,7 @@ export default function TransferToIdPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-xl font-semibold text-gray-500 animate-pulse">Loading secure data...</p>
+        <p className="text-xl font-semibold text-gray-500 animate-pulse"><T>Loading secure data...</T></p>
       </div>
     );
   }
@@ -139,10 +140,10 @@ export default function TransferToIdPage() {
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/transfer" className="flex items-center gap-2 hover:opacity-80 transition">
             <span className="text-2xl">←</span>
-            <span className="text-sm font-medium">Back</span>
+            <span className="text-sm font-medium"><T>Back</T></span>
           </Link>
-          <h1 className="text-2xl font-bold">Bank Buddy</h1>
-          <span className="text-sm">Transfer</span>
+          <h1 className="text-2xl font-bold"><T>Bank Buddy</T></h1>
+          <span className="text-sm"><T>Transfer</T></span>
         </div>
       </header>
 
@@ -150,10 +151,10 @@ export default function TransferToIdPage() {
         {/* Recipient */}
         <div className="bg-white rounded-xl shadow-md p-6">
           <h2 className="text-lg font-semibold text-slate-900 mb-1">
-            Transfer to Recipient
+            <T>Transfer to Recipient</T>
           </h2>
           <p className="text-sm text-slate-700">
-            Recipient ID:{" "}
+            <T>Recipient ID:</T>{" "}
             <span className="font-medium text-slate-900">{recipientId}</span>
           </p>
         </div>
@@ -161,7 +162,7 @@ export default function TransferToIdPage() {
         {/* Amount + actions */}
         <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
           <div className="space-y-2">
-            <label className="text-sm text-slate-700">Amount</label>
+            <label className="text-sm text-slate-700"><T>Amount</T></label>
             <input
               inputMode="decimal"
               className="w-full rounded-lg border border-slate-200 bg-white py-3 px-3 text-slate-900 outline-none focus:ring-2 focus:ring-[#C8102E]/20 focus:border-[#C8102E] placeholder:text-slate-500"
@@ -184,14 +185,14 @@ export default function TransferToIdPage() {
               className="flex-1 px-4 py-3 rounded-lg bg-[#C8102E] text-white hover:bg-[#A50D26] transition disabled:opacity-60 disabled:cursor-not-allowed"
               disabled={isTransferring}
             >
-              Transfer
+              <T>Transfer</T>
             </button>
 
             <Link
               href="/transfer"
               className="flex-1 text-center px-4 py-3 rounded-lg bg-white border border-slate-300 text-slate-800 hover:bg-slate-50 transition"
             >
-              Cancel
+              <T>Cancel</T>
             </Link>
           </div>
         </div>

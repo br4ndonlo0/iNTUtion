@@ -3,13 +3,15 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { T } from '@/components/Translate';
+import { T, useTranslatedText } from '@/components/Translate';
 import SilverTellerHub from '../components/SilverTellerHub';
 import { useHandleAiResponse } from "@/hooks/useHandleAiResponse";
+import { useTranslation } from "@/context/TranslationContext";
 
 export default function Dashboard() {
   const router = useRouter();
   const handleAiResponse = useHandleAiResponse();
+  const { currentLanguageCode } = useTranslation();
   const [userName, setUserName] = useState('');
   const [userBalance, setUserBalance] = useState(0);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -24,6 +26,29 @@ export default function Dashboard() {
     status: string;
   }>>([]);
   const [loadingTransactions, setLoadingTransactions] = useState(true);
+  const sentToLabel = useTranslatedText('Sent to');
+  const receivedFromLabel = useTranslatedText('Received from');
+  const completedLabel = useTranslatedText('Completed');
+
+  const formatTransactionDate = (value: string) => {
+    try {
+      return new Intl.DateTimeFormat(currentLanguageCode || 'en', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }).format(new Date(value));
+    } catch {
+      return new Date(value).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    }
+  };
 
   useEffect(() => {
     const checkSession = async () => {
@@ -76,7 +101,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-xl font-semibold text-gray-500 animate-pulse">Loading secure data...</p>
+        <p className="text-xl font-semibold text-gray-500 animate-pulse"><T>Loading secure data...</T></p>
       </div>
     );
   }
@@ -87,8 +112,8 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <Link href="/" className="text-xl font-bold text-[#C8102E]">Bank Buddy</Link>
-            <p className="text-sm text-gray-500">Today ▾</p>
+            <Link href="/" className="text-xl font-bold text-[#C8102E]"><T>Bank Buddy</T></Link>
+            <p className="text-sm text-gray-500"><T>Today</T> ▾</p>
           </div>
 
           <div className="relative">
@@ -114,14 +139,7 @@ export default function Dashboard() {
                   className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-t-xl"
                   onClick={() => setProfileOpen(false)}
                 >
-                  <T>View Profile</T>
-                </Link>
-                <Link
-                  href="/settings"
-                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
-                  onClick={() => setProfileOpen(false)}
-                >
-                  <T>Settings</T>
+                  <T>Profile & Settings</T>
                 </Link>
                 <button
                   type="button"
@@ -138,15 +156,15 @@ export default function Dashboard() {
         {/* Stat Cards */}
         <div className="mb-8">
           <div className="bg-gradient-to-br from-white to-red-50 rounded-2xl p-8 border-2 border-[#C8102E] shadow-lg">
-            <p className="text-sm font-semibold text-[#C8102E] mb-2 uppercase tracking-wide">Your Account Balance</p>
+            <p className="text-sm font-semibold text-[#C8102E] mb-2 uppercase tracking-wide"><T>Your Account Balance</T></p>
             <p className="text-5xl font-bold text-[#C8102E]">${userBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-            <p className="text-sm text-green-600 mt-3 font-medium">+11.01% from last month ↗</p>
+            <p className="text-sm text-green-600 mt-3 font-medium"><T>+11.01% from last month ↗</T></p>
           </div>
         </div>
 
         {/* Quick Actions */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4"><T>Quick Actions</T></h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link
               href="/transfer"
@@ -155,8 +173,8 @@ export default function Dashboard() {
               <svg className="w-12 h-12 mb-3 text-[#C8102E] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span className="font-semibold text-lg">Transfer Money</span>
-              <span className="text-sm text-gray-500 group-hover:text-white/80 mt-1">Send funds to others</span>
+              <span className="font-semibold text-lg"><T>Transfer Money</T></span>
+              <span className="text-sm text-gray-500 group-hover:text-white/80 mt-1"><T>Send funds to others</T></span>
             </Link>
             <button
               className="flex flex-col items-center justify-center p-6 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 transition-all cursor-not-allowed opacity-60 shadow-sm"
@@ -165,8 +183,8 @@ export default function Dashboard() {
               <svg className="w-12 h-12 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
               </svg>
-              <span className="font-semibold text-lg text-gray-600">Request Money</span>
-              <span className="text-sm text-gray-400 mt-1">Coming soon</span>
+              <span className="font-semibold text-lg text-gray-600"><T>Request Money</T></span>
+              <span className="text-sm text-gray-400 mt-1"><T>Coming soon</T></span>
             </button>
           </div>
         </div>
@@ -209,19 +227,13 @@ export default function Dashboard() {
                         <div>
                           <p className="font-semibold text-gray-900">
                             {txn.type === 'sent' ? (
-                              <><T>Sent to</T> {txn.recipientName}</>
+                              <>{sentToLabel} {txn.recipientName}</>
                             ) : (
-                              <><T>Received from</T> {txn.senderName}</>
+                              <>{receivedFromLabel} {txn.senderName}</>
                             )}
                           </p>
                           <p className="text-sm text-gray-500">
-                            {new Date(txn.createdAt).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
+                            {formatTransactionDate(txn.createdAt)}
                           </p>
                         </div>
                       </div>
@@ -231,7 +243,9 @@ export default function Dashboard() {
                         }`}>
                           {txn.type === 'sent' ? '-' : '+'}${txn.amount.toFixed(2)}
                         </p>
-                        <p className="text-xs text-gray-500 capitalize">{txn.status}</p>
+                        <p className="text-xs text-gray-500 capitalize">
+                          {txn.status === 'completed' ? completedLabel : txn.status}
+                        </p>
                       </div>
                     </div>
                   </div>

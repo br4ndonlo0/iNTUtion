@@ -147,7 +147,7 @@ export default function Home() {
         <MoneyRain count={32} emoji="💸" />
       </div>
       {/* Hero Section - Clean and Simple */}
-      <section className="min-h-screen flex flex-col items-center justify-center px-6 bg-white">
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 bg-white">
         <div className="text-center max-w-4xl mx-auto">
           {/* Main Brand */}
           <h1
@@ -238,12 +238,12 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Scroll hint */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
-          <div className="w-6 h-10 border-2 border-[#C8102E] rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-[#C8102E] rounded-full mt-2 animate-bounce" />
-          </div>
-        </div>
+{/* Scroll hint - Moved up slightly */}
+<div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[-20%] z-30">
+  <div className="w-9 h-14 border-2 border-[#C8102E] bg-white rounded-full flex justify-center shadow-xl">
+    <div className="w-1.5 h-3 bg-[#C8102E] rounded-full mt-3 animate-bounce" />
+  </div>
+</div>
       </section>
 
 {/* Section 1 - Why Bank Buddy */}
@@ -273,12 +273,12 @@ export default function Home() {
       
       {/* Headline area */}
       <div className="mb-32 animate-on-scroll">
-        <h2 className="text-5xl md:text-7xl font-bold mb-6"
+        <h2 className="text-5xl md:text-7xl font-bold mb-5"
         style={{color: '#FFFFFF'}}>
           Banking accessible to all
         </h2>
         <p className="text-xl md:text-2xl text-gray-200 max-w-2xl mx-auto">
-          No complicated jargon. No hidden fees. Just straightforward banking that works for you.
+          Accessible banking through adaptive, multimodal design.
         </p>
       </div>
       
@@ -286,18 +286,18 @@ export default function Home() {
       <div className="grid md:grid-cols-3 gap-8">
         <div className="bg-white rounded-3xl p-10 shadow-2xl animate-on-scroll">
           <div className="text-5xl mb-4">🔒</div>
-          <h3 className="text-2xl font-bold text-[#C8102E] mb-2">Secure</h3>
-          <p className="text-gray-600">Bank-grade encryption protects your data</p>
+          <h3 className="text-2xl font-bold text-[#C8102E] mb-2">Voice naviagation</h3>
+          
         </div>
         <div className="bg-white rounded-3xl p-10 shadow-2xl animate-on-scroll">
           <div className="text-5xl mb-4">⚡</div>
-          <h3 className="text-2xl font-bold text-[#C8102E] mb-2">Fast</h3>
-          <p className="text-gray-600">Instant transfers, real-time updates</p>
+          <h3 className="text-2xl font-bold text-[#C8102E] mb-2">Motion recognition</h3>
+      
         </div>
         <div className="bg-white rounded-3xl p-10 shadow-2xl animate-on-scroll">
           <div className="text-5xl mb-4">💡</div>
-          <h3 className="text-2xl font-bold text-[#C8102E] mb-2">Smart</h3>
-          <p className="text-gray-600">AI insights to help you save more</p>
+          <h3 className="text-2xl font-bold text-[#C8102E] mb-2">Barrier-free</h3>
+        
         </div>
       </div>
 

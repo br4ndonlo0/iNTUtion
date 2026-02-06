@@ -3,6 +3,7 @@
   import { useCallback } from 'react';
   import { useRouter } from 'next/navigation';
   import { useVoice } from '@/context/VoiceContext';
+import { set } from 'mongoose';
 
 interface AiAction {
   action: 'NAVIGATE' | '导航' | 'mengemudi' | 'FILL_FORM' | 'CONFIRM' | 'REJECT' | 'UNKNOWN' | 'isi_borang' | '填表' | 'setuju' | '确认' | 'tolak' | '拒绝' | 'NAME' | '名字' | 'nama' | 'USERNAME' | '用户名' | 'nama_pengguna' | 'PASSWORD' | '密码' | 'kata_laluan' | 'CONFIRM_PASSWORD' | '确认密码' | 'sahkan_kata_laluan' | 'PHONE' | '电话' | 'telefon' | 'EMAIL' | '电子邮件' | 'emel' | 'AGREE' | 'LOGIN' | 'REGISTER';

@@ -61,8 +61,16 @@ export async function POST(request: Request) {
       ],
     });
     if (existingUser) {
+      let message = "Email, username, or phone number is already registered.";
+      if (existingUser.emailLower === emailLower) {
+        message = "Email taken.";
+      } else if (existingUser.usernameLower === usernameLower) {
+        message = "Username taken.";
+      } else if (existingUser.phoneNumber === phoneNumber) {
+        message = "Phone number taken.";
+      }
       return NextResponse.json(
-        { success: false, message: "Email, username, or phone number is already registered." },
+        { success: false, message },
         { status: 409 },
       );
     }
