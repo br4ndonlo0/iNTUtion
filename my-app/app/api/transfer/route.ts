@@ -74,6 +74,7 @@ export async function POST(request: Request) {
 
     const db = client.db();
     const users = db.collection("users");
+    const transactions = db.collection("transactions");
 
     const runTransfer = async () => {
       const sender = await users.findOne({ _id: senderId }, { session });
@@ -111,6 +112,18 @@ export async function POST(request: Request) {
       await users.updateOne(
         { _id: recipientId },
         { $set: { balance: recipientEncrypted, updatedAt: new Date() } },
+        { session },
+      );
+
+      // Create transaction record
+      await transactions.insertOne(
+        {
+          senderId,
+          recipientId,
+          amount: amountCents / 100,
+          status: "completed",
+          createdAt: new Date(),
+        },
         { session },
       );
 
