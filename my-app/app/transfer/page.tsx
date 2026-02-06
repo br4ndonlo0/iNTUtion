@@ -146,6 +146,7 @@ useEffect(() => {
 
     // 2. Sync State (Visuals)
     if (safeState.recipient) {
+      console.log(`[Transfer Page] 🎤 Voice detected recipient: ${safeState.recipient}`);
       setPhoneNumber(safeState.recipient);
       newPhone = safeState.recipient;
     }

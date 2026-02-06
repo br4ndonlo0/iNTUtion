@@ -149,7 +149,7 @@ export default function Home() {
   return (
     <div ref={heroRef} className="min-h-screen bg-white overflow-hidden relative">
       {/* Money rain background (behind everything) */}
-      <div className="pointer-events-none absolute inset-0 z-0">
+      <div className="pointer-events-none absolute inset-0 z-10">
         <MoneyRain count={32} emoji="💸" />
       </div>
       {/* Hero Section - Clean and Simple */}
