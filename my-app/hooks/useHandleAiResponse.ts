@@ -112,6 +112,46 @@ export function useHandleAiResponse({ onRegister, onLogin, onAgree }: AiHandlers
             speak(`Full name set to ${action.value}`);
           }
           break;
+        case 'USERNAME':
+        case '用户名':
+        case 'nama_pengguna':
+          if (action.value) {
+            setFieldValue('username', action.value);
+            speak(`Username set to ${action.value}`);
+          }
+          break;
+        case 'PASSWORD':
+        case '密码':
+        case 'kata_laluan':
+          if (action.value) {
+            setFieldValue('password', action.value);
+            speak(`Password set`);
+          }
+          break;
+        case 'CONFIRMPASS':
+        case '确认密码':
+        case 'sahkan_kata_laluan':
+          if (action.value) {
+            setFieldValue('confirmPassword', action.value);
+            speak(`Confirm password set`);
+          }
+          break;
+        case 'PHONE':
+        case '电话':
+        case 'telefon':
+          if (action.value) {
+            setFieldValue('phone', action.value);
+            speak(`Phone number set to ${action.value}`);
+          }
+          break;
+        case 'EMAIL':
+        case '电子邮件':
+        case 'emel':
+          if (action.value) {
+            setFieldValue('email', action.value);
+            speak(`Email set to ${action.value}`);
+          }
+          break;
         case 'NAVIGATE':
         case '导航':
         case 'mengemudi':

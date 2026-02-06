@@ -6,6 +6,7 @@ import SilverTellerHub from "../components/SilverTellerHub";
 import { useState, useEffect, useCallback } from "react";
 import { useVoice } from "@/context/VoiceContext";
 import { useHandleAiResponse } from "@/hooks/useHandleAiResponse";
+import { T } from "@/components/Translate";
 
 export default function TransferPage() {
   const router = useRouter();
@@ -207,43 +208,63 @@ useEffect(() => {
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         <form
-          onSubmit={handleSearch}
-          className="bg-white rounded-xl shadow-md p-6 space-y-3"
+          onSubmit={handleManualSubmit}
+          className="bg-white rounded-xl shadow-md p-6 space-y-4"
         >
-          <label className="text-sm text-slate-700"><T>Recipient phone number</T></label>
-
-          <div className="flex gap-3">
-            <input
-              type="tel"
-              inputMode="numeric"
-              pattern="\d{8}"
-              maxLength={8}
-              className="flex-1 rounded-lg border border-slate-200 bg-white py-3 px-3 text-black outline-none
-                         focus:ring-2 focus:ring-[#C8102E]/20 focus:border-[#C8102E]
-                         placeholder:text-slate-400"
-              placeholder="e.g. 91231234"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, "").slice(0, 8))}
-            />
-
-            <button
-              type="submit"
-              className="px-4 py-3 rounded-lg bg-[#C8102E] text-white hover:bg-[#A50D26] transition disabled:opacity-60 disabled:cursor-not-allowed"
-              disabled={isSearching}
-            >
-              {isSearching ? <T>Searching...</T> : <T>Search</T>}
-            </button>
-          </div>
-
-          {searchError && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {searchError}
+          {/* Success Message */}
+          {status === "success" && (
+            <div className="p-4 bg-green-100 text-green-700 rounded-lg flex items-center gap-2">
+              <span className="text-xl">✅</span> <T>Transfer Successful! Redirecting...</T>
             </div>
           )}
 
-          <p className="text-xs text-slate-600">
-            <T>“Search” voice command can fill this field, then route to</T>
-            <T> /transfer/[id].</T>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-700"><T>Recipient Phone Number</T></label>
+            <input
+              type="tel"
+              inputMode="numeric"
+              className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#C8102E]/20 focus:border-[#C8102E]"
+              placeholder="e.g. 91231234"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ""))}
+              disabled={status === "transferring" || status === "success"}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-700"><T>Amount (optional)</T></label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#C8102E]/20 focus:border-[#C8102E]"
+              placeholder="0.00"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              disabled={status === "transferring" || status === "success"}
+            />
+          </div>
+
+          {errorMessage && (
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {errorMessage}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={status === "searching" || status === "transferring" || status === "success"}
+            className={`w-full text-white p-4 rounded-lg font-bold text-lg transition disabled:opacity-50 ${
+              status === "success" ? "bg-green-600" : "bg-[#C8102E] hover:bg-[#A50D26]"
+            }`}
+          >
+            {status === "searching" ? <T>Finding User...</T> : 
+             status === "transferring" ? <T>Sending Money...</T> : 
+             status === "success" ? <T>Sent!</T> : <T>Next</T>}
+          </button>
+
+          <p className="text-xs text-slate-500 text-center">
+            <T>Voice: "Transfer [amount] to [phone]"</T>
           </p>
         </form>
       </main>
