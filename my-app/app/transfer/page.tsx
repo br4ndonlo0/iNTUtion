@@ -6,6 +6,7 @@ import SilverTellerHub from "../components/SilverTellerHub";
 import { useState, useEffect, useCallback } from "react";
 import { useVoice } from "@/context/VoiceContext";
 import { useHandleAiResponse } from "@/hooks/useHandleAiResponse";
+import { T } from "@/components/Translate";
 
 export default function TransferPage() {
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function TransferPage() {
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(true);
   
-  // Unified Status: 'idle' | 'searching' | 'transferring' | 'success' | 'error'
+  // Status: 'idle' | 'searching' | 'transferring' | 'success' | 'error'
   const [status, setStatus] = useState("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -39,7 +40,7 @@ export default function TransferPage() {
     checkSession();
   }, [router]);
 
-  // 1. THE EXECUTION LOGIC (Moved here from ID Page)
+  // 1. EXECUTION LOGIC
   const executeTransfer = useCallback(async (recipientId: string, transferAmount: number) => {
     setStatus("transferring");
     
@@ -54,11 +55,7 @@ export default function TransferPage() {
       const res = await fetch("/api/transfer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          senderId,
-          recipientId,
-          amount: transferAmount,
-        }),
+        body: JSON.stringify({ senderId, recipientId, amount: transferAmount }),
       });
 
       const data = await res.json();
@@ -69,17 +66,15 @@ export default function TransferPage() {
         return;
       }
 
-      // Update Local Balance
       if (data.sender?.balance !== undefined) {
         const u = JSON.parse(localStorage.getItem("user") || "{}");
         u.balance = data.sender.balance;
         localStorage.setItem("user", JSON.stringify(u));
       }
 
-      // Success! Redirect to Dashboard
       console.log("✅ Transfer Successful!");
       setStatus("success");
-      setTimeout(() => router.push("/dashboard"), 1500); // Brief delay to show success state
+      setTimeout(() => router.push("/dashboard"), 1500);
 
     } catch (err) {
       console.error("Transfer error:", err);
@@ -88,7 +83,7 @@ export default function TransferPage() {
     }
   }, [router]);
 
-  // 2. THE SEARCH + DECIDE LOGIC
+  // 2. SEARCH + DECIDE LOGIC
   const performAction = useCallback(async (phone: string, amt: string) => {
     const normalized = phone.replace(/\D/g, "");
     if (!normalized) return;
@@ -97,7 +92,6 @@ export default function TransferPage() {
     setErrorMessage(null);
 
     try {
-      // A. Find User ID
       const res = await fetch(`/api/users/search?phoneNumber=${encodeURIComponent(normalized)}`);
       const data = await res.json();
 
@@ -114,15 +108,12 @@ export default function TransferPage() {
         return;
       }
 
-      // B. DECISION: Transfer Now OR Go to Confirmation Page?
       const parsedAmount = Number(amt);
       
       if (parsedAmount > 0) {
-        // We have everything! Execute immediately.
-        console.log(`[Transfer Page] 🚀 Found user ${data.user.name}, executing transfer of $${parsedAmount}...`);
+        console.log(`[Transfer Page] 🚀 Found user ${data.user.name}, executing transfer...`);
         await executeTransfer(data.user.id, parsedAmount);
       } else {
-        // Missing amount? Go to detail page to ask for it.
         console.log(`[Transfer Page] ➡️ Found user, redirecting for amount...`);
         router.push(`/transfer/${encodeURIComponent(data.user.id)}`);
       }
@@ -133,52 +124,43 @@ export default function TransferPage() {
     }
   }, [router, executeTransfer]);
 
-  // 3. VOICE LISTENER (Auto-Trigger)
-useEffect(() => {
+  // 3. VOICE LISTENER
+  useEffect(() => {
     const safeState = voiceState as any;
     
-    // 1. If no data, do nothing
     if (!safeState.recipient && !safeState.amount) return;
 
     let newPhone = "";
     let newAmount = "";
+    let hasData = false;
 
-    // 2. Sync State (Visuals)
     if (safeState.recipient) {
       setPhoneNumber(safeState.recipient);
       newPhone = safeState.recipient;
+      hasData = true;
     }
     
     if (safeState.amount) {
       setAmount(safeState.amount);
       newAmount = safeState.amount;
+      hasData = true;
     }
 
-    // 3. Auto-Submit Logic
+    // Auto-Submit ONLY if we have a phone number
     if (newPhone) {
       console.log("[Transfer Page] ⏳ Scheduling auto-submit...");
-      
       const timer = setTimeout(() => {
-        console.log("[Transfer Page] 🚀 Executing auto-submit & clearing context");
-        // Perform the action
         performAction(newPhone, newAmount || amount);
-        // 🔥 Clear context HERE, after the action fires
         clearPendingValue(); 
       }, 800);
-
-      // Cleanup: Cancels timer if user speaks again/component unmounts
       return () => clearTimeout(timer);
     } 
-    else {
-      // If we only got partial data (e.g. just amount), clear the voice memory 
-      // so it doesn't get processed again, but don't submit yet.
-      // (The value is already saved to React state above)
+    else if (hasData) {
       clearPendingValue();
     }
-
   }, [voiceState, performAction, amount, clearPendingValue]);
 
-  // Manual Submit
+  // 4. MANUAL SUBMIT WRAPPER
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     performAction(phoneNumber, amount);
@@ -187,7 +169,7 @@ useEffect(() => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-xl font-semibold text-gray-500 animate-pulse"><T>Loading secure data...</T></p>
+        <p className="text-xl font-semibold text-gray-500 animate-pulse"><T>Loading...</T></p>
       </div>
     );
   }
@@ -201,50 +183,66 @@ useEffect(() => {
             <span className="text-sm font-medium"><T>Dashboard</T></span>
           </Link>
           <h1 className="text-2xl font-bold"><T>Bank Buddy</T></h1>
-          <span className="text-sm"><T>Transfer</T></span>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8">
-        <form
-          onSubmit={handleSearch}
-          className="bg-white rounded-xl shadow-md p-6 space-y-3"
-        >
-          <label className="text-sm text-slate-700"><T>Recipient phone number</T></label>
-
-          <div className="flex gap-3">
-            <input
-              type="tel"
-              inputMode="numeric"
-              pattern="\d{8}"
-              maxLength={8}
-              className="flex-1 rounded-lg border border-slate-200 bg-white py-3 px-3 text-black outline-none
-                         focus:ring-2 focus:ring-[#C8102E]/20 focus:border-[#C8102E]
-                         placeholder:text-slate-400"
-              placeholder="e.g. 91231234"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, "").slice(0, 8))}
-            />
-
-            <button
-              type="submit"
-              className="px-4 py-3 rounded-lg bg-[#C8102E] text-white hover:bg-[#A50D26] transition disabled:opacity-60 disabled:cursor-not-allowed"
-              disabled={isSearching}
-            >
-              {isSearching ? <T>Searching...</T> : <T>Search</T>}
-            </button>
-          </div>
-
-          {searchError && (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {searchError}
+        {/* 👇 FIX 1: Use handleManualSubmit here */}
+        <form onSubmit={handleManualSubmit} className="bg-white rounded-xl shadow-md p-6 space-y-4">
+          
+          {status === "success" && (
+            <div className="p-4 bg-green-100 text-green-700 rounded-lg flex items-center gap-2">
+              <span className="text-xl">✅</span> <T>Transfer Successful! Redirecting...</T>
             </div>
           )}
 
-          <p className="text-xs text-slate-600">
-            <T>“Search” voice command can fill this field, then route to</T>
-            <T> /transfer/[id].</T>
-          </p>
+          {/* Phone Input */}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-700"><T>Recipient phone number</T></label>
+            <input
+              type="tel"
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#C8102E]/20 outline-none"
+              placeholder="e.g. 91231234"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              disabled={status === "transferring" || status === "success"}
+            />
+          </div>
+
+          {/* 👇 FIX 2: Added Amount Input back */}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-700"><T>Amount (Optional)</T></label>
+            <div className="relative">
+              <span className="absolute left-3 top-3 text-slate-500">$</span>
+              <input
+                type="number"
+                className="w-full pl-7 rounded-lg border border-slate-200 bg-white py-3 px-3 text-black outline-none focus:ring-2 focus:ring-[#C8102E]/20"
+                placeholder="0.00"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                disabled={status === "transferring" || status === "success"}
+              />
+            </div>
+          </div>
+
+          {errorMessage && (
+            <div className="p-3 bg-red-50 text-red-600 rounded-lg border border-red-200 text-sm font-medium">
+              <T>{errorMessage}</T>
+            </div>
+          )}
+
+          {/* 👇 FIX 3: Unified Action Button */}
+          <button
+            type="submit"
+            disabled={status === "searching" || status === "transferring" || status === "success"}
+            className={`w-full text-white p-4 rounded-lg font-bold text-lg transition disabled:opacity-50 ${
+              status === "success" ? "bg-green-600" : "bg-[#C8102E] hover:bg-[#A50D26]"
+            }`}
+          >
+            {status === "searching" ? <T>Finding User...</T> : 
+             status === "transferring" ? <T>Sending Money...</T> : 
+             status === "success" ? <T>Sent!</T> : <T>Next</T>}
+          </button>
         </form>
       </main>
 
