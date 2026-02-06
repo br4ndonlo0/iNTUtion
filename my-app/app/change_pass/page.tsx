@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { T } from "@/components/Translate";
+import SilverTellerHub from "../components/SilverTellerHub";
 
 export default function ChangePassword() {
   const router = useRouter();
@@ -18,21 +19,33 @@ export default function ChangePassword() {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get user from localStorage
-    const userStr = localStorage.getItem("user");
-    if (userStr) {
+    const checkSession = async () => {
       try {
-        const user = JSON.parse(userStr);
-        setUserId(user.id || "");
-        setUserName(user.name || user.email || "User");
-      } catch {
-        router.push("/login");
+        const res = await fetch('/api/auth/me');
+        
+        if (res.ok) {
+          const data = await res.json();
+          setUserId(data.user.id);
+          setUserName(data.user.name || data.user.email || "User");
+          // Update localStorage with fresh data
+          localStorage.setItem("user", JSON.stringify(data.user));
+          setLoading(false);
+        } else {
+          console.log('Session expired or invalid');
+          localStorage.removeItem("user");
+          router.push('/login');
+        }
+      } catch (error) {
+        console.error("Auth check failed", error);
+        localStorage.removeItem("user");
+        router.push('/login');
       }
-    } else {
-      router.push("/login");
-    }
+    };
+
+    checkSession();
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -91,6 +104,14 @@ export default function ChangePassword() {
       setIsSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-xl font-semibold text-gray-500 animate-pulse">Loading secure data...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -268,6 +289,7 @@ export default function ChangePassword() {
           </form>
         </div>
       </main>
+      <SilverTellerHub screenName="ChangePass" />
     </div>
   );
 }

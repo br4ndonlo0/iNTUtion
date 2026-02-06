@@ -14,6 +14,7 @@ export default function AccountPage() {
   const [userPhoneNumber, setUserPhoneNumber] = useState("Not available");
   const [userBalance, setUserBalance] = useState(0);
   const [selectedLanguage, setSelectedLanguage] = useState(currentLanguageCode);
+  const [loading, setLoading] = useState(true);
 
   const languages = [
     { code: 'en', name: 'English' },
@@ -32,16 +33,34 @@ export default function AccountPage() {
   ];
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      setUserName(user.name || user.username || "User");
-      setUserEmail(user.email || "Not available");
-      setUserPhoneNumber(user.phoneNumber || user.phone || "Not available");
-      setUserBalance(user.balance || 0);
-    }
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        
+        if (res.ok) {
+          const data = await res.json();
+          setUserName(data.user.name);
+          setUserEmail(data.user.email);
+          setUserPhoneNumber(data.user.phoneNumber || "Not available");
+          setUserBalance(data.user.balance);
+          // Update localStorage with fresh data
+          localStorage.setItem("user", JSON.stringify(data.user));
+          setLoading(false);
+        } else {
+          console.log('Session expired or invalid');
+          localStorage.removeItem("user");
+          router.push('/login');
+        }
+      } catch (error) {
+        console.error("Auth check failed", error);
+        localStorage.removeItem("user");
+        router.push('/login');
+      }
+    };
+
+    checkSession();
     setSelectedLanguage(currentLanguageCode);
-  }, [currentLanguageCode]);
+  }, [currentLanguageCode, router]);
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newLanguage = e.target.value;
@@ -49,10 +68,19 @@ export default function AccountPage() {
     setLanguageByCode(newLanguage);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' });
     localStorage.removeItem("user");
-    window.location.href = "http://localhost:3000";
+    window.location.href = '/login';
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-xl font-semibold text-gray-500 animate-pulse">Loading secure data...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -151,6 +179,7 @@ export default function AccountPage() {
           </Link>
         </div>
       </main>
+      <SilverTellerHub screenName="Account" />
     </div>
   );
 }

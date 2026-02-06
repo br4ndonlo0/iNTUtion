@@ -1,8 +1,26 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import Recipient from "@/models/Recipient";
 
-// Quick DB connection helper
+// 1. Define Schema INLINE to ensure we hit the exact collection from your screenshot
+// We force the collection name to 'recepients' to match your DB
+const RecipientSchema = new mongoose.Schema(
+  {
+    userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+    officialName: String,
+    nicknames: [String],
+    phoneNumber: String,
+    bankName: String,
+    accountNumber: String,
+    relationship: String,
+    photoUrl: String,
+  },
+  { collection: "recepients" },
+); // <--- CRITICAL: Matches your DB screenshot spelling
+
+// Get or Create the Model
+const Recipient =
+  mongoose.models.Recipient || mongoose.model("Recipient", RecipientSchema);
+
 const connectDB = async () => {
   if (mongoose.connections[0].readyState) return;
   await mongoose.connect(process.env.MONGODB_URI);
@@ -11,34 +29,43 @@ const connectDB = async () => {
 export async function POST(req) {
   try {
     await connectDB();
-
-    // We expect the frontend to send the 'spokenName' and the current 'userId'
     const { spokenName, userId } = await req.json();
 
-    if (!spokenName || !userId) {
-      return NextResponse.json({ found: false, message: "Missing data" });
+    const cleanName = spokenName.trim();
+
+    console.log(`[API] 🔍 Search: "${cleanName}" | User: ${userId}`);
+
+    // 2. FORCE OBJECTID CONVERSION
+    // We must convert the string ID from the session to a real MongoDB ObjectId
+    let userObjectId;
+    try {
+      userObjectId = new mongoose.Types.ObjectId(userId);
+    } catch (e) {
+      console.error("Invalid User ID format");
+      return NextResponse.json({ found: false });
     }
 
-    // 🔍 THE SEARCH LOGIC
-    // We look for a contact belonging to THIS user where the 'nicknames' array
-    // contains the spoken word (Case Insensitive Regex)
+    // 3. SEARCH
     const contact = await Recipient.findOne({
-      userId: userId,
-      nicknames: { $regex: new RegExp(`^${spokenName}$`, "i") },
+      userId: userObjectId, // <--- Using the ObjectId, not string
+      nicknames: { $regex: new RegExp(`^${cleanName}$`, "i") },
     });
 
     if (!contact) {
+      console.log(`[API] ❌ No match in collection 'recepients'.`);
       return NextResponse.json({
         found: false,
-        message: `No contact found for "${spokenName}"`,
+        message: `No contact found for "${cleanName}"`,
       });
     }
 
-    // ✅ FOUND! Return the safe public details
+    console.log(`[API] ✅ Found: ${contact.officialName}`);
+
     return NextResponse.json({
       found: true,
       data: {
         name: contact.officialName,
+        phoneNumber: contact.phoneNumber,
         account: contact.accountNumber,
         bank: contact.bankName,
         relationship: contact.relationship,

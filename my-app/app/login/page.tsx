@@ -2,25 +2,49 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { T } from "@/components/Translate";
 import { useTranslation } from "@/context/TranslationContext";
+import { useEffect, useState } from "react";
+import SilverTellerHub from "../components/SilverTellerHub";
+import { useHandleAiResponse } from "@/hooks/useHandleAiResponse";
+import { useVoice } from "@/context/VoiceContext";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { pendingFieldValue, clearPendingValue } = useVoice();
+  const handleAiResponse = useHandleAiResponse();
+  const [username, setUsername] = useState("")
   const { setLanguageByCode } = useTranslation();
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  useEffect(() => {
+    if (!pendingFieldValue) return;
+
+    // Filter command word for username
+    if (pendingFieldValue.field === "username") {
+      // Remove command word (e.g., 'username') from value
+      const value = pendingFieldValue.value.trim();
+      const filtered = value.replace(/^username\s+/i, "").replace(/^user\s+/i, "");
+      setUsername(filtered);
+      clearPendingValue();
+      return;
+    }
+
+    if (pendingFieldValue.field === "password") {
+      setPassword(pendingFieldValue.value);
+      clearPendingValue();
+    }
+  }, [pendingFieldValue, clearPendingValue]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
 
-    if (!email || !password) {
-      setErrorMessage("Please enter your email and password.");
+    if (!username || !password) {
+      setErrorMessage("Please enter your username and password.");
       return;
     }
 
@@ -29,13 +53,24 @@ export default function LoginPage() {
       const response = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       });
 
+      // Update user type to match backend
+      type UserType = {
+        id: string;
+        name: string;
+        username?: string;
+        phone?: string;
+        email?: string;
+        phoneNumber?: string | null;
+        balance?: number;
+        preferredLanguage?: string;
+      };
       const data = (await response.json()) as { 
         success: boolean; 
         message?: string;
-        user?: { id: string; name: string; email: string; phoneNumber?: string | null; balance?: number; preferredLanguage?: string };
+        user?: UserType;
       };
 
       if (!response.ok || !data.success) {
@@ -85,15 +120,15 @@ export default function LoginPage() {
             <p className="text-gray-600 mb-8"><T>Welcome back to your banking dashboard</T></p>
 
             <form className="space-y-6" onSubmit={handleLogin}>
-              {/* Email Input */}
+              {/* Username/Phone Input */}
               <div className="space-y-3">
-                <label className="block text-sm font-semibold text-gray-900"><T>Email Address</T></label>
+                <label className="block text-sm font-semibold text-gray-900"><T>Username</T></label>
                 <input
-                  type="email"
+                  type="text"
                   className="w-full px-4 py-3 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-[#C8102E] focus:ring-2 focus:ring-[#C8102E]/20 transition"
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </div>
@@ -164,6 +199,7 @@ export default function LoginPage() {
           </div>
         </div>
       </main>
+      <SilverTellerHub screenName="Login" onAiAction={handleAiResponse} />
     </div>
   );
 }
