@@ -11,7 +11,10 @@ export type GestureType =
   | 'None';         // No gesture
 
 export type VoiceCommand =
+  | 'name'       // Next input fills full name field
   | 'username'   // Next input fills username field
+  | 'email'      // Next input fills email field
+  | 'phone'      // Next input fills phone field
   | 'password'   // Next input fills password field
   | 'confirm'    // Next input fills confirm password field
   | 'home'       // Navigate to home
@@ -28,7 +31,7 @@ export type InputMode = 'idle' | 'listening_for_field' | 'listening_for_value';
 
 export interface VoiceState {
   mode: InputMode;
-  targetField: 'username' | 'password' | 'confirm' | 'search' | 'amount' | 'navigate' | null;
+  targetField: 'name' | 'username' | 'email' | 'phone' | 'password' | 'confirm' | 'search' | 'amount' | 'navigate' | null;
   lastCommand: VoiceCommand | null;
   isListening: boolean;
   transcript: string;

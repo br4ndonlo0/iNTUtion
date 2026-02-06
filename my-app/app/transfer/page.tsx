@@ -3,11 +3,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react"; 
+import SilverTellerHub from "../components/SilverTellerHub";
+import { useState, useEffect, useEffect } from "react"; 
 // 2. Import the Context
 import { useVoice } from "@/context/VoiceContext";
 import { T } from "@/components/Translate";
-import SilverTellerHub from "../components/SilverTellerHub";
 
 export default function TransferPage() {
   const router = useRouter();
@@ -18,6 +18,32 @@ export default function TransferPage() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        
+        if (res.ok) {
+          const data = await res.json();
+          // Update localStorage with fresh data
+          localStorage.setItem("user", JSON.stringify(data.user));
+          setLoading(false);
+        } else {
+          console.log('Session expired or invalid');
+          localStorage.removeItem("user");
+          router.push('/login');
+        }
+      } catch (error) {
+        console.error("Auth check failed", error);
+        localStorage.removeItem("user");
+        router.push('/login');
+      }
+    };
+
+    checkSession();
+  }, [router]);
 
   // 4. LISTEN FOR AI UPDATES
   // When the AI resolves "Ah Boy" to "84817223", this runs instantly.
@@ -83,6 +109,14 @@ export default function TransferPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-xl font-semibold text-gray-500 animate-pulse">Loading secure data...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-100">
       {/* Header */}
@@ -139,7 +173,7 @@ export default function TransferPage() {
           </p>
         </form>
       </main>
-      <SilverTellerHub screenName="Transfer Page" />
+      <SilverTellerHub screenName="Transfer" />
     </div>
   );
 }

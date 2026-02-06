@@ -4,14 +4,16 @@ import { useHandTracking } from "../hooks/useHandTracking";
 import { useVoiceInput, SG_LANGUAGES } from "../hooks/useVoiceInput";
 import { getAiAction } from "../utils/aiBrain";
 import { useHandleAiResponse } from "../../hooks/useHandleAiResponse";
+import { useVoice } from "@/context/VoiceContext";
 
 // 1. Accept 'screenName' so the AI knows context (e.g. "Transfer Page")
-export default function SilverTellerHub({ screenName = "Home" }) {
+export default function SilverTellerHub({ screenName = "Home", onAiAction }) {
   const [currentLang, setCurrentLang] = useState(SG_LANGUAGES.ENGLISH);
   const [lastAction, setLastAction] = useState("Waiting for input...");
   const [isZoomed, setIsZoomed] = useState(false);
   const cooldownRef = useRef(false);
   const holdTimerRef = useRef(null);
+  const lastProcessedTranscriptRef = useRef("");
 
   // --- HOOKS ---
   const { videoRef, isReady, isCameraOn, toggleCamera, gestureOutput } =
@@ -19,8 +21,10 @@ export default function SilverTellerHub({ screenName = "Home" }) {
   const { transcript, isListening, toggleListening } =
     useVoiceInput(currentLang);
 
+  const { processVoiceCommand, voiceState } = useVoice();
+
   // Use the actual handleAiResponse from the hook
-  const handleAiResponse = useHandleAiResponse();
+  const handleAiResponse = onAiAction || useHandleAiResponse();
 
   // --- BRAIN (Slow Logic) ---
   useEffect(() => {
@@ -40,6 +44,51 @@ export default function SilverTellerHub({ screenName = "Home" }) {
 
     return () => clearTimeout(timer);
   }, [transcript, gestureOutput, screenName]);
+
+  // --- VOICE COMMANDS (Direct) ---
+  useEffect(() => {
+    if (!transcript) return;
+    if (transcript === lastProcessedTranscriptRef.current) return;
+    const normalized = transcript.trim().toLowerCase();
+    if (!normalized) return;
+
+    // If we're already listening for a field value, pass transcript through
+    if (voiceState.mode === "listening_for_value") {
+      // Strip out common command words from the beginning of the transcript
+      let cleanValue = transcript;
+      const commandWords = ["username", "password", "confirm", "confirm password", "phone", "phone number", "email", "email address", "full name", "name"];
+      
+      for (const cmdWord of commandWords) {
+        const regex = new RegExp(`^${cmdWord}\\s+`, "i");
+        cleanValue = cleanValue.replace(regex, "");
+      }
+      
+      processVoiceCommand(normalized, cleanValue);
+      lastProcessedTranscriptRef.current = transcript;
+      return;
+    }
+
+    // Only handle explicit commands here to avoid accidental fills
+    const commandMap = {
+      "full name": "name",
+      fullname: "name",
+      name: "name",
+      username: "username",
+      email: "email",
+      "email address": "email",
+      phone: "phone",
+      "phone number": "phone",
+      password: "password",
+      confirm: "confirm",
+      "confirm password": "confirm",
+    };
+
+    const mapped = commandMap[normalized];
+    if (mapped) {
+      processVoiceCommand(mapped, transcript);
+      lastProcessedTranscriptRef.current = transcript;
+    }
+  }, [transcript, voiceState.mode, processVoiceCommand]);
 
   // --- REFLEXES (Fast Logic) ---
   useEffect(() => {
@@ -152,19 +201,52 @@ export default function SilverTellerHub({ screenName = "Home" }) {
         </div>
       )}
 
-      {/* 5. CONTROLS (Added z-50 to ensure they are clickable) */}
-      <div className="fixed top-4 left-4 pointer-events-auto flex flex-col gap-2 z-50">
+      {/* 5. CONTROLS - Mic, Camera, and Language buttons together on left side middle */}
+      <div className="fixed top-1/2 left-4 transform -translate-y-1/2 pointer-events-auto flex flex-col gap-1 z-50">
         <button
           onClick={toggleListening}
-          className={`px-4 py-2 rounded-full font-bold shadow-lg w-48 transition-all hover:scale-105 ${isListening ? "bg-red-600 text-white animate-pulse" : "bg-gray-800 text-gray-300 border border-gray-600"}`}
+          className={`px-3 py-1 rounded-full font-bold shadow-lg text-sm transition-all hover:scale-105 ${isListening ? "bg-red-600 text-white animate-pulse" : "bg-gray-800 text-gray-300 border border-gray-600"}`}
         >
-          {isListening ? "🎙️ Mic ON" : "🔇 Mic OFF"}
+          {isListening ? "🎙️ Mic" : "🔇 Mic"}
         </button>
         <button
           onClick={toggleCamera}
-          className={`px-4 py-2 rounded-full font-bold shadow-lg w-48 transition-all hover:scale-105 ${isCameraOn ? "bg-green-600 text-white" : "bg-gray-800 text-gray-300 border border-gray-600"}`}
+          className={`px-3 py-1 rounded-full font-bold shadow-lg text-sm transition-all hover:scale-105 ${isCameraOn ? "bg-green-600 text-white" : "bg-gray-800 text-gray-300 border border-gray-600"}`}
         >
-          {isCameraOn ? "📷 Cam ON" : "🚫 Cam OFF"}
+          {isCameraOn ? "📷 Cam" : "🚫 Cam"}
+        </button>
+        {/* ENGLISH BUTTON */}
+        <button
+          onClick={() => setCurrentLang(SG_LANGUAGES.ENGLISH)}
+          className={`px-2 py-1 rounded text-xs font-bold shadow-md hover:scale-105 transition-all ${
+            currentLang === SG_LANGUAGES.ENGLISH
+              ? "bg-blue-600 text-white ring-2 ring-blue-300"
+              : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+          }`}
+        >
+          ENG 🇸🇬
+        </button>
+        {/* CHINESE BUTTON */}
+        <button
+          onClick={() => setCurrentLang(SG_LANGUAGES.CHINESE)}
+          className={`px-2 py-1 rounded text-xs font-bold shadow-md hover:scale-105 transition-all ${
+            currentLang === SG_LANGUAGES.CHINESE
+              ? "bg-red-600 text-white ring-2 ring-red-300"
+              : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+          }`}
+        >
+          中文
+        </button>
+        {/* MALAY BUTTON */}
+        <button
+          onClick={() => setCurrentLang(SG_LANGUAGES.MALAY)}
+          className={`px-2 py-1 rounded text-xs font-bold shadow-md hover:scale-105 transition-all ${
+            currentLang === SG_LANGUAGES.MALAY
+              ? "bg-yellow-600 text-white ring-2 ring-yellow-300"
+              : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+          }`}
+        >
+          MELAYU
         </button>
       </div>
 

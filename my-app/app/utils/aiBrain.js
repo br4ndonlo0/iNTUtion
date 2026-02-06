@@ -28,12 +28,20 @@ export async function getAiAction(transcript, gesture, screenName) {
     2. { "action": "FILL_FORM", "amount": <number>, "recipient": "<name>" }
     3. { "action": "CONFIRM" }  (Use this if gesture is Thumb_Up or user says Yes)
     4. { "action": "REJECT" }   (Use this if gesture is Thumb_Down or user says No)
-    5. { "action": "UNKNOWN" }
+    5. { "action": "USERNAME", "value": "<username>" }
+    6. { "action": "PASSWORD", "value": "<password>" }
+    7. { "action": "PHONE", "value": "<phone number>" }
+    8. { "action": "EMAIL", "value": "<email address>" }
+    9. { "action": "CONFIRMPASS", "value": "<confirm password>" }
+    10. { "action": "FULLNAME", "value": "<full name>" }
+    11. { "action": "UNKNOWN" }
     
     RULES:
-    - Understand "Singlish" (e.g. "Can transfer 50 dollar to Ah Boy?" -> amount: 50, recipient: "Ah Boy").
+    - Map voice commands like "username Jordan", "password 1234", "phone 91234567", "email jordan@example.com", "confirm password 1234", "full name Jordan Lee" to the corresponding FILL_* action.
+    - Support translations and synonyms (e.g. "nama penuh" for full name, "telefon" for phone, etc.).
     - If the gesture confirms the voice (e.g., Voice: "Pay now", Gesture: "Thumb_Up"), output CONFIRM.
     - Return ONLY the raw JSON object. Do not use Markdown formatting.
+    - If the input does not match any action, return { "action": "UNKNOWN" }.
   `;
 
   try {
