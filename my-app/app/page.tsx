@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Link from "next/link";
 import SilverTellerHub from "./components/SilverTellerHub";
 import MoneyRain from "./components/MoneyRain";
+import { LanguageButtons } from "@/components/LanguageSelector";
 
 
 gsap.registerPlugin(ScrollTrigger);
@@ -139,7 +140,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div ref={heroRef} className="min-h-screen bg-white overflow-hidden">
+    <div ref={heroRef} className="min-h-screen bg-white overflow-hidden relative">
       {/* Money rain background (behind everything) */}
       <div className="pointer-events-none absolute inset-0 z-0">
         <MoneyRain count={32} emoji="💸" />
