@@ -7,7 +7,13 @@ import { useHandleAiResponse } from "../../hooks/useHandleAiResponse";
 import { useVoice } from "@/context/VoiceContext";
 
 // 1. Accept 'screenName' so the AI knows context (e.g. "Transfer Page")
-export default function SilverTellerHub({ screenName = "Home", onAiAction }) {
+export default function SilverTellerHub({
+  screenName = "Home",
+  onAiAction,
+  handleRegister,
+  handleLogin,
+  handleAgree,
+}) {
   const [currentLang, setCurrentLang] = useState(SG_LANGUAGES.ENGLISH);
   const [lastAction, setLastAction] = useState("Waiting for input...");
   const [isZoomed, setIsZoomed] = useState(false);
@@ -24,7 +30,11 @@ export default function SilverTellerHub({ screenName = "Home", onAiAction }) {
   const { processVoiceCommand, voiceState } = useVoice();
 
   // Use the actual handleAiResponse from the hook
-  const handleAiResponse = onAiAction || useHandleAiResponse();
+  const handleAiResponse = onAiAction || useHandleAiResponse({
+    onRegister: handleRegister,
+    onLogin: handleLogin,
+    onAgree: handleAgree,
+  });
 
   // --- BRAIN (Slow Logic) ---
   useEffect(() => {
@@ -57,12 +67,28 @@ export default function SilverTellerHub({ screenName = "Home", onAiAction }) {
       // Strip out common command words from the beginning of the transcript
       let cleanValue = transcript;
       const commandWords = ["username", "password", "confirm", "confirm password", "phone", "phone number", "email", "email address", "full name", "name"];
-      
       for (const cmdWord of commandWords) {
         const regex = new RegExp(`^${cmdWord}\\s+`, "i");
         cleanValue = cleanValue.replace(regex, "");
       }
-      
+      let field = voiceState.field || "";
+      // If field is empty, try to infer from transcript/command
+      if (!field) {
+        const lower = transcript.trim().toLowerCase();
+        if (lower.includes("username")) field = "username";
+        else if (lower.includes("email")) field = "email";
+        else if (lower.includes("phone")) field = "phone";
+        else if (lower.includes("password") && lower.includes("confirm")) field = "confirmPassword";
+        else if (lower.includes("password")) field = "password";
+        else if (lower.includes("name")) field = "name";
+      }
+      if (["username", "email", "phone", "phoneNumber", "password", "confirmPassword"].includes(field)) {
+        cleanValue = cleanValue.replace(/[^a-zA-Z0-9!@#$%^&*()_+{}\[\]\\|]/g, "");
+      }
+      if (["name", "fullName", "full_name"].includes(field)) {
+        cleanValue = cleanValue.replace(/[^a-zA-Z\s]/g, "").replace(/\s+/g, " ").trim();
+      }
+      console.log("[VOICE][SANITIZE] Field:", field, "| Cleaned Value:", cleanValue);
       processVoiceCommand(normalized, cleanValue);
       lastProcessedTranscriptRef.current = transcript;
       return;

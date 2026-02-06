@@ -1,11 +1,11 @@
-  'use client';
+'use client';
 
   import { useCallback } from 'react';
   import { useRouter } from 'next/navigation';
   import { useVoice } from '@/context/VoiceContext';
 
 interface AiAction {
-  action: 'NAVIGATE' | '导航' | 'mengemudi' | 'FILL_FORM' | 'CONFIRM' | 'REJECT' | 'UNKNOWN' | 'isi_borang' | '填表' | 'setuju' | '确认' | 'tolak' | '拒绝' | 'NAME' | '名字' | 'nama' | 'USERNAME' | '用户名' | 'nama_pengguna' | 'PASSWORD' | '密码' | 'kata_laluan' | 'CONFIRM_PASSWORD' | '确认密码' | 'sahkan_kata_laluan' | 'PHONE' | '电话' | 'telefon' | 'EMAIL' | '电子邮件' | 'emel';
+  action: 'NAVIGATE' | '导航' | 'mengemudi' | 'FILL_FORM' | 'CONFIRM' | 'REJECT' | 'UNKNOWN' | 'isi_borang' | '填表' | 'setuju' | '确认' | 'tolak' | '拒绝' | 'NAME' | '名字' | 'nama' | 'USERNAME' | '用户名' | 'nama_pengguna' | 'PASSWORD' | '密码' | 'kata_laluan' | 'CONFIRM_PASSWORD' | '确认密码' | 'sahkan_kata_laluan' | 'PHONE' | '电话' | 'telefon' | 'EMAIL' | '电子邮件' | 'emel' | 'AGREE' | 'LOGIN' | 'REGISTER';
   target?: string;
   amount?: number;
   recipient?: string;
@@ -13,11 +13,17 @@ interface AiAction {
   value?: string;
 }
 
-  export function useHandleAiResponse() {
-    const router = useRouter();
-    const { processVoiceCommand, setFieldValue } = useVoice();
+interface AiHandlers {
+  onRegister?: () => void;
+  onLogin?: () => void;
+  onAgree?: () => void;
+}
 
-    // Helper: Speak feedback to the user
+export function useHandleAiResponse({ onRegister, onLogin, onAgree }: AiHandlers = {}) {
+  const router = useRouter();
+  const { processVoiceCommand, setFieldValue } = useVoice();
+
+  // Helper: Speak feedback to the user
   const speak = (text: string) => {
     if (typeof window !== 'undefined') {
       window.speechSynthesis.cancel();
@@ -26,33 +32,57 @@ interface AiAction {
     }
   };
 
-    const handleAiResponse = useCallback(async (action: AiAction) => {
-      console.log('[AI RESPONSE] 📥 Received action:', action);
+  const handleAiResponse = useCallback(async (action: AiAction) => {
+    console.log('[AI RESPONSE] 📥 Received action:', action);
 
-      try {
-        switch (action.action) {
-          case 'NAME':
-          case '名字':
-          case 'nama':
-            // Set the full name field directly
-            if (action.value) {
-              setFieldValue('name', action.value);
-              speak(`Full name set to ${action.value}`);
-            }
-            break;
-          case 'NAVIGATE':
-          case '导航':
-          case 'mengemudi':
-          if (action.target) {
-              console.log(`[AI RESPONSE] 🔀 NAVIGATE → /${action.target}`);
-              router.push(`/${action.target}`);
-            } else {
-              console.log('[AI RESPONSE] ⚠️  NAVIGATE missing target');
-            }
-            break;
+    try {
+      switch (action.action) {
+        case 'REGISTER':
+          if (typeof onRegister === 'function') {
+            speak('Registering your account now.');
+            onRegister();
+          } else {
+            console.log('[AI RESPONSE] REGISTER action received, but no handler provided.');
+          }
+          break;
+        case 'LOGIN':
+          if (typeof onLogin === 'function') {
+            speak('Logging you in now.');
+            onLogin();
+          } else {
+            console.log('[AI RESPONSE] LOGIN action received, but no handler provided.');
+          }
+          break;
+        case 'AGREE':
+          if (typeof onAgree === 'function') {
+            speak('You have agreed to the terms.');
+            onAgree();
+          } else {
+            console.log('[AI RESPONSE] AGREE action received, but no handler provided.');
+          }
+          break;
+        case 'NAME':
+        case '名字':
+        case 'nama':
+          // Set the full name field directly
+          if (action.value) {
+            setFieldValue('name', action.value);
+            speak(`Full name set to ${action.value}`);
+          }
+          break;
+        case 'NAVIGATE':
+        case '导航':
+        case 'mengemudi':
+        if (action.target) {
+            console.log(`[AI RESPONSE] 🔀 NAVIGATE → /${action.target}`);
+            router.push(`/${action.target}`);
+          } else {
+            console.log('[AI RESPONSE] ⚠️  NAVIGATE missing target');
+          }
+          break;
         case '填表':
         case 'isi_borang':
-case 'FILL_FORM':
+        case 'FILL_FORM':
           console.log('[AI RESPONSE] 📝 FILL_FORM detected');
 
           // --- 1. HANDLE RECIPIENT (With Resolution) ---
@@ -107,8 +137,17 @@ case 'FILL_FORM':
 
           // --- 3. HANDLE GENERIC FIELDS ---
           if (action.field && action.value !== undefined) {
-            console.log(`[AI RESPONSE] 🔧 Setting ${action.field} = ${action.value}`);
-            setFieldValue(action.field, action.value.toString());
+            let cleanValue = action.value.toString();
+            // For username, email, phone, password, allow only letters, numbers, and !@#$%^&*()_+{}[]\|
+            if (["username", "email", "phone", "phoneNumber", "password", "confirmPassword"].includes(action.field)) {
+              cleanValue = cleanValue.replace(/[^a-zA-Z0-9!@#$%^&*()_+{}\[\]\\|]/g, "");
+            }
+            // For name/full name, keep single spaces between words and only allow letters and spaces
+            if (["name", "fullName", "full_name"].includes(action.field)) {
+              cleanValue = cleanValue.replace(/[^a-zA-Z\s]/g, "").replace(/\s+/g, " ").trim();
+            }
+            console.log(`[AI RESPONSE] 🔧 Setting ${action.field} = ${cleanValue}`);
+            setFieldValue(action.field, cleanValue);
           }
           break;
         case '确认':
@@ -127,59 +166,17 @@ case 'FILL_FORM':
             // Could add a reject command if needed
             break;
 
-        case 'FULL_NAME':
-        case '全名':
-        case 'nama_penuh':
-          console.log('[AI RESPONSE] 👤 FULL_NAME - Listening for full name input');
-          processVoiceCommand('name');
-          break;
-
-        case 'USERNAME':
-        case '用户名':
-        case 'nama_pengguna':
-          console.log('[AI RESPONSE] 👤 USERNAME - Listening for username input');
-          processVoiceCommand('username');
-          break;
-
-        case 'PASSWORD':
-        case '密码':
-        case 'kata_laluan':
-          console.log('[AI RESPONSE] 🔒 PASSWORD - Listening for password input');
-          processVoiceCommand('password');
-          break;
-
-        case 'CONFIRM_PASSWORD':
-        case '确认密码':
-        case 'sahkan_kata_laluan':
-          console.log('[AI RESPONSE] ✅ CONFIRM_PASSWORD - Listening for confirm password input');
-          processVoiceCommand('confirm');
-          break;
-
-        case 'PHONE':
-        case '电话':
-        case 'telefon':
-          console.log('[AI RESPONSE] 📱 PHONE - Listening for phone number input');
-          processVoiceCommand('phone');
-          break;
-
-        case 'EMAIL':
-        case '电子邮件':
-        case 'emel':
-          console.log('[AI RESPONSE] 📧 EMAIL - Listening for email input');
-          processVoiceCommand('email');
-          break;
-
         case 'UNKNOWN':
           console.log('[AI RESPONSE] ❓ UNKNOWN action - could not determine intent');
           break;
 
-          default:
-            console.log('[AI RESPONSE] ⚠️  Unhandled action type:', (action as any).action);
-        }
-      } catch (error) {
-        console.error('[AI RESPONSE] ❌ Error handling action:', error);
+        default:
+          console.log('[AI RESPONSE] ⚠️  Unhandled action type:', (action as any).action);
       }
-    }, [router, processVoiceCommand, setFieldValue]);
+    } catch (error) {
+      console.error('[AI RESPONSE] ❌ Error handling action:', error);
+    }
+  }, [router, processVoiceCommand, setFieldValue, onRegister, onLogin, onAgree]);
 
-    return handleAiResponse;
-  }
+  return handleAiResponse;
+}

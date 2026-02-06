@@ -12,8 +12,6 @@ import { useVoice } from "@/context/VoiceContext";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { pendingFieldValue, clearPendingValue } = useVoice();
-  const handleAiResponse = useHandleAiResponse();
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   // Removed phone field, only use phoneNumber
@@ -28,7 +26,62 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { pendingFieldValue, clearPendingValue } = useVoice();
-  const handleAiResponse = useHandleAiResponse();
+  const handleRegister = async (e?: React.SyntheticEvent) => {
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
+    setErrorMessage("");
+
+    if (!agreedToTerms) {
+      setErrorMessage("Please agree to the Terms of Service.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setErrorMessage("Passwords do not match.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Strip all whitespace for username, email, phoneNumber, password, confirmPassword
+      const cleanName = name.replace(/\s+/g, " ").trim(); // keep spaces between words for name
+      const cleanUsername = username.replace(/\s+/g, "");
+      const cleanPhoneNumber = phoneNumber.replace(/\s+/g, "");
+      const cleanEmail = email.replace(/\s+/g, "");
+      const cleanPassword = password.replace(/\s+/g, "");
+      const cleanConfirmPassword = confirmPassword.replace(/\s+/g, "");
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: cleanName,
+          username: cleanUsername,
+          phoneNumber: cleanPhoneNumber,
+          email: cleanEmail,
+          password: cleanPassword,
+          confirmPassword: cleanConfirmPassword,
+          preferredLanguage,
+        }),
+      });
+
+      const data = (await response.json()) as { success: boolean; message?: string };
+
+      if (!response.ok || !data.success) {
+        setErrorMessage(data.message || "Registration failed.");
+        return;
+      }
+
+      router.push("/login");
+    } catch (error) {
+      console.error("Register error:", error);
+      setErrorMessage("Registration failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  const handleAgree = () => {
+    setAgreedToTerms(true);
+  };
+  const handleAiResponse = useHandleAiResponse({ onRegister: handleRegister, onAgree: handleAgree });
   const { setLanguageByCode } = useTranslation();
 
   useEffect(() => {
@@ -75,52 +128,6 @@ export default function RegisterPage() {
       clearPendingValue();
     }
   }, [pendingFieldValue, clearPendingValue]);
-
-  const handleRegister = async (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    setErrorMessage("");
-
-    if (!agreedToTerms) {
-      setErrorMessage("Please agree to the Terms of Service.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          username,
-          phoneNumber,
-          email,
-          password,
-          confirmPassword,
-          preferredLanguage,
-        }),
-      });
-
-      const data = (await response.json()) as { success: boolean; message?: string };
-
-      if (!response.ok || !data.success) {
-        setErrorMessage(data.message || "Registration failed.");
-        return;
-      }
-
-      router.push("/login");
-    } catch (error) {
-      console.error("Register error:", error);
-      setErrorMessage("Registration failed. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-50">
@@ -371,7 +378,7 @@ export default function RegisterPage() {
                     <T>Creating account...</T>
                   </span>
                 ) : (
-                  <T>Create account</T>
+                  <T>Register</T>
                 )}
               </button>
 

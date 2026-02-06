@@ -17,11 +17,12 @@ type RegisterPayload = {
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as RegisterPayload;
-    const name = body.name?.trim();
-    const username = body.username?.trim();
-    const email = body.email?.trim();
-    const phoneNumberRaw = body.phoneNumber?.trim();
-    const password = body.password;
+    // Remove all whitespace from username, email, phoneNumber, and password
+    const name = body.name?.replace(/\s+/g, " ").trim(); // keep spaces between words for name
+    const username = body.username?.replace(/\s+/g, "");
+    const email = body.email?.replace(/\s+/g, "");
+    const phoneNumberRaw = body.phoneNumber?.replace(/\s+/g, "");
+    const password = body.password?.replace(/\s+/g, "");
     const preferredLanguage = body.preferredLanguage || "en";
 
     if (!name || !username || !phoneNumberRaw || !email || !password) {

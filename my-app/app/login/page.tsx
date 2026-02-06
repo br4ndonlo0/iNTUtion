@@ -12,35 +12,8 @@ import { useVoice } from "@/context/VoiceContext";
 export default function LoginPage() {
   const router = useRouter();
   const { pendingFieldValue, clearPendingValue } = useVoice();
-  const handleAiResponse = useHandleAiResponse();
-  const [username, setUsername] = useState("")
-  const { setLanguageByCode } = useTranslation();
-  const [password, setPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-
-  useEffect(() => {
-    if (!pendingFieldValue) return;
-
-    // Filter command word for username
-    if (pendingFieldValue.field === "username") {
-      // Remove command word (e.g., 'username') from value
-      const value = pendingFieldValue.value.trim();
-      const filtered = value.replace(/^username\s+/i, "").replace(/^user\s+/i, "");
-      setUsername(filtered);
-      clearPendingValue();
-      return;
-    }
-
-    if (pendingFieldValue.field === "password") {
-      setPassword(pendingFieldValue.value);
-      clearPendingValue();
-    }
-  }, [pendingFieldValue, clearPendingValue]);
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (e?: React.FormEvent) => {
+    if (e && typeof e.preventDefault === 'function') e.preventDefault();
     setErrorMessage("");
 
     if (!username || !password) {
@@ -50,11 +23,15 @@ export default function LoginPage() {
 
     setIsSubmitting(true);
     try {
+      // Strip all whitespace for username and password before sending
+      const cleanUsername = username.replace(/\s+/g, "");
+      const cleanPassword = password.replace(/\s+/g, "");
       const response = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username: cleanUsername, password: cleanPassword }),
       });
+
 
       // Update user type to match backend
       type UserType = {
@@ -96,6 +73,32 @@ export default function LoginPage() {
       setIsSubmitting(false);
     }
   };
+  const handleAiResponse = useHandleAiResponse({ onLogin: handleLogin });
+  const [username, setUsername] = useState("")
+  const { setLanguageByCode } = useTranslation();
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (!pendingFieldValue) return;
+
+    // Filter command word for username
+    if (pendingFieldValue.field === "username") {
+      // Remove command word (e.g., 'username') from value
+      const value = pendingFieldValue.value.trim();
+      const filtered = value.replace(/^username\s+/i, "").replace(/^user\s+/i, "");
+      setUsername(filtered);
+      clearPendingValue();
+      return;
+    }
+
+    if (pendingFieldValue.field === "password") {
+      setPassword(pendingFieldValue.value);
+      clearPendingValue();
+    }
+  }, [pendingFieldValue, clearPendingValue]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#C8102E] to-[#A50D26] flex flex-col">
@@ -180,7 +183,7 @@ export default function LoginPage() {
                 className="w-full rounded-lg bg-[#C8102E] text-white py-3 font-bold text-lg hover:bg-[#A50D26] transition transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? <T>Signing in...</T> : <T>Sign In</T>}
+                {isSubmitting ? <T>Logging in...</T> : <T>Login</T>}
               </button>
 
               {/* Footer Links */}

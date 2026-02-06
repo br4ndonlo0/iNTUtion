@@ -34,10 +34,16 @@ export async function getAiAction(transcript, gesture, screenName) {
     8. { "action": "EMAIL", "value": "<email address>" }
     9. { "action": "CONFIRMPASS", "value": "<confirm password>" }
     10. { "action": "NAME", "value": "<full name>" }
-    11. { "action": "UNKNOWN" }
+    11. { "action": "REGISTER" } (Triggers registration flow)
+    12. { "action": "LOGIN" } (Triggers login flow)
+    13. { "action": "AGREE" } (Checks the terms and conditions box)
+    14. { "action": "UNKNOWN" }
     
     RULES:
     - Map voice commands like "username Jordan", "password 1234", "phone 91234567", "email jordan@example.com", "confirm password 1234", "full name Jordan Lee" to the corresponding FILL_* action.
+    - Map voice commands like "register", "sign up", "create account" to the REGISTER action.
+    - Map voice commands like "login", "sign in", "log in" to the LOGIN action.
+    - Map voice commands like "agree", "I agree", "accept terms", "accept conditions", "setuju", "saya setuju", "同意", "我同意" to the AGREE action.
     - Support translations and synonyms (e.g. "nama penuh" for full name, "telefon" for phone, etc.).
     - If the gesture confirms the voice (e.g., Voice: "Pay now", Gesture: "Thumb_Up"), output CONFIRM.
     - Return ONLY the raw JSON object. Do not use Markdown formatting.
@@ -49,7 +55,7 @@ export async function getAiAction(transcript, gesture, screenName) {
 
     // 3. Call the Gemini API (REST method - no extra installation needed)
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
