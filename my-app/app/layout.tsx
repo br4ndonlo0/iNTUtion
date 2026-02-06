@@ -4,6 +4,7 @@ import "./globals.css";
 import { StyleProvider } from "@/context/StyleContext";
 import { VoiceProvider } from "@/context/VoiceContext";
 import { StyleApplier } from "@/components/StyleApplier";
+import { TranslationProvider } from "@/context/TranslationContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,13 +31,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <StyleProvider>
-          <VoiceProvider>
-            <StyleApplier>
-              {children}
-            </StyleApplier>
-          </VoiceProvider>
-        </StyleProvider>
+        <TranslationProvider>
+          <StyleProvider>
+            <VoiceProvider>
+              <StyleApplier>
+                {children}
+              </StyleApplier>
+            </VoiceProvider>
+          </StyleProvider>
+        </TranslationProvider>
       </body>
     </html>
   );

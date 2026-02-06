@@ -5,6 +5,9 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Link from "next/link";
 import SilverTellerHub from "./components/SilverTellerHub";
+import MoneyRain from "./components/MoneyRain";
+import { LanguageButtons } from "@/components/LanguageSelector";
+
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -137,7 +140,11 @@ export default function Home() {
   }, []);
 
   return (
-    <div ref={heroRef} className="min-h-screen bg-white overflow-hidden">
+    <div ref={heroRef} className="min-h-screen bg-white overflow-hidden relative">
+      {/* Money rain background (behind everything) */}
+      <div className="pointer-events-none absolute inset-0 z-0">
+        <MoneyRain count={32} emoji="💸" />
+      </div>
       {/* Hero Section - Clean and Simple */}
       <section className="min-h-screen flex flex-col items-center justify-center px-6 bg-white">
         <div className="text-center max-w-4xl mx-auto">
@@ -152,7 +159,7 @@ export default function Home() {
           {/* YNBA Logo Style */}
           <div className="mb-12">
             <div className="flex items-center justify-center gap-4">
-              <span 
+              <span
                 ref={ynbaTextRef}
                 className="text-5xl md:text-7xl lg:text-8xl font-bold text-[#C8102E] tracking-tight"
                 style={{ fontFamily: 'Times New Roman, Georgia, serif' }}
@@ -160,10 +167,10 @@ export default function Home() {
                 YNBA
               </span>
               {/* Bank icon - matching the reference image */}
-              <svg 
+              <svg
                 ref={ynbaIconRef}
-                className="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 text-[#C8102E]" 
-                viewBox="0 0 100 100" 
+                className="w-20 h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 text-[#C8102E]"
+                viewBox="0 0 100 100"
                 fill="currentColor"
               >
                 {/* Roof triangle */}
@@ -279,3 +286,4 @@ export default function Home() {
     </div>
   );
 }
+

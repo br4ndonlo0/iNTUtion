@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { T } from "@/components/Translate";
+import { useTranslation } from "@/context/TranslationContext";
 import { useEffect, useState } from "react";
 import SilverTellerHub from "../components/SilverTellerHub";
 import { useHandleAiResponse } from "@/hooks/useHandleAiResponse";
@@ -11,7 +13,8 @@ export default function LoginPage() {
   const router = useRouter();
   const { pendingFieldValue, clearPendingValue } = useVoice();
   const handleAiResponse = useHandleAiResponse();
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState("")
+  const { setLanguageByCode } = useTranslation();
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -67,6 +70,11 @@ export default function LoginPage() {
       // Store user info in localStorage (for demo purposes)
       if (data.user) {
         localStorage.setItem("user", JSON.stringify(data.user));
+        
+        // Set the language based on user's preference
+        if (data.user.preferredLanguage) {
+          setLanguageByCode(data.user.preferredLanguage);
+        }
       }
 
       router.push("/dashboard");
@@ -87,9 +95,9 @@ export default function LoginPage() {
             <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
               <span className="text-[#C8102E] font-bold text-xl">B</span>
             </div>
-            <h1 className="text-3xl font-bold text-white">Bank Buddy</h1>
+            <h1 className="text-3xl font-bold text-white"><T>Bank Buddy</T></h1>
           </div>
-          <span className="text-sm text-white/80">YNBA — You&apos;ll Never Bank Alone</span>
+          <span className="text-sm text-white/80"><T>YNBA — You&apos;ll Never Bank Alone</T></span>
         </div>
       </header>
 
@@ -97,13 +105,13 @@ export default function LoginPage() {
         <div className="w-full max-w-md">
           {/* Welcome Card */}
           <div className="bg-white rounded-2xl shadow-2xl p-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Sign In</h2>
-            <p className="text-gray-600 mb-8">Welcome back to your banking dashboard</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2"><T>Sign In</T></h2>
+            <p className="text-gray-600 mb-8"><T>Welcome back to your banking dashboard</T></p>
 
             <form className="space-y-6" onSubmit={handleLogin}>
               {/* Username/Phone Input */}
               <div className="space-y-3">
-                <label className="block text-sm font-semibold text-gray-900">Username</label>
+                <label className="block text-sm font-semibold text-gray-900"><T>Username</T></label>
                 <input
                   type="text"
                   className="w-full px-4 py-3 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-[#C8102E] focus:ring-2 focus:ring-[#C8102E]/20 transition"
@@ -116,7 +124,7 @@ export default function LoginPage() {
 
               {/* Password Input */}
               <div className="space-y-3">
-                <label className="block text-sm font-semibold text-gray-900">Password</label>
+                <label className="block text-sm font-semibold text-gray-900"><T>Password</T></label>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
@@ -161,18 +169,18 @@ export default function LoginPage() {
                 className="w-full rounded-lg bg-[#C8102E] text-white py-3 font-bold text-lg hover:bg-[#A50D26] transition transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Signing in..." : "Sign In"}
+                {isSubmitting ? <T>Signing in...</T> : <T>Sign In</T>}
               </button>
 
               {/* Footer Links */}
               <div className="pt-4 space-y-3 border-t border-gray-200">
                 <button type="button" className="w-full text-center text-sm text-gray-600 hover:text-[#C8102E] transition font-medium">
-                  Forgot password?
+                  <T>Forgot password?</T>
                 </button>
                 <div className="text-center text-sm text-gray-600">
-                  Don&apos;t have an account?{" "}
+                  <T>Don&apos;t have an account?</T>{" "}
                   <Link href="/register" className="text-[#C8102E] hover:underline font-bold">
-                    Create one
+                    <T>Create one</T>
                   </Link>
                 </div>
               </div>

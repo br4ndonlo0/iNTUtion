@@ -3,27 +3,46 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { T } from '@/components/Translate';
 import SilverTellerHub from '../components/SilverTellerHub';
 
 export default function Dashboard() {
   const router = useRouter();
   const [userName, setUserName] = useState('');
+  const [userBalance, setUserBalance] = useState(0);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      const name = user.name || user.username || user.email || 'User';
-      setUserName(name);
-    }
-  }, []);
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        
+        if (res.ok) {
+          const data = await res.json();
+          // The server says we are logged in!
+          setUserName(data.user.name);
+          setUserBalance(data.user.balance);
+          setLoading(false);
+        } else {
+          // The server says 401 (Unauthorized)
+          console.log('Session expired or invalid');
+          router.push('/login');
+        }
+      } catch (error) {
+        console.error("Auth check failed", error);
+        router.push('/login');
+      }
+    };
+
+    checkSession();
+  }, [router]);
 
   const userInitial = (userName || 'U').charAt(0).toUpperCase();
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    window.location.href = 'http://localhost:3000';
+  const handleLogout = async () => {
+    await fetch('/api/auth/logout', { method: 'POST' }); 
+    window.location.href = '/login';
   };
 
   const spendingCategories = [
@@ -62,10 +81,17 @@ export default function Dashboard() {
   ];
 
   const maxSpending = Math.max(...monthlySpending.map(s => s.amount));
-
+if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-xl font-semibold text-gray-500 animate-pulse">Loading secure data...</p>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Main Content */}
+      <SilverTellerHub screenName="Dashboard" />
       <main className="max-w-7xl mx-auto p-6 lg:p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -85,7 +111,7 @@ export default function Dashboard() {
               </div>
               <div className="text-left">
                 <p className="text-sm font-semibold text-gray-900">{userName || 'User'}</p>
-                <p className="text-xs text-gray-500">Profile</p>
+                <p className="text-xs text-gray-500"><T>Profile</T></p>
               </div>
               <span className="text-gray-500">▾</span>
             </button>
@@ -97,21 +123,21 @@ export default function Dashboard() {
                   className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 rounded-t-xl"
                   onClick={() => setProfileOpen(false)}
                 >
-                  View Profile
+                  <T>View Profile</T>
                 </Link>
                 <Link
                   href="/settings"
                   className="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
                   onClick={() => setProfileOpen(false)}
                 >
-                  Settings
+                  <T>Settings</T>
                 </Link>
                 <button
                   type="button"
                   className="w-full text-left px-4 py-3 text-sm text-[#C8102E] hover:bg-gray-50 rounded-b-xl"
                   onClick={handleLogout}
                 >
-                  Log out
+                  <T>Log out</T>
                 </button>
               </div>
             )}
@@ -119,28 +145,41 @@ export default function Dashboard() {
         </div>
 
         {/* Stat Cards */}
-        <div className="grid grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <p className="text-sm text-gray-500 mb-2">Total Balance</p>
-            <p className="text-2xl font-bold text-gray-900">$12,458.32</p>
-            <p className="text-sm text-green-600 mt-2">+11.01% ↗</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <p className="text-sm text-gray-500 mb-2">Monthly Income</p>
-            <p className="text-2xl font-bold text-gray-900">$5,640</p>
-            <p className="text-sm text-green-600 mt-2">+9.15% ↗</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <p className="text-sm text-gray-500 mb-2">Monthly Expenses</p>
-            <p className="text-2xl font-bold text-gray-900">$2,430</p>
-            <p className="text-sm text-red-500 mt-2">-0.56% ↘</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <p className="text-sm text-gray-500 mb-2">Transactions</p>
-            <p className="text-2xl font-bold text-gray-900">156</p>
-            <p className="text-sm text-red-500 mt-2">-1.48% ↘</p>
+        <div className="mb-8">
+          <div className="bg-gradient-to-br from-white to-red-50 rounded-2xl p-8 border-2 border-[#C8102E] shadow-lg">
+            <p className="text-sm font-semibold text-[#C8102E] mb-2 uppercase tracking-wide">Your Account Balance</p>
+            <p className="text-5xl font-bold text-[#C8102E]">${userBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            <p className="text-sm text-green-600 mt-3 font-medium">+11.01% from last month ↗</p>
           </div>
         </div>
+
+        {/* Quick Actions */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Link
+              href="/transfer"
+              className="flex flex-col items-center justify-center p-6 bg-white border-2 border-[#C8102E] rounded-xl hover:bg-[#C8102E] hover:text-white transition-all group shadow-sm"
+            >
+              <svg className="w-12 h-12 mb-3 text-[#C8102E] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="font-semibold text-lg">Transfer Money</span>
+              <span className="text-sm text-gray-500 group-hover:text-white/80 mt-1">Send funds to others</span>
+            </Link>
+            <button
+              className="flex flex-col items-center justify-center p-6 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 transition-all cursor-not-allowed opacity-60 shadow-sm"
+              disabled
+            >
+              <svg className="w-12 h-12 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+              <span className="font-semibold text-lg text-gray-600">Request Money</span>
+              <span className="text-sm text-gray-400 mt-1">Coming soon</span>
+            </button>
+          </div>
+        </div>
+
 
         {/* Charts Row */}
         <div className="grid grid-cols-4 gap-6 mb-8">

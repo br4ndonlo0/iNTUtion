@@ -15,49 +15,86 @@ export default function TransferToIdPage() {
   }, [params]);
 
   const [amount, setAmount] = useState("");
-  const [transferReady, setTransferReady] = useState(false);
-  const [confirmed, setConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isTransferring, setIsTransferring] = useState(false);
 
-  const parsedAmount = useMemo(() => {
-    // allow "12", "12.34"
-    const n = Number(amount);
-    return Number.isFinite(n) ? n : NaN;
-  }, [amount]);
-
-  const handleTransfer = () => {
+  const handleTransfer = async () => {
     setError(null);
-    setConfirmed(false);
+    if (isTransferring) return;
 
     if (!amount.trim()) {
-      setTransferReady(false);
       setError("Please enter an amount.");
       return;
     }
 
+    const parsedAmount = Number(amount);
     if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
-      setTransferReady(false);
       setError("Amount must be a valid number greater than 0.");
       return;
     }
 
-    // demo: mark as ready to confirm
-    setTransferReady(true);
-  };
+    setIsTransferring(true);
 
-  const handleConfirm = () => {
-    setError(null);
+    const senderId = (() => {
+      try {
+        const raw = localStorage.getItem("user");
+        if (!raw) return null;
+        const u = JSON.parse(raw);
+        return typeof u?.id === "string" ? u.id : null;
+      } catch {
+        return null;
+      }
+    })();
 
-    if (!transferReady) {
-      setError("Please press Transfer first.");
+    if (!senderId) {
+      setIsTransferring(false);
+      setError("You must be logged in to transfer.");
       return;
     }
 
-    // demo: confirm the transaction
-    setConfirmed(true);
+    try {
+      const res = await fetch("/api/transfer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          senderId,
+          recipientId,
+          amount: parsedAmount,
+        }),
+      });
 
-    // optional: after 1 second, go back to dashboard
-    // setTimeout(() => router.push("/dashboard"), 1000);
+      const data = (await res.json()) as {
+        success: boolean;
+        message?: string;
+        sender?: { id: string; balance: number };
+      };
+
+      if (!res.ok || !data.success) {
+        setError(data.message || "Transfer failed.");
+        return;
+      }
+
+      // Update sender balance in localStorage session so dashboard reflects it.
+      if (data.sender?.balance !== undefined) {
+        try {
+          const raw = localStorage.getItem("user");
+          if (raw) {
+            const u = JSON.parse(raw);
+            u.balance = data.sender.balance;
+            localStorage.setItem("user", JSON.stringify(u));
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      router.push("/dashboard");
+    } catch (err) {
+      console.error("Transfer error:", err);
+      setError("Transfer failed. Please try again.");
+    } finally {
+      setIsTransferring(false);
+    }
   };
 
   return (
@@ -65,7 +102,11 @@ export default function TransferToIdPage() {
       {/* Header */}
       <header className="bg-[#C8102E] text-white shadow-lg">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">🏦 Bank Buddy</h1>
+          <Link href="/transfer" className="flex items-center gap-2 hover:opacity-80 transition">
+            <span className="text-2xl">←</span>
+            <span className="text-sm font-medium">Back</span>
+          </Link>
+          <h1 className="text-2xl font-bold">Bank Buddy</h1>
           <span className="text-sm">Transfer</span>
         </div>
       </header>
@@ -93,71 +134,31 @@ export default function TransferToIdPage() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
-            <p className="text-xs text-slate-600">
-              Tip: your voice “Transfer” command can set focus here and the next
-              input can be the amount.
-            </p>
           </div>
 
-          {/* Status */}
           {error && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </div>
           )}
 
-          {transferReady && !confirmed && (
-            <div className="rounded-lg border border-[#C8102E]/30 bg-red-50 px-4 py-3 text-sm text-[#C8102E]">
-              Transfer prepared. Say/press <b>Confirm</b> to complete.
-            </div>
-          )}
-
-          {confirmed && (
-            <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
-              ✅ Transfer confirmed! (Demo)
-            </div>
-          )}
-
-          {/* Buttons */}
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               type="button"
               onClick={handleTransfer}
-              className="flex-1 px-4 py-3 rounded-lg bg-[#C8102E] text-white hover:bg-[#A50D26] transition"
+              className="flex-1 px-4 py-3 rounded-lg bg-[#C8102E] text-white hover:bg-[#A50D26] transition disabled:opacity-60 disabled:cursor-not-allowed"
+              disabled={isTransferring}
             >
               Transfer
             </button>
 
-            <button
-              type="button"
-              onClick={handleConfirm}
-              className={`flex-1 px-4 py-3 rounded-lg transition ${
-                transferReady
-                  ? "bg-slate-900 text-white hover:bg-slate-800"
-                  : "bg-slate-200 text-slate-500 cursor-not-allowed"
-              }`}
-              disabled={!transferReady}
+            <Link
+              href="/transfer"
+              className="flex-1 text-center px-4 py-3 rounded-lg bg-white border border-slate-300 text-slate-800 hover:bg-slate-50 transition"
             >
-              Confirm
-            </button>
+              Cancel
+            </Link>
           </div>
-        </div>
-
-        {/* Navigation */}
-        <div className="flex gap-3">
-          <Link
-            href="/transfer"
-            className="px-4 py-2 rounded-lg bg-white border border-slate-300 text-slate-800 hover:bg-slate-50 transition"
-          >
-            Back to Transfer
-          </Link>
-
-          <Link
-            href="/dashboard"
-            className="px-4 py-2 rounded-lg bg-[#C8102E] text-white hover:bg-[#A50D26] transition"
-          >
-            Back to Dashboard
-          </Link>
         </div>
       </main>
       <SilverTellerHub screenName="TransferDetail" />

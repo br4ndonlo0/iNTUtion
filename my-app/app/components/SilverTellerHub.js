@@ -179,7 +179,7 @@ export default function SilverTellerHub({ screenName = "Home", onAiAction }) {
         </div>
       </div>
 
-
+      {/* 2. VIRTUAL CURSOR (Added pointer-events-none) */}
       {isCameraOn && (
         <div
           id="virtual-cursor"

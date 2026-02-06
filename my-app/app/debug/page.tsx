@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useVoice } from '@/context/VoiceContext';
 import { usePathname } from 'next/navigation';
 import { useHandleAiResponse } from '@/hooks/useHandleAiResponse';
+import { LanguageButtons } from '@/components/LanguageSelector';
 import SilverTellerHub from '../components/SilverTellerHub';
 
 export default function DebugPage() {
@@ -69,6 +70,9 @@ export default function DebugPage() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
+      {/* Language Buttons */}
+      <LanguageButtons />
+
       <h1 className="text-4xl font-bold mb-8">🎙️ Voice Command Debug Console</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
