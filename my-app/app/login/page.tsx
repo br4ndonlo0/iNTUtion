@@ -56,10 +56,21 @@ export default function LoginPage() {
         body: JSON.stringify({ username, password }),
       });
 
+      // Update user type to match backend
+      type UserType = {
+        id: string;
+        name: string;
+        username?: string;
+        phone?: string;
+        email?: string;
+        phoneNumber?: string | null;
+        balance?: number;
+        preferredLanguage?: string;
+      };
       const data = (await response.json()) as { 
         success: boolean; 
         message?: string;
-        user?: { id: string; name: string; username?: string; phone?: string; email?: string };
+        user?: UserType;
       };
 
       if (!response.ok || !data.success) {
