@@ -3,11 +3,18 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import SilverTellerHub from "../components/SilverTellerHub";
+import { useState, useEffect, useEffect } from "react"; 
+// 2. Import the Context
+import { useVoice } from "@/context/VoiceContext";
 import { T } from "@/components/Translate";
 
 export default function TransferPage() {
   const router = useRouter();
+
+  
+  const { voiceState } = useVoice(); 
+  
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
@@ -37,6 +44,14 @@ export default function TransferPage() {
 
     checkSession();
   }, [router]);
+
+  // 4. LISTEN FOR AI UPDATES
+  // When the AI resolves "Ah Boy" to "84817223", this runs instantly.
+  useEffect(() => {
+    if (voiceState.recipient) {
+      setPhoneNumber(voiceState.recipient);
+    }
+  }, [voiceState.recipient]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,6 +173,7 @@ export default function TransferPage() {
           </p>
         </form>
       </main>
+      <SilverTellerHub screenName="Transfer" />
     </div>
   );
 }

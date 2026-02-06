@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useMemo, useState, useEffect } from "react";
+import SilverTellerHub from "../../components/SilverTellerHub";
 
 export default function TransferToIdPage() {
   const router = useRouter();
@@ -194,6 +195,7 @@ export default function TransferToIdPage() {
           </div>
         </div>
       </main>
+      <SilverTellerHub screenName="TransferDetail" />
     </div>
   );
 }

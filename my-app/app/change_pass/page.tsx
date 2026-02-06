@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { T } from "@/components/Translate";
+import SilverTellerHub from "../components/SilverTellerHub";
 
 export default function ChangePassword() {
   const router = useRouter();
@@ -288,6 +289,7 @@ export default function ChangePassword() {
           </form>
         </div>
       </main>
+      <SilverTellerHub screenName="ChangePass" />
     </div>
   );
 }

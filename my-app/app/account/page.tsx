@@ -179,6 +179,7 @@ export default function AccountPage() {
           </Link>
         </div>
       </main>
+      <SilverTellerHub screenName="Account" />
     </div>
   );
 }

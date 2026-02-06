@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { T } from '@/components/Translate';
 import SilverTellerHub from '../components/SilverTellerHub';
+import { useHandleAiResponse } from "@/hooks/useHandleAiResponse";
 
 export default function Dashboard() {
   const router = useRouter();
+  const handleAiResponse = useHandleAiResponse();
   const [userName, setUserName] = useState('');
   const [userBalance, setUserBalance] = useState(0);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -240,6 +242,7 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+      <SilverTellerHub screenName="Dashboard" onAiAction={handleAiResponse}/>
     </div>
   );
 }

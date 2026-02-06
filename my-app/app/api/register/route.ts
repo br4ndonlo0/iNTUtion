@@ -5,22 +5,28 @@ import { encryptBalance } from "@/lib/encryption";
 
 type RegisterPayload = {
   name?: string;
+  username?: string;
+  phone?: string;
   email?: string;
   phoneNumber?: string;
   password?: string;
   preferredLanguage?: string;
 };
 
+const normalizePhone = (value: string) => value.replace(/(?!^\+)[^\d]/g, "");
+
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as RegisterPayload;
     const name = body.name?.trim();
+    const username = body.username?.trim();
+    const phone = body.phone?.trim();
     const email = body.email?.trim();
     const phoneNumberRaw = body.phoneNumber?.trim();
     const password = body.password;
     const preferredLanguage = body.preferredLanguage || "en";
 
-    if (!name || !email || !phoneNumberRaw || !password) {
+    if (!name || !username || !phone || !email || !phoneNumberRaw || !password) {
       return NextResponse.json(
         { success: false, message: "Missing required fields." },
         { status: 400 },
@@ -46,11 +52,22 @@ export async function POST(request: Request) {
     const db = client.db();
     const users = db.collection("users");
     const emailLower = email.toLowerCase();
+    const usernameLower = username.toLowerCase();
+    const phoneNormalized = normalizePhone(phone);
 
-    const existingUser = await users.findOne({ emailLower });
+    if (!phoneNormalized) {
+      return NextResponse.json(
+        { success: false, message: "Phone number is invalid." },
+        { status: 400 },
+      );
+    }
+
+    const existingUser = await users.findOne({
+      $or: [{ emailLower }, { usernameLower }, { phoneNormalized }],
+    });
     if (existingUser) {
       return NextResponse.json(
-        { success: false, message: "Email is already registered." },
+        { success: false, message: "Email, username, or phone is already registered." },
         { status: 409 },
       );
     }
@@ -61,11 +78,14 @@ export async function POST(request: Request) {
 
     await users.insertOne({
       name,
+      username,
+      usernameLower,
+      phone,
+      phoneNormalized,
       email,
       emailLower,
       phoneNumber,
       passwordHash,
-      balance: encryptedBalance,
       balance: encryptedBalance,
       preferredLanguage,
       createdAt: new Date(),
