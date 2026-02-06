@@ -24,7 +24,7 @@ export async function getAiAction(transcript, gesture, screenName) {
     Analyze the inputs. If the user wants to do something, map it to a JSON Action.
     
     AVAILABLE ACTIONS (Strict JSON format):
-    1. { "action": "NAVIGATE", "target": "transfer" | "account" | "history" | "dashboard" }
+    1. { "action": "NAVIGATE", "target": "transfer" | "account" | "history" | "dashboard" | "sign_in" | "create_account" }
     2. { "action": "FILL_FORM", "amount": <number>, "recipient": "<name>" }
     3. { "action": "CONFIRM" }  (Use this if gesture is Thumb_Up or user says Yes)
     4. { "action": "REJECT" }   (Use this if gesture is Thumb_Down or user says No)
@@ -41,8 +41,8 @@ export async function getAiAction(transcript, gesture, screenName) {
     
     RULES:
     - Map voice commands like "username Jordan", "password 1234", "phone 91234567", "email jordan@example.com", "confirm password 1234", "full name Jordan Lee" to the corresponding FILL_* action.
-    - Map voice commands like "register", "sign up", "create account" to the REGISTER action.
-    - Map voice commands like "login", "sign in", "log in" to the LOGIN action.
+    - Map voice commands like "register", "sign up", "create account" to the REGISTER action or NAVIGATE with target "create_account".
+    - Map voice commands like "login", "sign in", "log in" to the LOGIN action or NAVIGATE with target "sign_in".
     - Map voice commands like "agree", "I agree", "accept terms", "accept conditions", "setuju", "saya setuju", "同意", "我同意" to the AGREE action.
     - Support translations and synonyms (e.g. "nama penuh" for full name, "telefon" for phone, etc.).
     - If the gesture confirms the voice (e.g., Voice: "Pay now", Gesture: "Thumb_Up"), output CONFIRM.
@@ -55,7 +55,7 @@ export async function getAiAction(transcript, gesture, screenName) {
 
     // 3. Call the Gemini API (REST method - no extra installation needed)
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

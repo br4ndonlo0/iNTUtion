@@ -8,6 +8,7 @@ import SilverTellerHub from "./components/SilverTellerHub";
 import MoneyRain from "./components/MoneyRain";
 import { LanguageButtons } from "@/components/LanguageSelector";
 import { Mic, Hand, Accessibility } from "lucide-react";
+import { useHandleAiResponse } from "@/hooks/useHandleAiResponse";
 
 
 
@@ -22,6 +23,8 @@ export default function Home() {
   const ynbaSubtitleRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const section1Ref = useRef<HTMLDivElement>(null);
+  
+  const handleAiResponse = useHandleAiResponse();
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -332,7 +335,7 @@ export default function Home() {
       {/* SilverTellerHub - Mic and Camera */}
       <SilverTellerHub 
         screenName="Home" 
-        onAiAction={(action: any) => console.log(action)} 
+        onAiAction={handleAiResponse} 
       />
 
       {/* Footer */}

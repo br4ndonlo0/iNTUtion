@@ -6,7 +6,7 @@
   import { set } from 'mongoose';
 
 interface AiAction {
-  action: 'NAVIGATE' | '导航' | 'mengemudi' | 'FILL_FORM' | 'CONFIRM' | 'REJECT' | 'UNKNOWN' | 'isi_borang' | '填表' | 'setuju' | '确认' | 'tolak' | '拒绝' | 'NAME' | '名字' | 'nama' | 'USERNAME' | '用户名' | 'nama_pengguna' | 'PASSWORD' | '密码' | 'kata_laluan' | 'CONFIRM_PASSWORD' | '确认密码' | 'sahkan_kata_laluan' | 'PHONE' | '电话' | 'telefon' | 'EMAIL' | '电子邮件' | 'emel' | 'AGREE' | 'LOGIN' | 'REGISTER' | 'CONFIRMPASS';
+  action: 'NAVIGATE' | '导航' | 'mengemudi' | 'FILL_FORM' | 'CONFIRM' | 'REJECT' | 'UNKNOWN' | 'isi_borang' | '填表' | 'setuju' | '确认' | 'tolak' | '拒绝' | 'NAME' | '名字' | 'nama' | 'USERNAME' | '用户名' | 'nama_pengguna' | 'PASSWORD' | '密码' | 'kata_laluan' | 'CONFIRM_PASSWORD' | '确认密码' | 'sahkan_kata_laluan' | 'PHONE' | '电话' | 'telefon' | 'EMAIL' | '电子邮件' | 'emel' | 'AGREE' | 'LOGIN' | 'REGISTER' | 'CONFIRMPASS' | 'SIGN_IN' | 'CREATE_ACCOUNT';
   target?: string;
   amount?: number;
   recipient?: string;
@@ -155,9 +155,25 @@ export function useHandleAiResponse({ onRegister, onLogin, onAgree }: AiHandlers
         case 'NAVIGATE':
         case '导航':
         case 'mengemudi':
-        if (action.target) {
-            console.log(`[AI RESPONSE] 🔀 NAVIGATE → /${action.target}`);
-            router.push(`/${action.target}`);
+          console.log('[AI RESPONSE] 🎯 NAVIGATE case triggered, target:', action.target);
+          if (action.target) {
+            let targetPath = action.target;
+            
+            // Map specific targets to their routes
+            if (action.target === 'sign_in') {
+              targetPath = 'login';
+            } else if (action.target === 'create_account') {
+              targetPath = 'register';
+            }
+            
+            console.log(`[AI RESPONSE] 🔀 NAVIGATE → /${targetPath}`);
+            try {
+              router.push(`/${targetPath}`);
+              console.log('[AI RESPONSE] ✅ router.push completed');
+              speak(`Navigating to ${targetPath}`);
+            } catch (error) {
+              console.error('[AI RESPONSE] ❌ Navigation error:', error);
+            }
           } else {
             console.log('[AI RESPONSE] ⚠️  NAVIGATE missing target');
           }

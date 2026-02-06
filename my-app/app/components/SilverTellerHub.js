@@ -66,7 +66,7 @@ export default function SilverTellerHub({
     if (voiceState.mode === "listening_for_value") {
       // Strip out common command words from the beginning of the transcript
       let cleanValue = transcript;
-      const commandWords = ["username", "password", "confirm", "confirm password", "phone", "phone number", "email", "email address", "full name", "name"];
+      const commandWords = ["username", "password", "confirm", "confirm password", "phone", "phone number", "email", "email address", "full name", "name", "navigate"];
       for (const cmdWord of commandWords) {
         const regex = new RegExp(`^${cmdWord}\\s+`, "i");
         cleanValue = cleanValue.replace(regex, "");
