@@ -1,301 +1,115 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, ReactNode, useRef } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { VoiceState, VoiceCommand, GestureType, CommandContext, InputMode } from '@/types/commands';
+import React, { createContext, useContext, useReducer, ReactNode, useCallback } from 'react';
 
+// 1. DEFINE THE NEW STATE SHAPE
+// This allows the AI to inject data directly into your app
+interface VoiceState {
+  isListening: boolean;
+  transcript: string;
+  recipient?: string; // For transfer target
+  amount?: string;    // For transfer amount
+  field?: string;     // For generic fields
+  value?: string;     // For generic values
+  // Allow dynamic fields so the AI can fill anything
+  [key: string]: any; 
+}
+
+// 2. DEFINE ACTIONS
+type VoiceAction =
+  | { type: 'START_LISTENING' }
+  | { type: 'STOP_LISTENING' }
+  | { type: 'SET_TRANSCRIPT'; payload: string }
+  | { type: 'SET_FIELD'; field: string; value: string }
+  | { type: 'CLEAR_FIELDS' };
+
+// 3. INITIAL STATE
+const initialVoiceState: VoiceState = {
+  isListening: false,
+  transcript: '',
+  recipient: '',
+  amount: '',
+  field: '',
+  value: '',
+};
+
+// 4. THE REDUCER (The Logic)
+function voiceReducer(state: VoiceState, action: VoiceAction): VoiceState {
+  switch (action.type) {
+    case 'START_LISTENING':
+      return { ...state, isListening: true };
+      
+    case 'STOP_LISTENING':
+      return { ...state, isListening: false };
+      
+    case 'SET_TRANSCRIPT':
+      return { ...state, transcript: action.payload };
+      
+    // 👇 THIS IS THE MAGIC PART
+    // It takes whatever the AI gives (e.g., 'recipient', 'amount') and saves it
+    case 'SET_FIELD':
+      console.log(`[VoiceContext] 💾 Saving: ${action.field} = ${action.value}`);
+      return {
+        ...state,
+        [action.field]: action.value, 
+      };
+
+    case 'CLEAR_FIELDS':
+      return initialVoiceState;
+      
+    default:
+      return state;
+  }
+}
+
+// 5. DEFINE CONTEXT TYPE
 interface VoiceContextType {
   voiceState: VoiceState;
-  processVoiceCommand: (command: string, transcript?: string) => void;
-  processGesture: (gesture: GestureType) => void;
+  isListening: boolean;
+  toggleListening: () => void;
   setFieldValue: (field: string, value: string) => void;
-  pendingFieldValue: { field: string; value: string } | null;
+  resetTranscript: () => void;
+  // Legacy stubs to prevent crashes
+  processVoiceCommand: (cmd: string) => void;
+  pendingFieldValue: any;
   clearPendingValue: () => void;
 }
 
 const VoiceContext = createContext<VoiceContextType | undefined>(undefined);
 
-const INITIAL_STATE: VoiceState = {
-  mode: 'idle',
-  targetField: null,
-  lastCommand: null,
-  isListening: false,
-  transcript: '',
-};
-
+// 6. PROVIDER COMPONENT
 export function VoiceProvider({ children }: { children: ReactNode }) {
-  const [voiceState, setVoiceState] = useState<VoiceState>(INITIAL_STATE);
-  const [pendingFieldValue, setPendingFieldValue] = useState<{ field: string; value: string } | null>(null);
-  const pendingListeningRef = useRef<{ field: string; targetField: 'name' | 'username' | 'email' | 'phone' | 'password' | 'confirm' | 'search' | 'amount' | 'navigate' | null; command: VoiceCommand } | null>(null);
-  const router = useRouter();
-  const pathname = usePathname();
+  const [voiceState, dispatch] = useReducer(voiceReducer, initialVoiceState);
 
-  const getCommandContext = useCallback((): CommandContext => {
-    return {
-      currentPath: pathname,
-      isAuthPage: pathname === '/login' || pathname === '/register',
-      isTransferPage: pathname === '/transfer',
-      isTransferDetailPage: pathname.startsWith('/transfer/') && pathname !== '/transfer',
-    };
-  }, [pathname]);
+  const toggleListening = useCallback(() => {
+    dispatch({ type: voiceState.isListening ? 'STOP_LISTENING' : 'START_LISTENING' });
+  }, [voiceState.isListening]);
 
+  // The AI Hook uses this to save data
   const setFieldValue = useCallback((field: string, value: string) => {
-    setPendingFieldValue({ field, value });
+    dispatch({ type: 'SET_FIELD', field, value });
   }, []);
 
-  const clearPendingValue = useCallback(() => {
-    setPendingFieldValue(null);
+  const resetTranscript = useCallback(() => {
+    dispatch({ type: 'SET_TRANSCRIPT', payload: '' });
   }, []);
 
-  const processVoiceCommand = useCallback((commandText: string, transcript?: string) => {
-    const command = commandText.toLowerCase() as VoiceCommand;
-    const context = getCommandContext();
-
-    console.log('[VOICE] ========== COMMAND RECEIVED ==========');
-    console.log('[VOICE] Command:', command);
-    console.log('[VOICE] Transcript:', transcript);
-    console.log('[VOICE] Current Context:', context);
-    console.log('[VOICE] Pending Listening State:', pendingListeningRef.current);
-
-    // If we have a pending listening state OR current mode is listening_for_value, capture the input
-    const listeningField = pendingListeningRef.current?.targetField || (voiceState.mode === 'listening_for_value' ? voiceState.targetField : null);
-    
-    if (listeningField && !['name', 'username', 'email', 'phone', 'password', 'confirm', 'account', 'transfer', 'search', 'navigate'].includes(command)) {
-      // This is a value input, not a command
-      const value = transcript || commandText;
-      console.log('[VOICE] 🎯 LISTENING MODE - Capturing value for field:', listeningField);
-      console.log('[VOICE] 📝 Captured value:', value);
-      
-      // Special handling for navigate target
-      if (listeningField === 'navigate') {
-        const target = value.toLowerCase();
-        console.log('[VOICE] 🔀 NAVIGATE target:', target);
-        console.log('[VOICE] 📍 Current path:', context.currentPath);
-        
-        if (target === 'transfer') {
-          console.log('[VOICE] ✅ NAVIGATE → /transfer');
-          router.push('/transfer');
-        } else if (target === 'account') {
-          console.log('[VOICE] ✅ NAVIGATE → /account');
-          router.push('/account');
-        } else if (target === 'history') {
-          console.log('[VOICE] ✅ NAVIGATE → /history');
-          router.push('/history');
-        } else if (target === 'dashboard') {
-          console.log('[VOICE] ✅ NAVIGATE → /dashboard')
-        }
-        else {
-          console.log('[VOICE] ⚠️  Unknown navigate target: "' + target + '" (expected: settings, transfer, account, home, history)');
-        }
-      } else {
-        setFieldValue(listeningField, value);
-      }
-      
-      setVoiceState(INITIAL_STATE);
-      pendingListeningRef.current = null;
-      return;
-    }
-
-    // Process commands
-    switch (command) {
-      case 'name':
-        console.log('[VOICE] ✅ NAME command - Setting up listening mode');
-        pendingListeningRef.current = { field: 'name', targetField: 'name', command: 'name' };
-        setVoiceState({
-          mode: 'listening_for_value',
-          targetField: 'name',
-          lastCommand: 'name',
-          isListening: true,
-          transcript: '',
-        });
-        break;
-
-      case 'username':
-        console.log('[VOICE] ✅ USERNAME command - Setting up listening mode');
-        pendingListeningRef.current = { field: 'username', targetField: 'username', command: 'username' };
-        setVoiceState({
-          mode: 'listening_for_value',
-          targetField: 'username',
-          lastCommand: 'username',
-          isListening: true,
-          transcript: '',
-        });
-        break;
-
-      case 'email':
-        console.log('[VOICE] ✅ EMAIL command - Setting up listening mode');
-        pendingListeningRef.current = { field: 'email', targetField: 'email', command: 'email' };
-        setVoiceState({
-          mode: 'listening_for_value',
-          targetField: 'email',
-          lastCommand: 'email',
-          isListening: true,
-          transcript: '',
-        });
-        break;
-
-      case 'phone':
-        console.log('[VOICE] ✅ PHONE command - Setting up listening mode');
-        pendingListeningRef.current = { field: 'phone', targetField: 'phone', command: 'phone' };
-        setVoiceState({
-          mode: 'listening_for_value',
-          targetField: 'phone',
-          lastCommand: 'phone',
-          isListening: true,
-          transcript: '',
-        });
-        break;
-
-      case 'password':
-        console.log('[VOICE] ✅ PASSWORD command - Setting up listening mode');
-        pendingListeningRef.current = { field: 'password', targetField: 'password', command: 'password' };
-        setVoiceState({
-          mode: 'listening_for_value',
-          targetField: 'password',
-          lastCommand: 'password',
-          isListening: true,
-          transcript: '',
-        });
-        break;
-
-      case 'confirm':
-        if (context.isAuthPage) {
-          console.log('[VOICE] ✅ CONFIRM command - On auth page, listening for confirm password');
-          // On auth pages, "confirm" sets up listening for confirm password
-          pendingListeningRef.current = { field: 'confirm', targetField: 'confirm', command: 'confirm' };
-          setVoiceState({
-            mode: 'listening_for_value',
-            targetField: 'confirm',
-            lastCommand: 'confirm',
-            isListening: true,
-            transcript: '',
-          });
-        } else if (context.isTransferDetailPage && voiceState.lastCommand === 'transfer') {
-          console.log('[VOICE] ✅ CONFIRM command - On transfer detail page, confirming transaction');
-          // On transfer detail page after setting amount, confirm transaction
-          setFieldValue('confirm_transaction', 'true');
-          setVoiceState(INITIAL_STATE);
-          pendingListeningRef.current = null;
-        } else {
-          console.log('[VOICE] ⚠️  CONFIRM command - Not in applicable context');
-        }
-        break;
-
-      case 'account':
-        console.log('[VOICE] ✅ ACCOUNT command - Redirecting to /account');
-        router.push('/account');
-        setVoiceState(INITIAL_STATE);
-        pendingListeningRef.current = null;
-        break;
-
-
-      case 'transfer':
-        if (context.isTransferDetailPage) {
-          console.log('[VOICE] ✅ TRANSFER command - On transfer detail page, listening for amount');
-          // On transfer detail page, listen for amount
-          pendingListeningRef.current = { field: 'amount', targetField: 'amount', command: 'transfer' };
-          setVoiceState({
-            mode: 'listening_for_value',
-            targetField: 'amount',
-            lastCommand: 'transfer',
-            isListening: true,
-            transcript: '',
-          });
-        } else {
-          console.log('[VOICE] ✅ TRANSFER command - Redirecting to /transfer');
-          // Navigate to transfer page
-          router.push('/transfer');
-          setVoiceState(INITIAL_STATE);
-          pendingListeningRef.current = null;
-        }
-        break;
-
-      case 'search':
-        if (context.isTransferPage) {
-          console.log('[VOICE] ✅ SEARCH command - On transfer page, listening for account/phone');
-          // Listen for account number/phone to search
-          pendingListeningRef.current = { field: 'search', targetField: 'search', command: 'search' };
-          setVoiceState({
-            mode: 'listening_for_value',
-            targetField: 'search',
-            lastCommand: 'search',
-            isListening: true,
-            transcript: '',
-          });
-        } else {
-          console.log('[VOICE] ⚠️  SEARCH command - Not on transfer page, ignoring');
-        }
-        break;
-
-      case 'navigate':
-        console.log('[VOICE] ✅ NAVIGATE command - Listening for target destination');
-        pendingListeningRef.current = { field: 'navigate', targetField: 'navigate', command: 'navigate' };
-        setVoiceState({
-          mode: 'listening_for_value',
-          targetField: 'navigate',
-          lastCommand: 'navigate',
-          isListening: true,
-          transcript: '',
-        });
-        break;
-
-      default:
-        console.log('[VOICE] ❌ UNKNOWN command:', command);
-    }
-    console.log('[VOICE] ========== END COMMAND ==========');
-  }, [voiceState, getCommandContext, router, setFieldValue]);
-
-  const processGesture = useCallback((gesture: GestureType) => {
-    console.log('[GESTURE] ========== GESTURE DETECTED ==========');
-    console.log('[GESTURE] Gesture type:', gesture);
-    console.log('[GESTURE] Current VoiceState:', voiceState);
-    
-    // You can map gestures to actions here
-    switch (gesture) {
-      case 'Thumb_Up':
-        // Confirm current action
-        if (voiceState.mode === 'listening_for_value') {
-          // Submit the current field
-          console.log('[GESTURE] 👍 Thumb_Up - Confirming field input for:', voiceState.targetField);
-        }
-        break;
-      
-      case 'Thumb_Down':
-        // Cancel current action
-        console.log('[GESTURE] 👎 Thumb_Down - Cancelling current action');
-        setVoiceState(INITIAL_STATE);
-        setPendingFieldValue(null);
-        break;
-
-      case 'Open_Palm':
-        // Go back
-        console.log('[GESTURE] ✋ Open_Palm - Going back');
-        router.back();
-        break;
-
-      case 'Victory':
-        // Toggle something (example: toggle voice mode)
-        console.log('[GESTURE] ✌️  Victory - Toggling mode');
-        break;
-
-      default:
-        console.log('[GESTURE] ⚠️  Unknown gesture:', gesture);
-      // Add more gesture mappings as needed
-    }
-    console.log('[GESTURE] ========== END GESTURE ==========');
-  }, [voiceState, router]);
+  // Legacy stub: We don't need manual command processing anymore
+  const processVoiceCommand = useCallback((cmd: string) => {
+    console.log("[VoiceContext] Legacy command received (ignored):", cmd);
+  }, []);
 
   return (
-    <VoiceContext.Provider
-      value={{
-        voiceState,
-        processVoiceCommand,
-        processGesture,
-        setFieldValue,
-        pendingFieldValue,
-        clearPendingValue,
-      }}
-    >
+    <VoiceContext.Provider value={{ 
+      voiceState, 
+      isListening: voiceState.isListening, 
+      toggleListening, 
+      setFieldValue,
+      resetTranscript,
+      processVoiceCommand, 
+      pendingFieldValue: null, 
+      clearPendingValue: () => dispatch({ type: 'CLEAR_FIELDS' }) 
+    }}>
       {children}
     </VoiceContext.Provider>
   );
@@ -303,8 +117,6 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
 
 export function useVoice() {
   const context = useContext(VoiceContext);
-  if (context === undefined) {
-    throw new Error('useVoice must be used within a VoiceProvider');
-  }
+  if (!context) throw new Error('useVoice must be used within a VoiceProvider');
   return context;
 }
