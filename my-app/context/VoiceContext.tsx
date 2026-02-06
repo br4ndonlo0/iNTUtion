@@ -51,11 +51,20 @@ function voiceReducer(state: VoiceState, action: VoiceAction): VoiceState {
       console.log(`[VoiceContext] 💾 Saving: ${action.field} = ${action.value}`);
       return {
         ...state,
-        [action.field]: action.value, 
+        [action.field]: action.value,
+        // Also save to field/value for pendingFieldValue
+        field: action.field,
+        value: action.value,
       };
 
     case 'CLEAR_FIELDS':
-      return initialVoiceState;
+      // Only clear the field/value pair used by pendingFieldValue
+      // Keep other data like isListening, transcript, recipient, amount
+      return {
+        ...state,
+        field: '',
+        value: '',
+      };
       
     default:
       return state;
@@ -99,6 +108,15 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     console.log("[VoiceContext] Legacy command received (ignored):", cmd);
   }, []);
 
+  const clearPendingValue = useCallback(() => {
+    dispatch({ type: 'CLEAR_FIELDS' });
+  }, []);
+
+  // Create pendingFieldValue from voiceState
+  const pendingFieldValue = (voiceState.field && voiceState.value) 
+    ? { field: voiceState.field, value: voiceState.value }
+    : null;
+
   return (
     <VoiceContext.Provider value={{ 
       voiceState, 
@@ -107,8 +125,8 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       setFieldValue,
       resetTranscript,
       processVoiceCommand, 
-      pendingFieldValue: null, 
-      clearPendingValue: () => dispatch({ type: 'CLEAR_FIELDS' }) 
+      pendingFieldValue, 
+      clearPendingValue
     }}>
       {children}
     </VoiceContext.Provider>
