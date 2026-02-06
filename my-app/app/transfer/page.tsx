@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { T } from "@/components/Translate";
 
 export default function TransferPage() {
@@ -11,6 +11,32 @@ export default function TransferPage() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/auth/me');
+        
+        if (res.ok) {
+          const data = await res.json();
+          // Update localStorage with fresh data
+          localStorage.setItem("user", JSON.stringify(data.user));
+          setLoading(false);
+        } else {
+          console.log('Session expired or invalid');
+          localStorage.removeItem("user");
+          router.push('/login');
+        }
+      } catch (error) {
+        console.error("Auth check failed", error);
+        localStorage.removeItem("user");
+        router.push('/login');
+      }
+    };
+
+    checkSession();
+  }, [router]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,6 +93,14 @@ export default function TransferPage() {
       setIsSearching(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-xl font-semibold text-gray-500 animate-pulse">Loading secure data...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-100">

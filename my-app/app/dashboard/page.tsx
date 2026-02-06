@@ -41,7 +41,8 @@ export default function Dashboard() {
   const userInitial = (userName || 'U').charAt(0).toUpperCase();
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' }); 
+    await fetch('/api/auth/logout', { method: 'POST' });
+    localStorage.removeItem("user");
     window.location.href = '/login';
   };
 

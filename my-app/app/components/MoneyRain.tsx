@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useEffect } from "react";
 
 type Drop = {
   left: string;
@@ -17,16 +17,26 @@ export default function MoneyRain({
   count?: number;
   emoji?: string;
 }) {
-  const drops = useMemo<Drop[]>(() => {
-    return Array.from({ length: count }).map(() => {
-      const left = `${Math.random() * 100}%`;
-      const delay = `${Math.random() * 4}s`;
-      const duration = `${8 + Math.random() * 7}s`; // 8–15s
-      const size = `${18 + Math.random() * 20}px`; // 18–38px
-      const opacity = `${0.4 + Math.random() * 0.35}`; // 0.4–0.75
-      return { left, delay, duration, size, opacity };
-    });
+  const [drops, setDrops] = useState<Drop[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setDrops(
+      Array.from({ length: count }).map(() => {
+        const left = `${Math.random() * 100}%`;
+        const delay = `${Math.random() * 4}s`;
+        const duration = `${8 + Math.random() * 7}s`; // 8–15s
+        const size = `${18 + Math.random() * 20}px`; // 18–38px
+        const opacity = `${0.4 + Math.random() * 0.35}`; // 0.4–0.75
+        return { left, delay, duration, size, opacity };
+      })
+    );
   }, [count]);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
