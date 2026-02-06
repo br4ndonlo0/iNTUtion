@@ -4,10 +4,11 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useMemo, useState, useEffect } from "react";
 import SilverTellerHub from "../../components/SilverTellerHub";
-
+import { useHandleAiResponse } from "@/hooks/useHandleAiResponse";
 export default function TransferToIdPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
+  const handleAiResponse = useHandleAiResponse();
 
   const recipientId = useMemo(() => {
     const raw = params?.id ?? "";
@@ -195,7 +196,7 @@ export default function TransferToIdPage() {
           </div>
         </div>
       </main>
-      <SilverTellerHub screenName="TransferDetail" />
+      <SilverTellerHub screenName="TransferDetail" onAiAction={handleAiResponse}/>
     </div>
   );
 }
