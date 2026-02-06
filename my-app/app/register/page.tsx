@@ -12,8 +12,6 @@ import { useVoice } from "@/context/VoiceContext";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { pendingFieldValue, clearPendingValue } = useVoice();
-  const handleAiResponse = useHandleAiResponse();
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   // Removed phone field, only use phoneNumber
