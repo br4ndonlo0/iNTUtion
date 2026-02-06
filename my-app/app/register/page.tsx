@@ -27,7 +27,7 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
-  const { pendingFieldValue, clearPendingValue } = useVoice();
+  const { voiceState } = useVoice();
   const handleRegister = async (e?: React.SyntheticEvent) => {
     if (e && typeof e.preventDefault === 'function') e.preventDefault();
     setErrorMessage("");
@@ -87,49 +87,33 @@ export default function RegisterPage() {
   const { setLanguageByCode } = useTranslation();
 
   useEffect(() => {
-    if (!pendingFieldValue) return;
-
-    if (pendingFieldValue.field === "name") {
-      // Remove command word (e.g., 'full name') from value
-      const value = pendingFieldValue.value.trim();
-      const filtered = value.replace(/^full\s*name\s+/i, "").replace(/^nama\s*penuh\s+/i, "");
-      setName(filtered);
-      clearPendingValue();
-      return;
+    if (!voiceState) return;
+    
+    if (voiceState.name) {
+      setName(voiceState.name);
+      console.log('[DEBUG] Name set from voiceState:', voiceState.name);
     }
-
-    if (pendingFieldValue.field === "username") {
-      // Remove command word (e.g., 'username') from value
-      const value = pendingFieldValue.value.trim();
-      const filtered = value.replace(/^username\s+/i, "").replace(/^user\s+/i, "");
-      setUsername(filtered);
-      clearPendingValue();
-      return;
+    if (voiceState.username) {
+      setUsername(voiceState.username);
+      console.log('[DEBUG] Username set from voiceState:', voiceState.username);
     }
-
-    if (pendingFieldValue.field === "phone") {
-      setPhoneNumber(pendingFieldValue.value.replace(/\D/g, "").slice(0, 8));
-      clearPendingValue();
-      return;
+    if (voiceState.phoneNumber) {
+      setPhoneNumber(voiceState.phoneNumber.replace(/\D/g, "").slice(0, 8));
+      console.log('[DEBUG] Phone set from voiceState:', voiceState.phoneNumber);
     }
-
-    if (pendingFieldValue.field === "email") {
-      setEmail(pendingFieldValue.value);
-      clearPendingValue();
-      return;
+    if (voiceState.email) {
+      setEmail(voiceState.email);
+      console.log('[DEBUG] Email set from voiceState:', voiceState.email);
     }
-
-    if (pendingFieldValue.field === "password") {
-      setPassword(pendingFieldValue.value);
-      clearPendingValue();
-      return;
+    if (voiceState.password) {
+      setPassword(voiceState.password);
+      console.log('[DEBUG] Password set from voiceState');
     }
-
-    if (pendingFieldValue.field === "confirm") {
-      setConfirmPassword(pendingFieldValue.value);
-      clearPendingValue();
+    if (voiceState.confirmPassword) {
+      setConfirmPassword(voiceState.confirmPassword);
+      console.log('[DEBUG] Confirm password set from voiceState');
     }
-  }, [pendingFieldValue, clearPendingValue]);
+  }, [voiceState]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-50">

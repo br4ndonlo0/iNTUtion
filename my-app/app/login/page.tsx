@@ -11,7 +11,24 @@ import { useVoice } from "@/context/VoiceContext";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { pendingFieldValue, clearPendingValue } = useVoice();
+  const { voiceState } = useVoice();
+  
+  const [username, setUsername] = useState("")
+  const { setLanguageByCode } = useTranslation();
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (!voiceState) return;
+    if (voiceState.username) {
+      setUsername(voiceState.username);
+      console.log('[DEBUG] Username set from voiceState:', voiceState.username);
+    }
+    if (voiceState.password) setPassword(voiceState.password);
+  }, [voiceState]);
+
   const handleLogin = async (e?: React.FormEvent) => {
     if (e && typeof e.preventDefault === 'function') e.preventDefault();
     setErrorMessage("");
@@ -73,33 +90,7 @@ export default function LoginPage() {
       setIsSubmitting(false);
     }
   };
-  const handleAiResponse = useHandleAiResponse({ onLogin: handleLogin });
-  const [username, setUsername] = useState("")
-  const { setLanguageByCode } = useTranslation();
-  const [password, setPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-
-  useEffect(() => {
-    if (!pendingFieldValue) return;
-
-    // Filter command word for username
-    if (pendingFieldValue.field === "username") {
-      // Remove command word (e.g., 'username') from value
-      const value = pendingFieldValue.value.trim();
-      const filtered = value.replace(/^username\s+/i, "").replace(/^user\s+/i, "");
-      setUsername(filtered);
-      clearPendingValue();
-      return;
-    }
-
-    if (pendingFieldValue.field === "password") {
-      setPassword(pendingFieldValue.value);
-      clearPendingValue();
-    }
-  }, [pendingFieldValue, clearPendingValue]);
-
+const handleAiResponse = useHandleAiResponse({ onLogin: handleLogin });
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#C8102E] to-[#A50D26] flex flex-col">
       {/* Header */}
@@ -131,7 +122,10 @@ export default function LoginPage() {
                   className="w-full px-4 py-3 text-gray-900 placeholder-gray-500 bg-gray-50 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-[#C8102E] focus:ring-2 focus:ring-[#C8102E]/20 transition"
                   placeholder="Username"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                    console.log('[DEBUG] Username set from input:', e.target.value);
+                  }}
                   required
                 />
               </div>

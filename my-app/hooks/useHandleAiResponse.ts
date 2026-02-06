@@ -3,10 +3,10 @@
   import { useCallback } from 'react';
   import { useRouter } from 'next/navigation';
   import { useVoice } from '@/context/VoiceContext';
-import { set } from 'mongoose';
+  import { set } from 'mongoose';
 
 interface AiAction {
-  action: 'NAVIGATE' | '导航' | 'mengemudi' | 'FILL_FORM' | 'CONFIRM' | 'REJECT' | 'UNKNOWN' | 'isi_borang' | '填表' | 'setuju' | '确认' | 'tolak' | '拒绝' | 'NAME' | '名字' | 'nama' | 'USERNAME' | '用户名' | 'nama_pengguna' | 'PASSWORD' | '密码' | 'kata_laluan' | 'CONFIRM_PASSWORD' | '确认密码' | 'sahkan_kata_laluan' | 'PHONE' | '电话' | 'telefon' | 'EMAIL' | '电子邮件' | 'emel' | 'AGREE' | 'LOGIN' | 'REGISTER';
+  action: 'NAVIGATE' | '导航' | 'mengemudi' | 'FILL_FORM' | 'CONFIRM' | 'REJECT' | 'UNKNOWN' | 'isi_borang' | '填表' | 'setuju' | '确认' | 'tolak' | '拒绝' | 'NAME' | '名字' | 'nama' | 'USERNAME' | '用户名' | 'nama_pengguna' | 'PASSWORD' | '密码' | 'kata_laluan' | 'CONFIRM_PASSWORD' | '确认密码' | 'sahkan_kata_laluan' | 'PHONE' | '电话' | 'telefon' | 'EMAIL' | '电子邮件' | 'emel' | 'AGREE' | 'LOGIN' | 'REGISTER' | 'CONFIRMPASS';
   target?: string;
   amount?: number;
   recipient?: string;
@@ -60,6 +60,47 @@ export function useHandleAiResponse({ onRegister, onLogin, onAgree }: AiHandlers
             onAgree();
           } else {
             console.log('[AI RESPONSE] AGREE action received, but no handler provided.');
+          }
+          break;
+        case 'USERNAME':
+        case '用户名':
+        case 'nama_pengguna':
+          if (action.value) {
+            setFieldValue('username', action.value);
+            speak(`Username set to ${action.value}`);
+          }
+          break;
+        case 'PASSWORD':
+        case '密码':
+        case 'kata_laluan':
+          if (action.value) {
+            setFieldValue('password', action.value);
+            speak('Password set.');
+          }
+          break;
+        case 'EMAIL':
+        case '电子邮件':
+        case 'emel':
+          if (action.value) {
+            setFieldValue('email', action.value);
+            speak(`Email set to ${action.value}`);
+          }
+          break;
+        case 'PHONE':
+        case '电话':
+        case 'telefon':
+          if (action.value) {
+            setFieldValue('phoneNumber', action.value);
+            speak(`Phone number set to ${action.value}`);
+          }
+          break;
+        case 'CONFIRM_PASSWORD':
+        case 'CONFIRMPASS':
+        case '确认密码':
+        case 'sahkan_kata_laluan':
+          if (action.value) {
+            setFieldValue('confirmPassword', action.value);
+            speak('Confirm password set.');
           }
           break;
         case 'NAME':
