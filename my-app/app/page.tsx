@@ -147,7 +147,7 @@ export default function Home() {
         <MoneyRain count={32} emoji="💸" />
       </div>
       {/* Hero Section - Clean and Simple */}
-      <section className="min-h-screen flex flex-col items-center justify-center px-6 bg-white">
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 bg-white">
         <div className="text-center max-w-4xl mx-auto">
           {/* Main Brand */}
           <h1
@@ -238,12 +238,12 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Scroll hint */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2">
-          <div className="w-6 h-10 border-2 border-[#C8102E] rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-[#C8102E] rounded-full mt-2 animate-bounce" />
-          </div>
-        </div>
+{/* Scroll hint - Moved up slightly */}
+<div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[-20%] z-30">
+  <div className="w-9 h-14 border-2 border-[#C8102E] bg-white rounded-full flex justify-center shadow-xl">
+    <div className="w-1.5 h-3 bg-[#C8102E] rounded-full mt-3 animate-bounce" />
+  </div>
+</div>
       </section>
 
 {/* Section 1 - Why Bank Buddy */}
