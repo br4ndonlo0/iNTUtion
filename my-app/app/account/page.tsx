@@ -5,9 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/context/TranslationContext";
 import { T } from "@/components/Translate";
+import { useHandleAiResponse } from "@/hooks/useHandleAiResponse";
+import SilverTellerHub from "../components/SilverTellerHub";
 
 export default function AccountPage() {
   const router = useRouter();
+  const handleAiResponse = useHandleAiResponse();
   const { currentLanguageCode, setLanguageByCode } = useTranslation();
   const [userName, setUserName] = useState("User");
   const [userEmail, setUserEmail] = useState("Not available");
@@ -179,7 +182,7 @@ export default function AccountPage() {
           </Link>
         </div>
       </main>
-      <SilverTellerHub screenName="Account" />
+      <SilverTellerHub screenName="Account" onAiAction={handleAiResponse}/>
     </div>
   );
 }

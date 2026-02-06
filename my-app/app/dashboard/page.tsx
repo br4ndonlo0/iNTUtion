@@ -14,6 +14,16 @@ export default function Dashboard() {
   const [userBalance, setUserBalance] = useState(0);
   const [profileOpen, setProfileOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [transactions, setTransactions] = useState<Array<{
+    id: string;
+    amount: number;
+    type: 'sent' | 'received';
+    senderName: string;
+    recipientName: string;
+    createdAt: string;
+    status: string;
+  }>>([]);
+  const [loadingTransactions, setLoadingTransactions] = useState(true);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -37,7 +47,22 @@ export default function Dashboard() {
       }
     };
 
+    const fetchTransactions = async () => {
+      try {
+        const res = await fetch('/api/transactions?limit=5');
+        if (res.ok) {
+          const data = await res.json();
+          setTransactions(data.transactions || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch transactions", error);
+      } finally {
+        setLoadingTransactions(false);
+      }
+    };
+
     checkSession();
+    fetchTransactions();
   }, [router]);
 
   const userInitial = (userName || 'U').charAt(0).toUpperCase();
@@ -48,43 +73,7 @@ export default function Dashboard() {
     window.location.href = '/login';
   };
 
-  const spendingCategories = [
-    { name: 'Food & Dining', amount: 850, maxAmount: 1000, color: '#C8102E' },
-    { name: 'Shopping', amount: 620, maxAmount: 1000, color: '#C8102E' },
-    { name: 'Transport', amount: 340, maxAmount: 1000, color: '#C8102E' },
-    { name: 'Utilities', amount: 280, maxAmount: 1000, color: '#C8102E' },
-    { name: 'Entertainment', amount: 190, maxAmount: 1000, color: '#C8102E' },
-    { name: 'Healthcare', amount: 150, maxAmount: 1000, color: '#C8102E' },
-  ];
-
-  const weeklyData = [
-    { day: 'Mon', current: 1200, previous: 800 },
-    { day: 'Tue', current: 1800, previous: 1200 },
-    { day: 'Wed', current: 2400, previous: 2100 },
-    { day: 'Thu', current: 5200, previous: 3800 },
-    { day: 'Fri', current: 4100, previous: 4500 },
-    { day: 'Sat', current: 3200, previous: 3000 },
-    { day: 'Sun', current: 2800, previous: 2400 },
-  ];
-
-  const monthlySpending = [
-    { category: 'Groceries', amount: 450 },
-    { category: 'Dining', amount: 380 },
-    { category: 'Shopping', amount: 520 },
-    { category: 'Transport', amount: 280 },
-    { category: 'Bills', amount: 620 },
-    { category: 'Other', amount: 180 },
-  ];
-
-  const paymentTypes = [
-    { type: 'Debit Card', percentage: 38.6, color: '#C8102E' },
-    { type: 'Credit Card', percentage: 30.8, color: '#333' },
-    { type: 'Bank Transfer', percentage: 22.5, color: '#666' },
-    { type: 'Cash', percentage: 8.1, color: '#999' },
-  ];
-
-  const maxSpending = Math.max(...monthlySpending.map(s => s.amount));
-if (loading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <p className="text-xl font-semibold text-gray-500 animate-pulse">Loading secure data...</p>
@@ -94,7 +83,6 @@ if (loading) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Main Content */}
-      <SilverTellerHub screenName="Dashboard" />
       <main className="max-w-7xl mx-auto p-6 lg:p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -183,184 +171,73 @@ if (loading) {
           </div>
         </div>
 
-
-        {/* Charts Row */}
-        <div className="grid grid-cols-4 gap-6 mb-8">
-          {/* Line Chart */}
-          <div className="col-span-3 bg-white rounded-xl p-6 border border-gray-200">
-            <div className="flex items-center gap-6 mb-6">
-              <h3 className="font-semibold text-gray-900">Weekly Transactions</h3>
-              <div className="flex items-center gap-4 text-sm">
-                <span className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-[#C8102E]"></span>
-                  This Week
-                </span>
-                <span className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-gray-400"></span>
-                  Last Week
-                </span>
+        {/* Recent Transactions */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4"><T>Recent Transactions</T></h2>
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            {loadingTransactions ? (
+              <div className="p-8 text-center">
+                <p className="text-gray-500"><T>Loading transactions...</T></p>
               </div>
-            </div>
-            
-            {/* Chart Area */}
-            <div className="relative h-64">
-              <svg className="w-full h-full" viewBox="0 0 700 200" preserveAspectRatio="none">
-                {/* Grid lines */}
-                {[0, 1, 2, 3, 4].map((i) => (
-                  <line
-                    key={i}
-                    x1="0"
-                    y1={i * 50}
-                    x2="700"
-                    y2={i * 50}
-                    stroke="#f0f0f0"
-                    strokeWidth="1"
-                  />
-                ))}
-                
-                {/* Previous week line (gray) */}
-                <polyline
-                  fill="none"
-                  stroke="#9ca3af"
-                  strokeWidth="2"
-                  points={weeklyData.map((d, i) => 
-                    `${i * 100 + 50},${200 - (d.previous / 60)}`
-                  ).join(' ')}
-                />
-                
-                {/* Current week line (red) */}
-                <polyline
-                  fill="none"
-                  stroke="#C8102E"
-                  strokeWidth="3"
-                  points={weeklyData.map((d, i) => 
-                    `${i * 100 + 50},${200 - (d.current / 60)}`
-                  ).join(' ')}
-                />
-                
-                {/* Data points for current week */}
-                {weeklyData.map((d, i) => (
-                  <circle
-                    key={i}
-                    cx={i * 100 + 50}
-                    cy={200 - (d.current / 60)}
-                    r="5"
-                    fill="#C8102E"
-                  />
-                ))}
-
-                {/* Tooltip for Thursday */}
-                <g transform="translate(350, 85)">
-                  <rect x="-50" y="-30" width="100" height="30" rx="5" fill="#333" />
-                  <text x="0" y="-10" textAnchor="middle" fill="white" fontSize="12">
-                    Thu: $5,256.59
-                  </text>
-                </g>
-              </svg>
-              
-              {/* X-axis labels */}
-              <div className="flex justify-between px-4 mt-2 text-sm text-gray-500">
-                {weeklyData.map((d, i) => (
-                  <span key={i}>{d.day}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Spending Categories */}
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <h3 className="font-semibold text-gray-900 mb-6">Top Categories</h3>
-            <div className="space-y-4">
-              {spendingCategories.map((cat, i) => (
-                <div key={i}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-700">{cat.name}</span>
-                    <span className="text-[#C8102E] font-medium">${cat.amount}</span>
-                  </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2">
-                    <div
-                      className="bg-[#C8102E] h-2 rounded-full"
-                      style={{ width: `${(cat.amount / cat.maxAmount) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Charts */}
-        <div className="grid grid-cols-2 gap-6">
-          {/* Bar Chart */}
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <h3 className="font-semibold text-gray-900 mb-6">Monthly Spending by Category</h3>
-            <div className="flex items-end justify-between h-48 gap-4">
-              {monthlySpending.map((item, i) => (
-                <div key={i} className="flex flex-col items-center flex-1">
-                  <div
-                    className="w-full rounded-t-lg"
-                    style={{
-                      height: `${(item.amount / maxSpending) * 160}px`,
-                      background: i === 4 ? '#C8102E' : i % 2 === 0 ? '#1a1a1a' : '#666',
-                    }}
-                  ></div>
-                  <p className="text-xs text-gray-500 mt-2 text-center">{item.category}</p>
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-between mt-4 text-sm text-gray-400">
-              <span>$0</span>
-              <span>$300</span>
-              <span>$600</span>
-            </div>
-          </div>
-
-          {/* Donut Chart */}
-          <div className="bg-white rounded-xl p-6 border border-gray-200">
-            <h3 className="font-semibold text-gray-900 mb-6">Payment Methods</h3>
-            <div className="flex items-center gap-8">
-              {/* Donut */}
-              <div className="relative w-40 h-40">
-                <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                  {paymentTypes.reduce((acc, type, i) => {
-                    const prevOffset = i === 0 ? 0 : acc.offset;
-                    const dashArray = type.percentage * 2.83; // circumference = 283
-                    acc.elements.push(
-                      <circle
-                        key={i}
-                        cx="50"
-                        cy="50"
-                        r="45"
-                        fill="none"
-                        stroke={type.color}
-                        strokeWidth="10"
-                        strokeDasharray={`${dashArray} 283`}
-                        strokeDashoffset={-prevOffset}
-                      />
-                    );
-                    acc.offset = prevOffset + dashArray;
-                    return acc;
-                  }, { elements: [] as JSX.Element[], offset: 0 }).elements}
+            ) : transactions.length === 0 ? (
+              <div className="p-8 text-center">
+                <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-24 h-24 bg-white rounded-full"></div>
-                </div>
+                <p className="text-gray-500 font-medium"><T>No transactions yet</T></p>
+                <p className="text-sm text-gray-400 mt-2"><T>Your transfers will appear here</T></p>
               </div>
-              
-              {/* Legend */}
-              <div className="space-y-3">
-                {paymentTypes.map((type, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <span
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: type.color }}
-                    ></span>
-                    <span className="text-sm text-gray-700">{type.type}</span>
-                    <span className="text-sm font-semibold ml-auto">{type.percentage}%</span>
+            ) : (
+              <div className="divide-y divide-gray-200">
+                {transactions.map((txn) => (
+                  <div key={txn.id} className="p-4 hover:bg-gray-50 transition">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                          txn.type === 'sent' ? 'bg-red-100' : 'bg-green-100'
+                        }`}>
+                          {txn.type === 'sent' ? (
+                            <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
+                            </svg>
+                          ) : (
+                            <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 13l-5 5m0 0l-5-5m5 5V6" />
+                            </svg>
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-gray-900">
+                            {txn.type === 'sent' ? (
+                              <><T>Sent to</T> {txn.recipientName}</>
+                            ) : (
+                              <><T>Received from</T> {txn.senderName}</>
+                            )}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {new Date(txn.createdAt).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className={`text-lg font-bold ${
+                          txn.type === 'sent' ? 'text-red-600' : 'text-green-600'
+                        }`}>
+                          {txn.type === 'sent' ? '-' : '+'}${txn.amount.toFixed(2)}
+                        </p>
+                        <p className="text-xs text-gray-500 capitalize">{txn.status}</p>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
+            )}
           </div>
         </div>
       </main>

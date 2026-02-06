@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { useVoice } from "@/context/VoiceContext";
 import { useHandleAiResponse } from "@/hooks/useHandleAiResponse";
 import { T } from "@/components/Translate";
+import { useHandleAiResponse } from "@/hooks/useHandleAiResponse";
 
 export default function TransferPage() {
   const router = useRouter();
@@ -19,8 +20,7 @@ const { pendingFieldValue, clearPendingValue } = useVoice();
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
-  // 2. Auth Check (Keep your existing logic)
+  const handleAiResponse = useHandleAiResponse();
   useEffect(() => {
     const checkSession = async () => {
       try {

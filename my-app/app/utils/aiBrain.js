@@ -24,7 +24,7 @@ export async function getAiAction(transcript, gesture, screenName) {
     Analyze the inputs. If the user wants to do something, map it to a JSON Action.
     
     AVAILABLE ACTIONS (Strict JSON format):
-    1. { "action": "NAVIGATE", "target": "transfer" | "home" | "history" }
+    1. { "action": "NAVIGATE", "target": "transfer" | "account" | "history" | "dashboard" }
     2. { "action": "FILL_FORM", "amount": <number>, "recipient": "<name>" }
     3. { "action": "CONFIRM" }  (Use this if gesture is Thumb_Up or user says Yes)
     4. { "action": "REJECT" }   (Use this if gesture is Thumb_Down or user says No)
