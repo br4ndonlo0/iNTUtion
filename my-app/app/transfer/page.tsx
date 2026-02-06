@@ -7,14 +7,12 @@ import { useState, useEffect } from "react";
 import { useVoice } from "@/context/VoiceContext";
 import { useHandleAiResponse } from "@/hooks/useHandleAiResponse";
 import { T } from "@/components/Translate";
-import { useHandleAiResponse } from "@/hooks/useHandleAiResponse";
 
 export default function TransferPage() {
   const router = useRouter();
 
   // 1. Get the voiceState (The "Truth" from the AI)
-const { pendingFieldValue, clearPendingValue } = useVoice();
-  const handleAiResponse = useHandleAiResponse();
+  const { pendingFieldValue, clearPendingValue } = useVoice();
   
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isSearching, setIsSearching] = useState(false);
