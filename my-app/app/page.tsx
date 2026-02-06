@@ -245,35 +245,67 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Section 1 - Why Bank Buddy */}
-      <section ref={section1Ref} className="py-32 px-6 bg-[#C8102E]">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="animate-on-scroll text-4xl md:text-6xl font-bold text-white mb-8">
-            Banking Made Simple
-          </h2>
-          <p className="animate-on-scroll text-xl md:text-2xl text-white mb-16 max-w-2xl mx-auto">
-            No complicated jargon. No hidden fees. Just straightforward banking that works for you.
-          </p>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="animate-on-scroll bg-white rounded-2xl p-8">
-              <div className="text-5xl mb-4">🔒</div>
-              <h3 className="text-xl font-bold text-[#C8102E] mb-2">Secure</h3>
-              <p className="text-[#C8102E]">Bank-grade encryption protects your data</p>
-            </div>
-            <div className="animate-on-scroll bg-white rounded-2xl p-8">
-              <div className="text-5xl mb-4">⚡</div>
-              <h3 className="text-xl font-bold text-[#C8102E] mb-2">Fast</h3>
-              <p className="text-[#C8102E]">Instant transfers, real-time updates</p>
-            </div>
-            <div className="animate-on-scroll bg-white rounded-2xl p-8">
-              <div className="text-5xl mb-4">💡</div>
-              <h3 className="text-xl font-bold text-[#C8102E] mb-2">Smart</h3>
-              <p className="text-[#C8102E]">AI insights to help you save more</p>
-            </div>
-          </div>
+{/* Section 1 - Why Bank Buddy */}
+<section ref={section1Ref} className="relative overflow-hidden min-h-screen">
+  
+  {/* Layer 1: The Background Image */}
+  <div className="absolute inset-0 bg-black">
+    <img 
+      // REPLACE THIS with your local path, e.g., src="/my-background.jpg"
+      src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YmFua2luZ3xlbnwwfHwwfHx8MA%3D%3D"
+      alt="Banking Background" 
+      className="w-full h-full object-cover opacity-50"
+    />
+    {/* This gradient ensures the text is readable even if the photo is bright */}
+    <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-transparent"></div>
+  </div>
+
+  {/* Layer 2: The Red Swoosh */}
+  <div 
+    className="absolute inset-0 bg-[#C8102E]" 
+    style={{
+      // Pushing the red down further to 65% so your headline has plenty of space
+      clipPath: "polygon(0 65%, 100% 45%, 100% 100%, 0% 100%)"
+    }}
+  ></div>
+
+  {/* Content Layer */}
+  <div className="relative z-10 pt-32 pb-20 px-6">
+    <div className="max-w-6xl mx-auto text-center">
+      
+      {/* Headline area - now definitely on the dark background */}
+      <div className="mb-32">
+        {/* Changed text, applied font-serif for a fancier look, and ensured text-white */}
+        <h2 className="text-5xl md:text-7xl font-bold text-white mb-6">
+          Banking accessible to all
+        </h2>
+        <p className="text-xl md:text-2xl text-gray-200 max-w-2xl mx-auto">
+          No complicated jargon. No hidden fees. Just straightforward banking that works for you.
+        </p>
+      </div>
+      
+      {/* Cards area - sitting on the red background */}
+      <div className="grid md:grid-cols-3 gap-8">
+        <div className="bg-white rounded-3xl p-10 shadow-2xl">
+          <div className="text-5xl mb-4">🔒</div>
+          <h3 className="text-2xl font-bold text-[#C8102E] mb-2">Secure</h3>
+          <p className="text-gray-600">Bank-grade encryption protects your data</p>
         </div>
-      </section>
+        <div className="bg-white rounded-3xl p-10 shadow-2xl">
+          <div className="text-5xl mb-4">⚡</div>
+          <h3 className="text-2xl font-bold text-[#C8102E] mb-2">Fast</h3>
+          <p className="text-gray-600">Instant transfers, real-time updates</p>
+        </div>
+        <div className="bg-white rounded-3xl p-10 shadow-2xl">
+          <div className="text-5xl mb-4">💡</div>
+          <h3 className="text-2xl font-bold text-[#C8102E] mb-2">Smart</h3>
+          <p className="text-gray-600">AI insights to help you save more</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
 
       {/* SilverTellerHub - Mic and Camera */}
       <SilverTellerHub  screenName="Home"/>
