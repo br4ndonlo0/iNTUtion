@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import SilverTellerHub from "../components/SilverTellerHub";
 import { useState, useEffect } from "react";
 import { T } from "@/components/Translate";
+import { useHandleAiResponse } from "@/hooks/useHandleAiResponse";
 
 export default function TransferPage() {
   const router = useRouter();
@@ -13,7 +14,7 @@ export default function TransferPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const handleAiResponse = useHandleAiResponse();
   useEffect(() => {
     const checkSession = async () => {
       try {
@@ -159,7 +160,7 @@ export default function TransferPage() {
           </p>
         </form>
       </main>
-      <SilverTellerHub screenName="Transfer" />
+      <SilverTellerHub screenName="Transfer" onAiAction={handleAiResponse}/>
     </div>
   );
 }

@@ -94,7 +94,6 @@ if (loading) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Main Content */}
-      <SilverTellerHub screenName="Dashboard" />
       <main className="max-w-7xl mx-auto p-6 lg:p-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
