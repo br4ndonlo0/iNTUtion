@@ -7,6 +7,9 @@ import Link from "next/link";
 import SilverTellerHub from "./components/SilverTellerHub";
 import MoneyRain from "./components/MoneyRain";
 import { LanguageButtons } from "@/components/LanguageSelector";
+import { Mic, Hand, Accessibility } from "lucide-react";
+
+
 
 
 gsap.registerPlugin(ScrollTrigger);
@@ -282,24 +285,45 @@ export default function Home() {
         </p>
       </div>
       
-      {/* Cards area */}
-      <div className="grid md:grid-cols-3 gap-8">
-        <div className="bg-white rounded-3xl p-10 shadow-2xl animate-on-scroll">
-          <div className="text-5xl mb-4">🔒</div>
-          <h3 className="text-2xl font-bold text-[#C8102E] mb-2">Voice naviagation</h3>
-          
-        </div>
-        <div className="bg-white rounded-3xl p-10 shadow-2xl animate-on-scroll">
-          <div className="text-5xl mb-4">⚡</div>
-          <h3 className="text-2xl font-bold text-[#C8102E] mb-2">Motion recognition</h3>
-      
-        </div>
-        <div className="bg-white rounded-3xl p-10 shadow-2xl animate-on-scroll">
-          <div className="text-5xl mb-4">💡</div>
-          <h3 className="text-2xl font-bold text-[#C8102E] mb-2">Barrier-free</h3>
-        
-        </div>
-      </div>
+{/* Cards area */}
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto w-full">
+  <div className="w-full bg-white rounded-3xl p-10 shadow-2xl animate-on-scroll text-center">
+    <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#C8102E]/10">
+      <Mic className="h-8 w-8 text-[#C8102E]" aria-hidden="true" />
+    </div>
+    <h3 className="text-2xl font-bold text-[#C8102E] mb-2 leading-snug">
+      Voice Navigation
+    </h3>
+    <p className="text-gray-600 leading-relaxed">
+      Speech-based interaction to reduce reliance on touch and complex menus.
+    </p>
+  </div>
+
+  <div className="w-full bg-white rounded-3xl p-10 shadow-2xl animate-on-scroll text-center">
+    <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#C8102E]/10">
+      <Hand className="h-8 w-8 text-[#C8102E]" aria-hidden="true" />
+    </div>
+    <h3 className="text-2xl font-bold text-[#C8102E] mb-2 leading-snug">
+      Motion Recognition
+    </h3>
+    <p className="text-gray-600 leading-relaxed">
+      Gesture-based controls enable hands-free and low-effort interaction.
+    </p>
+  </div>
+
+  <div className="w-full bg-white rounded-3xl p-10 shadow-2xl animate-on-scroll text-center">
+    <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#C8102E]/10">
+      <Accessibility className="h-8 w-8 text-[#C8102E]" aria-hidden="true" />
+    </div>
+    <h3 className="text-2xl font-bold text-[#C8102E] mb-2 leading-snug">
+      Barrier-Free Access
+    </h3>
+    <p className="text-gray-600 leading-relaxed">
+      Adaptive UI that removes accessibility barriers for diverse user needs.
+    </p>
+  </div>
+</div>
+
 
     </div>
   </div>
