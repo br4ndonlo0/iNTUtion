@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useVoice } from '@/context/VoiceContext';
 import { usePathname } from 'next/navigation';
 import { useHandleAiResponse } from '@/hooks/useHandleAiResponse';
+import SilverTellerHub from '../components/SilverTellerHub';
 
 export default function DebugPage() {
   const { voiceState, processVoiceCommand, processGesture, pendingFieldValue } = useVoice();
@@ -263,6 +264,7 @@ export default function DebugPage() {
               </div>
             </div>
           </div>
+      <SilverTellerHub screenName="Debug" />
     </div>
   );
 }

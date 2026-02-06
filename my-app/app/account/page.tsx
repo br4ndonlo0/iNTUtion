@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import SilverTellerHub from "../components/SilverTellerHub";
 
 export default function AccountPage() {
   const router = useRouter();
@@ -88,6 +89,7 @@ export default function AccountPage() {
           </Link>
         </div>
       </main>
+      <SilverTellerHub screenName="Account" />
     </div>
   );
 }

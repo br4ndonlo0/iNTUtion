@@ -6,6 +6,7 @@ import { AdaptiveImage } from '@/components/AdaptiveImage';
 import { useStyle } from '@/context/StyleContext';
 import { AccessibilityProfile } from '@/types/accessibility';
 import { useState } from 'react';
+import SilverTellerHub from './components/SilverTellerHub';
 
 export default function DemoPage() {
   const { styleSettings, updateSettings } = useStyle();
@@ -214,6 +215,7 @@ export default function DemoPage() {
           </section>
         </main>
       </div>
+      <SilverTellerHub screenName="Demo" />
     </div>
   );
 }

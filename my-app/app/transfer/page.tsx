@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import SilverTellerHub from "../components/SilverTellerHub";
 
 const recipients = [
   { id: "john-1234", name: "John Tan", detail: "Phone: 9123 1234" },
@@ -105,6 +106,7 @@ export default function TransferPage() {
           </div>
         </div>
       </main>
+      <SilverTellerHub screenName="Transfer" />
     </div>
   );
 }

@@ -2,11 +2,18 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import SilverTellerHub from "../components/SilverTellerHub";
+import { useHandleAiResponse } from "@/hooks/useHandleAiResponse";
+import { useVoice } from "@/context/VoiceContext";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { pendingFieldValue, clearPendingValue } = useVoice();
+  const handleAiResponse = useHandleAiResponse();
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -15,6 +22,45 @@ export default function RegisterPage() {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  useEffect(() => {
+    if (!pendingFieldValue) return;
+
+    if (pendingFieldValue.field === "name") {
+      setName(pendingFieldValue.value);
+      clearPendingValue();
+      return;
+    }
+
+    if (pendingFieldValue.field === "username") {
+      setUsername(pendingFieldValue.value);
+      clearPendingValue();
+      return;
+    }
+
+    if (pendingFieldValue.field === "phone") {
+      setPhone(pendingFieldValue.value);
+      clearPendingValue();
+      return;
+    }
+
+    if (pendingFieldValue.field === "email") {
+      setEmail(pendingFieldValue.value);
+      clearPendingValue();
+      return;
+    }
+
+    if (pendingFieldValue.field === "password") {
+      setPassword(pendingFieldValue.value);
+      clearPendingValue();
+      return;
+    }
+
+    if (pendingFieldValue.field === "confirm") {
+      setConfirmPassword(pendingFieldValue.value);
+      clearPendingValue();
+    }
+  }, [pendingFieldValue, clearPendingValue]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +81,7 @@ export default function RegisterPage() {
       const response = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, username, phone, email, password }),
       });
 
       const data = (await response.json()) as { success: boolean; message?: string };
@@ -102,6 +148,45 @@ export default function RegisterPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Jane Doe"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Username */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Username</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <input
+                    className="w-full rounded-xl border border-slate-200 py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:border-[#C8102E] focus:ring-2 focus:ring-[#C8102E]/20 focus:outline-none transition"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="janedoe"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Phone */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Phone Number</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.5 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.5a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="tel"
+                    className="w-full rounded-xl border border-slate-200 py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:border-[#C8102E] focus:ring-2 focus:ring-[#C8102E]/20 focus:outline-none transition"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+65 9123 4567"
                     required
                   />
                 </div>
@@ -271,6 +356,7 @@ export default function RegisterPage() {
           </p>
         </div>
       </main>
+      <SilverTellerHub screenName="Register" onAiAction={handleAiResponse} />
     </div>
   );
 }

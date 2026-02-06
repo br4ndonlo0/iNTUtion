@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import SilverTellerHub from '../components/SilverTellerHub';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -321,6 +322,7 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+      <SilverTellerHub screenName="Dashboard" />
     </div>
   );
 }

@@ -26,7 +26,7 @@ const INITIAL_STATE: VoiceState = {
 export function VoiceProvider({ children }: { children: ReactNode }) {
   const [voiceState, setVoiceState] = useState<VoiceState>(INITIAL_STATE);
   const [pendingFieldValue, setPendingFieldValue] = useState<{ field: string; value: string } | null>(null);
-  const pendingListeningRef = useRef<{ field: string; targetField: 'username' | 'password' | 'confirm' | 'search' | 'amount' | 'navigate' | null; command: VoiceCommand } | null>(null);
+  const pendingListeningRef = useRef<{ field: string; targetField: 'name' | 'username' | 'email' | 'phone' | 'password' | 'confirm' | 'search' | 'amount' | 'navigate' | null; command: VoiceCommand } | null>(null);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -60,7 +60,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     // If we have a pending listening state OR current mode is listening_for_value, capture the input
     const listeningField = pendingListeningRef.current?.targetField || (voiceState.mode === 'listening_for_value' ? voiceState.targetField : null);
     
-    if (listeningField && !['username', 'password', 'confirm', 'home', 'account', 'settings', 'transfer', 'search', 'navigate'].includes(command)) {
+    if (listeningField && !['name', 'username', 'email', 'phone', 'password', 'confirm', 'account', 'transfer', 'search', 'navigate'].includes(command)) {
       // This is a value input, not a command
       const value = transcript || commandText;
       console.log('[VOICE] 🎯 LISTENING MODE - Capturing value for field:', listeningField);
@@ -72,27 +72,19 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         console.log('[VOICE] 🔀 NAVIGATE target:', target);
         console.log('[VOICE] 📍 Current path:', context.currentPath);
         
-        if (target === 'settings') {
-          console.log('[VOICE] ✅ NAVIGATE → /settings');
-          router.push('/settings');
-        } else if (target === 'transfer') {
+        if (target === 'transfer') {
           console.log('[VOICE] ✅ NAVIGATE → /transfer');
           router.push('/transfer');
         } else if (target === 'account') {
           console.log('[VOICE] ✅ NAVIGATE → /account');
           router.push('/account');
-        } else if (target === 'home') {
-          if (context.isAuthPage) {
-            console.log('[VOICE] ✅ NAVIGATE → / (auth page detected)');
-            router.push('/');
-          } else {
-            console.log('[VOICE] ✅ NAVIGATE → /home (logged in)');
-            router.push('/home');
-          }
         } else if (target === 'history') {
           console.log('[VOICE] ✅ NAVIGATE → /history');
           router.push('/history');
-        } else {
+        } else if (target === 'dashboard') {
+          console.log('[VOICE] ✅ NAVIGATE → /dashboard')
+        }
+        else {
           console.log('[VOICE] ⚠️  Unknown navigate target: "' + target + '" (expected: settings, transfer, account, home, history)');
         }
       } else {
@@ -106,6 +98,18 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
 
     // Process commands
     switch (command) {
+      case 'name':
+        console.log('[VOICE] ✅ NAME command - Setting up listening mode');
+        pendingListeningRef.current = { field: 'name', targetField: 'name', command: 'name' };
+        setVoiceState({
+          mode: 'listening_for_value',
+          targetField: 'name',
+          lastCommand: 'name',
+          isListening: true,
+          transcript: '',
+        });
+        break;
+
       case 'username':
         console.log('[VOICE] ✅ USERNAME command - Setting up listening mode');
         pendingListeningRef.current = { field: 'username', targetField: 'username', command: 'username' };
@@ -113,6 +117,30 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
           mode: 'listening_for_value',
           targetField: 'username',
           lastCommand: 'username',
+          isListening: true,
+          transcript: '',
+        });
+        break;
+
+      case 'email':
+        console.log('[VOICE] ✅ EMAIL command - Setting up listening mode');
+        pendingListeningRef.current = { field: 'email', targetField: 'email', command: 'email' };
+        setVoiceState({
+          mode: 'listening_for_value',
+          targetField: 'email',
+          lastCommand: 'email',
+          isListening: true,
+          transcript: '',
+        });
+        break;
+
+      case 'phone':
+        console.log('[VOICE] ✅ PHONE command - Setting up listening mode');
+        pendingListeningRef.current = { field: 'phone', targetField: 'phone', command: 'phone' };
+        setVoiceState({
+          mode: 'listening_for_value',
+          targetField: 'phone',
+          lastCommand: 'phone',
           isListening: true,
           transcript: '',
         });
@@ -153,19 +181,6 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         }
         break;
 
-      case 'home':
-        console.log('[VOICE] ✅ HOME command');
-        if (context.isAuthPage) {
-          console.log('[VOICE] 🔀 Redirecting to / (auth page detected)');
-          router.push('/');
-        } else {
-          console.log('[VOICE] 🔀 Redirecting to /home');
-          router.push('/home');
-        }
-        setVoiceState(INITIAL_STATE);
-        pendingListeningRef.current = null;
-        break;
-
       case 'account':
         console.log('[VOICE] ✅ ACCOUNT command - Redirecting to /account');
         router.push('/account');
@@ -173,12 +188,6 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         pendingListeningRef.current = null;
         break;
 
-      case 'settings':
-        console.log('[VOICE] ✅ SETTINGS command - Redirecting to /settings');
-        router.push('/settings');
-        setVoiceState(INITIAL_STATE);
-        pendingListeningRef.current = null;
-        break;
 
       case 'transfer':
         if (context.isTransferDetailPage) {

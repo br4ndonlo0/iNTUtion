@@ -3,19 +3,23 @@ import bcrypt from "bcryptjs";
 import clientPromise from "@/lib/mongodb";
 
 type LoginPayload = {
-  email?: string;
+  identifier?: string;
+  username?: string;
+  phone?: string;
   password?: string;
 };
+
+const normalizePhone = (value: string) => value.replace(/(?!^\+)[^\d]/g, "");
 
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as LoginPayload;
-    const email = body.email?.trim();
+    const identifier = body.identifier?.trim() || body.username?.trim() || body.phone?.trim();
     const password = body.password;
 
-    if (!email || !password) {
+    if (!identifier || !password) {
       return NextResponse.json(
-        { success: false, message: "Email and password are required." },
+        { success: false, message: "Username or phone and password are required." },
         { status: 400 }
       );
     }
@@ -23,14 +27,20 @@ export async function POST(request: Request) {
     const client = await clientPromise;
     const db = client.db();
     const users = db.collection("users");
-    const emailLower = email.toLowerCase();
+    const identifierLower = identifier.toLowerCase();
+    const phoneNormalized = normalizePhone(identifier);
 
-    // Find user by email
-    const user = await users.findOne({ emailLower });
+    const orConditions: Record<string, string>[] = [{ usernameLower: identifierLower }];
+    if (phoneNormalized) {
+      orConditions.push({ phoneNormalized });
+    }
+
+    // Find user by username or phone
+    const user = await users.findOne({ $or: orConditions });
     
     if (!user) {
       return NextResponse.json(
-        { success: false, message: "Invalid email or password." },
+        { success: false, message: "Invalid username/phone or password." },
         { status: 401 }
       );
     }
@@ -40,7 +50,7 @@ export async function POST(request: Request) {
     
     if (!isPasswordValid) {
       return NextResponse.json(
-        { success: false, message: "Invalid email or password." },
+        { success: false, message: "Invalid username/phone or password." },
         { status: 401 }
       );
     }
@@ -52,6 +62,8 @@ export async function POST(request: Request) {
         user: {
           id: user._id.toString(),
           name: user.name,
+          username: user.username,
+          phone: user.phone,
           email: user.email,
         },
       },
