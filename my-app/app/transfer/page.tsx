@@ -91,6 +91,7 @@ export default function TransferPage() {
 
   // 2. THE SEARCH + DECIDE LOGIC
   const performAction = useCallback(async (phone: string, amt: string) => {
+    if (status !== 'idle' && status !== 'error') return;
     const normalized = phone.replace(/\D/g, "");
     if (!normalized) return;
 
@@ -136,6 +137,10 @@ export default function TransferPage() {
 
   // 3. VOICE LISTENER (Auto-Trigger)
 useEffect(() => {
+
+  if (status === 'searching' || status === 'transferring' || status === 'success') {
+      return;
+    }
     const safeState = voiceState as any;
     
     // 1. If no data, do nothing
