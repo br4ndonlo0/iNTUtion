@@ -1,20 +1,18 @@
-
 "use client";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import SilverTellerHub from "../components/SilverTellerHub";
-import { useState, useEffect, useEffect } from "react"; 
-// 2. Import the Context
+import { useState, useEffect } from "react";
 import { useVoice } from "@/context/VoiceContext";
-import { T } from "@/components/Translate";
 import { useHandleAiResponse } from "@/hooks/useHandleAiResponse";
+import { T } from "@/components/Translate";
 
 export default function TransferPage() {
   const router = useRouter();
 
-  
-  const { voiceState } = useVoice(); 
+  // 1. Get the voiceState (The "Truth" from the AI)
+  const { pendingFieldValue, clearPendingValue } = useVoice();
   
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -25,44 +23,42 @@ export default function TransferPage() {
     const checkSession = async () => {
       try {
         const res = await fetch('/api/auth/me');
-        
         if (res.ok) {
           const data = await res.json();
-          // Update localStorage with fresh data
           localStorage.setItem("user", JSON.stringify(data.user));
           setLoading(false);
         } else {
-          console.log('Session expired or invalid');
           localStorage.removeItem("user");
           router.push('/login');
         }
       } catch (error) {
-        console.error("Auth check failed", error);
         localStorage.removeItem("user");
         router.push('/login');
       }
     };
-
     checkSession();
   }, [router]);
 
-  // 4. LISTEN FOR AI UPDATES
-  // When the AI resolves "Ah Boy" to "84817223", this runs instantly.
+  // 3. LISTEN FOR AI UPDATES
+  // When AI resolves "Ah Boy" -> "84817223", this runs automatically
   useEffect(() => {
-    if (voiceState.recipient) {
-      setPhoneNumber(voiceState.recipient);
+    console.log("[Transfer Page] 📣 pendingFieldValue update:", pendingFieldValue);
+    if (pendingFieldValue && pendingFieldValue.field === 'recipient') {
+      console.log("[Transfer Page] Auto-filling recipient:", pendingFieldValue.value);
+      setPhoneNumber(pendingFieldValue.value);
+      clearPendingValue(); // Clear the pending value after using it
     }
-  }, [voiceState.recipient]);
+  }, [pendingFieldValue, clearPendingValue]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     setSearchError(null);
 
     const normalized = phoneNumber.replace(/\D/g, "");
-    if (normalized.length !== 8) {
-      setSearchError("Phone number must be exactly 8 digits.");
-      return;
-    }
+    // if (normalized.length !== 8) {
+    //   setSearchError("Phone number must be exactly 8 digits.");
+    //   return;
+    // }
 
     const selfId = (() => {
       try {
@@ -98,7 +94,7 @@ export default function TransferPage() {
 
       if (selfId && data.user.id === selfId) {
         setSearchError("You can’t transfer to your own account.");
-        return;
+          return;
       }
 
       router.push(`/transfer/${encodeURIComponent(data.user.id)}`);
@@ -174,7 +170,9 @@ export default function TransferPage() {
           </p>
         </form>
       </main>
-      <SilverTellerHub screenName="Transfer" onAiAction={handleAiResponse}/>
-    </div>
+<SilverTellerHub 
+        screenName="Transfer" 
+        onAiAction={handleAiResponse} 
+      />    </div>
   );
 }
