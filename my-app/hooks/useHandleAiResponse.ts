@@ -90,7 +90,8 @@ case 'FILL_FORM':
           }
 
           // --- 2. HANDLE AMOUNT ---
-          if (action.amount !== undefined) {
+          if (action.amount !== undefined && action.recipient !== undefined) {
+            setFieldValue('phoneNumber', action.recipient.toString());
             console.log(`[AI RESPONSE] 💸 Setting Amount: ${action.amount}`);
             setFieldValue('amount', action.amount.toString());
           }
