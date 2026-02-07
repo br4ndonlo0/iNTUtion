@@ -1,4 +1,4 @@
-# 🏦 Bank Buddy - Inclusive Financial Management for Everyone
+# Bank Buddy - Inclusive Financial Management for Everyone
 
 ![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?style=flat-square)
 ![React](https://img.shields.io/badge/React-19-blue?style=flat-square)
@@ -6,22 +6,22 @@
 ![MongoDB](https://img.shields.io/badge/MongoDB-Latest-green?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
-## 🌟 Overview
+## Overview
 
 **Bank Buddy** is a revolutionary, accessible financial management application designed with **inclusivity at its core**. We recognize that traditional banking interfaces exclude millions of users with visual, hearing, mobility, and cognitive disabilities. Bank Buddy changes that.
 
 Built from the ground up with accessibility and internationalization as first-class citizens, Bank Buddy enables secure money transfers, account management, and financial tracking through:
 
-- 🗣️ **Voice-First Interfaces** - Complete voice control for navigation and transactions
-- 🖐️ **Hand Gesture Recognition** - Control the app with hand movements
-- 🌍 **13 Languages** - Full multi-language support with real-time translation
-- 🔒 **Bank-Grade Security** - JWT authentication, encrypted passwords, secure transfers
-- ♿ **WCAG 2.1 AA Compliance Target** - Designed for accessibility from day one
-- 📱 **Responsive Design** - Works seamlessly on desktop, tablet, and mobile
+- **Voice-First Interfaces** - Complete voice control for navigation and transactions
+- **Hand Gesture Recognition** - Control the app with hand movements
+- **13 Languages** - Full multi-language support with real-time translation
+- **Bank-Grade Security** - JWT authentication, encrypted passwords, secure transfers
+- **WCAG 2.1 AA Compliance Target** - Designed for accessibility from day one
+- **Responsive Design** - Works seamlessly on desktop, tablet, and mobile
 
 ---
 
-## 🎯 The Problem We're Solving
+## The Problem We're Solving
 
 Over **1 billion people globally** live with some form of disability. Yet most fintech applications are built without considering their needs. Bank Buddy exists to prove that inclusive design isn't optional—it's essential.
 
@@ -32,36 +32,36 @@ Over **1 billion people globally** live with some form of disability. Yet most f
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 💰 Secure Money Transfers
+### Secure Money Transfers
 - **Real-time peer-to-peer transfers** between registered users
 - **Transaction history** with detailed sender/recipient information
 - **Atomic operations** ensuring data integrity
 - **Instant balance updates** with live confirmation
 
-### 🔐 Enterprise-Grade Security
+### Enterprise-Grade Security
 - **JWT-based authentication** with httpOnly cookies
 - **Password encryption** using bcryptjs with 10-round salting
 - **Route protection** with middleware authentication
 - **Session validation** on every sensitive operation
 - **Default access denial** - only authenticated users can access pages
 
-### 🌐 Real-Time Multi-Language Support
+### Real-Time Multi-Language Support
 - **13 supported languages**: English, Spanish, French, German, Italian, Portuguese, Russian, Japanese, Chinese, Arabic, Hindi, Korean, Malay
 - **Dynamic translation** powered by MyMemory API
 - **Intelligent caching** to minimize API calls
 - **Locale-aware date formatting** using Intl API
 - **Seamless language switching** without page refresh
 
-### ♿ Accessibility Features
+### Accessibility Features
 - **Voice control** for hands-free operation
 - **Hand gesture recognition** for users with mobility impairments
 - **High contrast mode** for users with low vision
 - **Screen reader optimization** with proper ARIA labels
 - **Keyboard navigation** throughout the entire application
 
-### 📊 Dashboard & Analytics
+### Dashboard & Analytics
 - **Account balance display** with visual hierarchy
 - **Recent transactions widget** showing last 5 transfers
 - **Quick action buttons** for common operations
@@ -70,7 +70,7 @@ Over **1 billion people globally** live with some form of disability. Yet most f
 
 ---
 
-## 🛠️ Technical Stack
+## Technical Stack
 
 ### Frontend
 - **Framework**: Next.js 16.1.6 with React 19
@@ -88,7 +88,7 @@ Over **1 billion people globally** live with some form of disability. Yet most f
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Node.js 18.17+
@@ -125,7 +125,7 @@ npm start
 
 ---
 
-## 📚 API Endpoints
+## API Endpoints
 
 ### Authentication
 - **POST** `/api/auth/register` - Create new account
@@ -143,29 +143,29 @@ npm start
 
 ---
 
-## 🔐 Security Architecture
+## Security Architecture
 
 **Authentication & Authorization:**
-- ✅ JWT-based stateless authentication
-- ✅ HttpOnly cookies immune to XSS attacks
-- ✅ CORS protection and rate limiting
-- ✅ Session invalidation on logout
+- JWT-based stateless authentication
+- HttpOnly cookies immune to XSS attacks
+- CORS protection and rate limiting
+- Session invalidation on logout
 
 **Data Protection:**
-- ✅ bcryptjs 10-round salt hashing for passwords
-- ✅ All data encrypted in transit (HTTPS/TLS)
-- ✅ Input validation on frontend and backend
-- ✅ Parameterized queries prevent NoSQL injection
+- bcryptjs 10-round salt hashing for passwords
+- All data encrypted in transit (HTTPS/TLS)
+- Input validation on frontend and backend
+- Parameterized queries prevent NoSQL injection
 
 **Database Security:**
-- ✅ MongoDB atomic transactions ensure consistency
-- ✅ Users only see their own data
-- ✅ All transactions logged with timestamps
-- ✅ Regular automated backups
+- MongoDB atomic transactions ensure consistency
+- Users only see their own data
+- All transactions logged with timestamps
+- Regular automated backups
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 iNTUtion/
@@ -199,27 +199,27 @@ iNTUtion/
 
 ---
 
-## 🌐 Supported Languages
+## Supported Languages
 
 | Language | Code | Status |
 |----------|------|--------|
-| English | en | ✅ Native |
-| Spanish | es | ✅ Supported |
-| French | fr | ✅ Supported |
-| German | de | ✅ Supported |
-| Italian | it | ✅ Supported |
-| Portuguese | pt | ✅ Supported |
-| Russian | ru | ✅ Supported |
-| Japanese | ja | ✅ Supported |
-| Chinese | zh | ✅ Supported |
-| Arabic | ar | ✅ Supported |
-| Hindi | hi | ✅ Supported |
-| Korean | ko | ✅ Supported |
-| Malay | ms | ✅ Supported |
+| English | en | Native |
+| Spanish | es | Supported |
+| French | fr | Supported |
+| German | de | Supported |
+| Italian | it | Supported |
+| Portuguese | pt | Supported |
+| Russian | ru | Supported |
+| Japanese | ja | Supported |
+| Chinese | zh | Supported |
+| Arabic | ar | Supported |
+| Hindi | hi | Supported |
+| Korean | ko | Supported |
+| Malay | ms | Supported |
 
 ---
 
-## 📊 Performance Metrics
+## Performance Metrics
 
 - **Page Load Time**: < 2 seconds (Lighthouse)
 - **First Contentful Paint**: < 1 second
@@ -229,25 +229,25 @@ iNTUtion/
 
 ---
 
-## 🧪 Quality Assurance
+## Quality Assurance
 
 ### Test Coverage
-- ✅ Unit tests for utility functions
-- ✅ Integration tests for API endpoints
-- ✅ Authentication flow testing
-- ✅ Transaction atomicity verification
-- ✅ Accessibility compliance checks
+- Unit tests for utility functions
+- Integration tests for API endpoints
+- Authentication flow testing
+- Transaction atomicity verification
+- Accessibility compliance checks
 
 ### Browser Support
-- ✅ Chrome 90+
-- ✅ Firefox 88+
-- ✅ Safari 14+
-- ✅ Edge 90+
-- ✅ Mobile browsers (iOS Safari 14+, Chrome Mobile)
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+- Mobile browsers (iOS Safari 14+, Chrome Mobile)
 
 ---
 
-## 🎓 Design Philosophy
+## Design Philosophy
 
 1. **Accessibility First** - WCAG 2.1 AA compliance from the start, not bolted-on
 2. **Global from Day One** - 13 languages with real-time translation
@@ -257,7 +257,7 @@ iNTUtion/
 
 ---
 
-## 🚦 Future Roadmap
+## Future Roadmap
 
 ### Phase 2 (Q2 2026)
 - [ ] Native mobile apps (iOS/Android)
@@ -282,7 +282,7 @@ iNTUtion/
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Help us build inclusive financial technology.
 
@@ -301,30 +301,30 @@ We welcome contributions! Help us build inclusive financial technology.
 
 ---
 
-## 📊 Impact Metrics
+## Impact Metrics
 
 ### Accessibility
-- ✅ Keyboard navigation: 100% of features
-- ✅ Screen reader compatible with ARIA labels
-- ✅ Voice control for all major functions
-- ✅ Hand gesture support for navigation
-- ✅ 13 languages with real-time translation
+- Keyboard navigation: 100% of features
+- Screen reader compatible with ARIA labels
+- Voice control for all major functions
+- Hand gesture support for navigation
+- 13 languages with real-time translation
 
 ### Performance
-- 📈 Lighthouse score: 90+
-- 📈 Page load: < 2 seconds
-- 📈 First Contentful Paint: < 1 second
-- 📈 API response time: < 200ms
+- Lighthouse score: 90+
+- Page load: < 2 seconds
+- First Contentful Paint: < 1 second
+- API response time: < 200ms
 
 ### Security
-- 🔒 Password hashing: bcryptjs 10-round
-- 🔒 Data encryption: TLS 1.3 in transit
-- 🔒 Authentication: JWT with expiration
-- 🔒 Zero security breaches on record
+- Password hashing: bcryptjs 10-round
+- Data encryption: TLS 1.3 in transit
+- Authentication: JWT with expiration
+- Zero security breaches on record
 
 ---
 
-## 📞 Support & Community
+## Support & Community
 
 ### Getting Help
 - **Documentation**: Check [IMPLEMENTATION_GUIDE.md](./my-app/IMPLEMENTATION_GUIDE.md)
@@ -334,15 +334,15 @@ We welcome contributions! Help us build inclusive financial technology.
 
 ---
 
-## 📄 License
+## License
 
 Bank Buddy is licensed under the MIT License. See [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-Built with ❤️ by developers who believe technology should be accessible to everyone.
+Built with care by developers who believe technology should be accessible to everyone.
 
 **Technologies:**
 - Next.js and React teams for the incredible framework
@@ -353,18 +353,18 @@ Built with ❤️ by developers who believe technology should be accessible to e
 
 ---
 
-## 🌟 Show Your Support
+## Show Your Support
 
 If Bank Buddy has helped you, please consider:
-- ⭐ Starring this repository
-- 🐛 Reporting bugs and issues
-- 💡 Suggesting new features
-- 📢 Sharing with others who could benefit
-- 🤝 Contributing improvements
+- Starring this repository
+- Reporting bugs and issues
+- Suggesting new features
+- Sharing with others who could benefit
+- Contributing improvements
 
 ---
 
-**Bank Buddy: Making finance accessible, one transaction at a time.** 🏦✨
+**Bank Buddy: Making finance accessible, one transaction at a time.**
 
 ---
 
