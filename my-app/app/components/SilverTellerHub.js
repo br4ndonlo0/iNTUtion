@@ -7,12 +7,21 @@ import { useHandleAiResponse } from "../../hooks/useHandleAiResponse";
 import { useVoice } from "@/context/VoiceContext";
 
 // 1. Accept 'screenName' so the AI knows context (e.g. "Transfer Page")
+/**
+ * @param {{
+ *   screenName?: string,
+ *   onAiAction?: any,
+ *   handleRegister?: any,
+ *   handleLogin?: any,
+ *   handleAgree?: any
+ * }} props
+ */
 export default function SilverTellerHub({
   screenName = "Home",
-  onAiAction,
-  handleRegister,
-  handleLogin,
-  handleAgree,
+  onAiAction = undefined,
+  handleRegister = undefined,
+  handleLogin = undefined,
+  handleAgree = undefined,
 }) {
   const [currentLang, setCurrentLang] = useState(SG_LANGUAGES.ENGLISH);
   const [lastAction, setLastAction] = useState("Waiting for input...");
